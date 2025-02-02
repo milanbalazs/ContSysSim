@@ -1,2 +1,6 @@
 [flake8]
 max-line-length = 100
+count = True
+# E203: Avoids warnings about whitespace before : (Black formatting is different).
+# W503: Prevents line break before a binary operator warning.
+ignore = E203, W503  # Ignore spacing and line break warnings

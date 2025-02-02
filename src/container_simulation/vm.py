@@ -5,12 +5,13 @@ Docker Swarm environment using SimPy. VMs host containers and manage resource al
 """
 
 import random
-import simpy
+from typing import Optional
+
 from container_simulation.computing_model import AbstractBaseModel
 from container_simulation.container import Container
-from typing import Optional
 from container_simulation.visualizations import Visualisations
 
+import simpy
 
 class InsufficientResourcesError(Exception):
     """Exception raised when a VM does not have enough resources to run its containers."""

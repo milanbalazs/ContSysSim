@@ -1,5 +1,6 @@
-import matplotlib.pyplot as plt
 from typing import TYPE_CHECKING
+
+import matplotlib.pyplot as plt
 
 # Avoid circular import issue
 if TYPE_CHECKING:  # Only imported for type hints

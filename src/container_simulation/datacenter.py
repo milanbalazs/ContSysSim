@@ -4,8 +4,9 @@ This module defines the DataCenter class, which represents a data center that
 manages multiple Virtual Machines (VMs) in a simulated Docker Swarm environment.
 """
 
-from container_simulation.vm import Vm
 from typing import Optional, List
+
+from container_simulation.vm import Vm
 from container_simulation.visualizations import Visualisations
 
 

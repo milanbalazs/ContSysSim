@@ -90,13 +90,17 @@ class WorkloadRequest:
 
     @staticmethod
     def current_unit_workload(unit_value: int | float, saturation: float) -> int | float:
-        """Calculates the dynamically saturated unit workload.
+        """Computes the fluctuated unit workload based on saturation percentage.
 
-        This method determines the current unit workload by applying a saturation
-        percentage, allowing the workload to fluctuate within a range.
+        This method applies a fluctuation percentage to a given resource unit,
+        allowing for randomized variations within a defined range.
+
+        Args:
+            unit_value (int | float): The base resource value.
+            saturation (float): The saturation percentage.
 
         Returns:
-            int: A randomly selected unit workload within the allowed range.
+            int | float: A randomly fluctuated resource workload value.
         """
 
         saturation_value: float = unit_value * (saturation / 100)
@@ -120,6 +124,18 @@ class WorkloadRequest:
 
     @staticmethod
     def current_unit_saturation(unit_value: int | float, saturation: float) -> int | float:
+        """Computes a random saturation effect on the given resource value.
+
+        This method generates a fluctuating value within the ±saturation% range of
+        the given resource unit.
+
+        Args:
+            unit_value (int | float): The base resource value.
+            saturation (float): The saturation percentage.
+
+        Returns:
+            int | float: A randomly computed saturation value.
+        """
         saturation_value: float = unit_value * (saturation / 100)
 
         if isinstance(unit_value, int):
@@ -149,6 +165,11 @@ class WorkloadRequest:
 
     @property
     def current_ram_saturation(self) -> int:
+        """Gets the fluctuation effect on RAM.
+
+        Returns:
+            int: The randomly generated RAM saturation value.
+        """
         return self.current_unit_saturation(self.ram, self.ram_saturation_percent)
 
     @property
@@ -166,6 +187,11 @@ class WorkloadRequest:
 
     @property
     def current_disk_saturation(self) -> int:
+        """Gets the fluctuation effect on Disk.
+
+        Returns:
+            int: The randomly generated Disk saturation value.
+        """
         return self.current_unit_saturation(self.disk, self.disk_saturation_percent)
 
     @property
@@ -184,6 +210,11 @@ class WorkloadRequest:
 
     @property
     def current_bw_saturation(self) -> int:
+        """Gets the fluctuation effect on Network Bandwidth.
+
+        Returns:
+            int: The randomly generated Bandwidth saturation value.
+        """
         return self.current_unit_saturation(self.bw, self.bw_saturation_percent)
 
     @property
@@ -202,6 +233,11 @@ class WorkloadRequest:
 
     @property
     def current_cpu_saturation(self) -> float:
+        """Gets the fluctuation effect on CPU.
+
+        Returns:
+            float: The randomly generated CPU saturation value.
+        """
         return self.current_unit_saturation(self.cpu, self.cpu_saturation_percent)
 
 

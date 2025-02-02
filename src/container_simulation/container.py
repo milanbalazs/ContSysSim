@@ -6,10 +6,12 @@ consume CPU and RAM resources and dynamically change their workload over time.
 """
 
 import random
-import simpy
+
 from container_simulation.computing_model import AbstractBaseModel
 from container_simulation.visualizations import Visualisations
 from container_simulation.workload_request import WorkloadRequest
+
+import simpy
 
 
 class Container(AbstractBaseModel):

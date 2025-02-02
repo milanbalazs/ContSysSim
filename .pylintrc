@@ -1,2 +1,9 @@
+[MASTER]
+fail-under=9.00  # Minimum acceptable score
+
 [FORMAT]
-max-line-length=100
+max-line-length=100  # Keep line length consistent
+
+[MESSAGES CONTROL]
+disable=
+    too-few-public-methods

@@ -5,8 +5,10 @@ environment using SimPy. It manages a DataCenter with Virtual Machines (VMs)
 and Containers, simulating their startup and workload behavior over time.
 """
 
-from container_simulation.datacenter import DataCenter
 from typing import Optional
+
+from container_simulation.datacenter import DataCenter
+
 import simpy
 
 

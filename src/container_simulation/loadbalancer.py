@@ -15,14 +15,14 @@ Example:
     >>> from container_simulation.workload_request import WorkloadRequest
     >>> from container_simulation.container import Container
     >>> from container_simulation.vm import Vm
-    >>> from container_simulation.load_balancer import FirstFitContainerLoadBalancer
+    >>> from container_simulation.load_balancer import FirstFitReservationContainerLoadBalancer
     >>> workload1 = WorkloadRequest(cpu=2.0, ram=1024, disk=10, bw=100, delay=1, duration=5,
                                     cpu_saturation_percent=10.0, ram_saturation_percent=5.0,
                                     disk_saturation_percent=1.5, bw_saturation_percent=0.5,
                                     priority=1, workload_type="User Request")
     >>> container1 = Container(env, "AppContainer1", cpu=4, ram=4096, disk=100, bw=1000)
     >>> container2 = Container(env, "AppContainer2", cpu=2, ram=2048, disk=50, bw=500)
-    >>> lb = FirstFitContainerLoadBalancer([workload1], [container1, container2])
+    >>> lb = FirstFitReservationContainerLoadBalancer([workload1], [container1, container2])
 
 Dependencies:
     - `container_simulation.vm.Vm`
@@ -291,14 +291,16 @@ class FirstFitReservationContainerLoadBalancer(FirstFitReservationComponentLoadB
         """
 
         # Track expected resource utilization over time
-        container_resource_forecast = {container: {} for container in self._containers}
+        container_resource_forecast: dict[Container, dict] = {
+            container: {} for container in self._containers
+        }
 
         for workload_req in self._workload_reqs:
-            assigned = False
+            assigned: bool = False
 
             for container in self._containers:
-                start_time = workload_req.delay
-                end_time = start_time + workload_req.duration
+                start_time: float = workload_req.delay
+                end_time: float = start_time + workload_req.duration
 
                 if self.can_accommodate_workload(
                     container, workload_req, start_time, end_time, container_resource_forecast

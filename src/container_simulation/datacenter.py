@@ -29,7 +29,8 @@ class DataCenter:
 
         Args:
             name (str, optional): The name of the data center. Defaults to an empty string.
-            vms (Optional[List[Vm]], optional): A list of VMs to initialize the data center. Defaults to None.
+            vms (Optional[List[Vm]], optional): A list of VMs to initialize the data center.
+                                                Defaults to None.
         """
         self._name: str = name
         self._vms: Optional[List[Vm]] = vms if vms else []
@@ -97,8 +98,9 @@ class DataCenter:
             - The left column shows CPU usage over time.
             - The right column shows RAM usage over time.
 
-        The visualization dynamically adjusts the window size based on the number of VMs while ensuring
-        that the figure remains readable. Interactive mode (`plt.ion()`) is enabled to keep the figure
+        The visualization dynamically adjusts the window size based on the number of VMs
+        while ensuring that the figure remains readable.
+        Interactive mode (`plt.ion()`) is enabled to keep the figure
         responsive, and `plt.show(block=True)` ensures that it pops up as expected.
 
         Raises:

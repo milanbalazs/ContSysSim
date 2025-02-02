@@ -16,7 +16,8 @@ class WorkloadRequest:
         cpu_saturation_percent (float): Variability in CPU usage (+/- percentage).
         ram_saturation_percent (float): Variability in RAM usage (+/- percentage).
         disk_saturation_percent (float): Variability in Disk usage (+/- percentage).
-        bw_saturation_percent (float): Variability in Network Bandwidth (Data Transfer) usage (+/- percentage).
+        bw_saturation_percent (float): Variability in Network Bandwidth (Data Transfer)
+                                       usage (+/- percentage).
         priority (int, optional): Priority level of the workload (higher = more important).
         workload_type (str, optional): Type of workload (e.g., "User Request", "Background Task").
     """
@@ -50,7 +51,8 @@ class WorkloadRequest:
             cpu_saturation_percent (float): Variability in CPU usage (+/- percentage).
             ram_saturation_percent (float): Variability in RAM usage (+/- percentage).
             disk_saturation_percent (float): Variability in Disk usage (+/- percentage).
-            bw_saturation_percent (float): Variability in Network Bandwidth (Data Transfer) usage (+/- percentage).
+            bw_saturation_percent (float): Variability in Network Bandwidth (Data Transfer)
+                                           usage (+/- percentage).
             priority (Optional[int], optional): Priority level of the workload. Defaults to None.
             workload_type (Optional[str], optional): Type of workload. Defaults to None.
         """
@@ -170,11 +172,12 @@ class WorkloadRequest:
     def current_bw_workload(self) -> int:
         """Calculates the dynamically saturated Network Bandwidth (Data Transfer) workload.
 
-        This method determines the current Network Bandwidth (Data Transfer) workload by applying a saturation
-        percentage, allowing the workload to fluctuate within a range.
+        This method determines the current Network Bandwidth (Data Transfer) workload by applying
+        a saturation percentage, allowing the workload to fluctuate within a range.
 
         Returns:
-            int: A randomly selected Network Bandwidth (Data Transfer) workload within the allowed range.
+            int: A randomly selected Network Bandwidth (Data Transfer)
+                 workload within the allowed range.
         """
 
         return self.current_unit_workload(self.bw, self.bw_saturation_percent)
@@ -191,7 +194,8 @@ class WorkloadRequest:
         percentage, allowing the workload to fluctuate within a range.
 
         Returns:
-            float: A randomly selected CPU workload within the allowed range, rounded to 2 decimal places.
+            float: A randomly selected CPU workload within the allowed range,
+                   rounded to 2 decimal places.
         """
 
         return self.current_unit_workload(self.cpu, self.cpu_saturation_percent)

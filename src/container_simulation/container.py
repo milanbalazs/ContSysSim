@@ -15,7 +15,8 @@ from container_simulation.workload_request import WorkloadRequest
 class Container(AbstractBaseModel):
     """Represents a container in a simulated environment.
 
-    A container runs inside a Virtual Machine (VM) and consumes CPU, RAM, Disk, and Bandwidth resources.
+    A container runs inside a Virtual Machine (VM) and consumes CPU, RAM, Disk,
+    and Bandwidth resources.
     It has a startup delay before becoming active and updates its workload dynamically.
 
     Attributes:
@@ -24,7 +25,8 @@ class Container(AbstractBaseModel):
         current_cpu_usage (float): The current CPU usage of the container.
         current_ram_usage (int): The current RAM usage of the container in MB.
         current_disk_usage (int): The current Disk usage of the container in MB.
-        current_bw_usage (int): The current Network Bandwidth (Data Transfer) usage of the container in Mbps.
+        current_bw_usage (int): The current Network Bandwidth (Data Transfer)
+                                usage of the container in Mbps.
         running (bool): Indicates whether the container is active.
         process (simpy.Process): The SimPy process that manages the container workload.
         cpu_usage_history (list[int]): Historical CPU usage data for visualization.
@@ -160,7 +162,8 @@ class Container(AbstractBaseModel):
     def run(self) -> simpy.events.Timeout:
         """SimPy process that updates workload every time unit.
 
-        Simulates dynamic resource consumption by adjusting CPU and RAM usage based on active workloads.
+        Simulates dynamic resource consumption by adjusting CPU and RAM usage based on
+        active workloads.
 
         Yields:
             simpy.events.Timeout: A SimPy event representing the workload update interval.
@@ -219,7 +222,8 @@ class Container(AbstractBaseModel):
 
                 print(
                     f"[{self.env.now}] Container '{self.name}' updated workload: "
-                    f"CPU {format(old_cpu_usage, '.2f')}/{format(self.cpu, '.2f')} --> {format(self.current_cpu_usage, '.2f')}/{format(self.cpu, '.2f')}, "
+                    f"CPU {format(old_cpu_usage, '.2f')}/{format(self.cpu, '.2f')} --> "
+                    f"{format(self.current_cpu_usage, '.2f')}/{format(self.cpu, '.2f')}, "
                     f"RAM {old_ram_usage}/{self.ram} --> {self.current_ram_usage}/{self.ram}, "
                     f"Disk {old_disk_usage}/{self.disk} --> {self.current_disk_usage}/{self.disk}, "
                     f"Disk {old_bw_usage}/{self.bw} --> {self.current_bw_usage}/{self.bw}"

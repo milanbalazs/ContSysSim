@@ -24,7 +24,8 @@ class AbstractBaseModel(ABC):
         _cpu_saturation_percent (float): Variability in CPU usage (+/- percentage).
         _ram_saturation_percent (float): Variability in RAM usage (+/- percentage).
         _disk_saturation_percent (float): Variability in Disk usage (+/- percentage).
-        _bw_saturation_percent (float): Variability in Network Bandwidth (Data Transfer) usage (+/- percentage).
+        _bw_saturation_percent (float): Variability in Network Bandwidth (Data Transfer)
+                                        usage (+/- percentage).
         _start_up_delay (float): The startup delay in seconds.
     """
 
@@ -53,7 +54,8 @@ class AbstractBaseModel(ABC):
             cpu_saturation_percent (float): Variability in CPU usage (+/- percentage).
             ram_saturation_percent (float): Variability in RAM usage (+/- percentage).
             disk_saturation_percent (float): Variability in Disk usage (+/- percentage).
-            bw_saturation_percent (float): Variability in Network Bandwidth (Data Transfer) usage (+/- percentage).
+            bw_saturation_percent (float): Variability in Network Bandwidth (Data Transfer)
+                                           usage (+/- percentage).
             start_up_delay (float, optional): The startup delay in seconds. Defaults to 0.5.
         """
         self._name: str = name

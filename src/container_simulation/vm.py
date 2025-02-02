@@ -44,7 +44,8 @@ class Vm(AbstractBaseModel):
         available_cpu_history (list[float]): Historical available CPU data for visualization.
         available_ram_history (list[int]): Historical available RAM data for visualization.
         available_disk_history (list[int]): Historical available Disk data for visualization.
-        available_bw_history (list[int]): Historical available Network Bandwidth data for visualization.
+        available_bw_history (list[int]): Historical available Network Bandwidth data
+                                          for visualization.
         time_history (list[int]): Timestamps for visualization.
     """
 
@@ -74,12 +75,18 @@ class Vm(AbstractBaseModel):
             ram (int): The total RAM capacity of the VM in MB.
             disk (int): The total Disk capacity of the VM in MB.
             bw (int): The total Network Bandwidth (Data Transfer) capacity of the VM in Mbps.
-            start_up_delay (float, optional): The time required for the VM to start. Defaults to 0.5.
-            containers (Optional[list[Container]], optional): List of containers assigned to the VM. Defaults to None.
-            cpu_saturation_percent (float, optional): CPU saturation percentage. Defaults to 0.0.
-            ram_saturation_percent (float, optional): RAM saturation percentage. Defaults to 0.0.
-            disk_saturation_percent (float, optional): Disk saturation percentage. Defaults to 0.0.
-            bw_saturation_percent (float, optional): Bandwidth saturation percentage. Defaults to 0.0.
+            start_up_delay (float, optional): The time required for the VM to start.
+                                              Default to 0.5.
+            containers (Optional[list[Container]], optional): List of containers assigned to the VM.
+                                                              Default to None.
+            cpu_saturation_percent (float, optional): CPU saturation percentage.
+                                                      Default to 0.0.
+            ram_saturation_percent (float, optional): RAM saturation percentage.
+                                                      Default to 0.0.
+            disk_saturation_percent (float, optional): Disk saturation percentage.
+                                                       Default to 0.0.
+            bw_saturation_percent (float, optional): Bandwidth saturation percentage.
+                                                     Default to 0.0.
         """
         super().__init__(
             name,
@@ -205,22 +212,26 @@ class Vm(AbstractBaseModel):
 
         if total_cpu_usage > self.available_cpu:
             raise InsufficientResourcesError(
-                f"[{self.env.now}] VM '{self.name}' OUT OF CPU: Required {total_cpu_usage}, Available {self.available_cpu}"
+                f"[{self.env.now}] VM '{self.name}' OUT OF CPU: "
+                f"Required {total_cpu_usage}, Available {self.available_cpu}"
             )
 
         if total_ram_usage > self.available_ram:
             raise InsufficientResourcesError(
-                f"[{self.env.now}] VM '{self.name}' OUT OF RAM: Required {total_ram_usage}, Available {self.available_ram}"
+                f"[{self.env.now}] VM '{self.name}' OUT OF RAM: "
+                f"Required {total_ram_usage}, Available {self.available_ram}"
             )
 
         if total_disk_usage > self.available_disk:
             raise InsufficientResourcesError(
-                f"[{self.env.now}] VM '{self.name}' OUT OF Disk: Required {total_disk_usage}, Available {self.available_disk}"
+                f"[{self.env.now}] VM '{self.name}' OUT OF Disk: "
+                f"Required {total_disk_usage}, Available {self.available_disk}"
             )
 
         if total_bw_usage > self.available_bw:
             raise InsufficientResourcesError(
-                f"[{self.env.now}] VM '{self.name}' OUT OF Network Bandwidth (Data Transfer): Required {total_bw_usage}, Available {self.available_bw}"
+                f"[{self.env.now}] VM '{self.name}' OUT OF Network Bandwidth (Data Transfer): "
+                f"Required {total_bw_usage}, Available {self.available_bw}"
             )
 
     def stop(self) -> None:
@@ -333,7 +344,8 @@ class Vm(AbstractBaseModel):
 
     @property
     def available_bw(self) -> int:
-        """Calculates available Network Bandwidth (Data Transfer) dynamically based on container usage.
+        """
+        Calculates available Network Bandwidth (Data Transfer) dynamically based on container usage.
 
         Returns:
             int: The amount of Network Bandwidth (Data Transfer) available in the VM.

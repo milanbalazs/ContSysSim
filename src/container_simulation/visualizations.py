@@ -1,3 +1,37 @@
+"""Visualization Module.
+
+This module provides the `Visualisations` class, which is responsible for generating
+various plots to visualize resource utilization (CPU, RAM, Disk, and Bandwidth) of
+containers, virtual machines (VMs), and data centers in a simulated Docker Swarm
+environment using SimPy.
+
+The class offers multiple static methods to generate time-series plots showing the
+historical usage of resources, allowing for better monitoring and analysis of
+containerized workloads.
+
+Classes:
+    Visualisations: Handles visualization of CPU, RAM, Disk, and Bandwidth usage
+                    for containers, VMs, and data centers.
+
+Example:
+    >>> from container_simulation.visualizations import Visualisations
+    >>> from container_simulation.container import Container
+    >>> import simpy
+    >>> env = simpy.Environment()
+    >>> container = Container(env, "AppContainer", cpu=2, ram=1024, disk=2048, bw=100)
+    >>> container.visualizations.visualize_container_usage(container)
+
+Dependencies:
+    - `matplotlib.pyplot` for visualization.
+    - `simpy` for simulation environment (indirectly required).
+    - `container_simulation.container`, `container_simulation.vm`, and
+      `container_simulation.datacenter` for type hints.
+
+Notes:
+    - The class only contains static methods, so no instance is required.
+    - If no containers or VMs are available for visualization, exceptions are raised.
+"""
+
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt

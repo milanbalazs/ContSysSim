@@ -272,3 +272,46 @@ class Container(AbstractBaseModel):
         statistics for analysis.
         """
         self.visualisations.visualize_container_usage(self)
+
+    @property
+    def available_bw(self) -> int:
+        """
+        Calculates available Network Bandwidth (Data Transfer) dynamically based on container usage.
+
+        Returns:
+            int: The amount of Network Bandwidth (Data Transfer) available in the VM.
+        """
+
+        return max(0, self.bw - self.current_bw_usage)
+
+    @property
+    def available_cpu(self) -> float:
+        """Calculates available CPU dynamically based on container usage.
+
+        Returns:
+            float: The number of free CPU cores available in the VM.
+        """
+
+        return max(
+            0.0,
+            self.cpu - self.current_cpu_usage,
+        )
+
+    @property
+    def available_ram(self) -> int:
+        """Calculates available RAM dynamically based on container usage.
+
+        Returns:
+            int: The amount of free RAM available in the VM.
+        """
+
+        return max(0, self.ram - self.current_ram_usage)
+
+    @property
+    def available_disk(self) -> int:
+        """Calculates available Disk dynamically based on container usage.
+
+        Returns:
+            int: The amount of free Disk available in the VM.
+        """
+        return max(0, self.disk - self.current_disk_usage)

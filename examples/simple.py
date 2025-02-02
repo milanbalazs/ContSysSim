@@ -19,8 +19,8 @@ from container_simulation.utils import gb_to_mb
 from container_simulation.simulation import Simulation
 
 
-class MultiNodeSimulation:
-    """Simulates a multi-node environment with VMs and containers.
+class SingleNodeSimulation:
+    """Simulates a single-node environment with VMs and containers.
 
     This class initializes:
     - A **single manager node (VM)**.
@@ -106,28 +106,28 @@ class MultiNodeSimulation:
 
 if __name__ == "__main__":
     # Run the simulation instance
-    simulation = MultiNodeSimulation()
+    single_node_simulation = SingleNodeSimulation()
 
     # Print a summary of resources
-    simulation.simulation.print_info()
+    single_node_simulation.simulation.print_info()
 
     # Uncomment the following lines to visualize the simulation results:
 
     # Visualize the resource usage of the first container
-    simulation.datacenter.vms[0].containers[0].visualize_usage()
+    single_node_simulation.datacenter.vms[0].containers[0].visualize_usage()
 
     # Visualize the resource usage of the VM
-    # simulation.datacenter.vms[0].visualize_usage()
+    # single_node_simulation.datacenter.vms[0].visualize_usage()
 
     # Visualize all containers running on the VM
-    # simulation.datacenter.vms[0].visualize_all_containers()
+    # single_node_simulation.datacenter.vms[0].visualize_all_containers()
 
     # Visualize all VMs in the data center
-    # simulation.datacenter.visualize_all_vms()
+    # single_node_simulation.datacenter.visualize_all_vms()
 
     """
     # Loop through each VM and visualize its usage along with its containers.
-    for vm in simulation.datacenter.vms:
+    for vm in single_node_simulation.datacenter.vms:
         vm.visualize_usage()
         for container in vm.containers:
             container.visualize_usage()

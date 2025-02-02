@@ -4,6 +4,7 @@ This module provides helper functions for common unit conversions used in
 the container simulation framework.
 """
 
+
 def gb_to_mb(gb: float) -> int:
     """Converts gigabytes (GB) to megabytes (MB).
 

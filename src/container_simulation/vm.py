@@ -13,6 +13,7 @@ from container_simulation.visualizations import Visualisations
 
 import simpy
 
+
 class InsufficientResourcesError(Exception):
     """Exception raised when a VM does not have enough resources to run its containers."""
 

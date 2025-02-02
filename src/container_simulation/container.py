@@ -11,6 +11,7 @@ from container_simulation.computing_model import AbstractBaseModel
 from container_simulation.visualizations import Visualisations
 from container_simulation.workload_request import WorkloadRequest
 
+
 class Container(AbstractBaseModel):
     """Represents a container in a simulated environment.
 
@@ -50,7 +51,18 @@ class Container(AbstractBaseModel):
         bw_saturation_percent: float = 0.0,
     ) -> None:
         """Initializes a Container instance."""
-        super().__init__(name, cpu, ram, disk, bw, start_up_delay, cpu_saturation_percent, ram_saturation_percent, disk_saturation_percent, bw_saturation_percent)
+        super().__init__(
+            name,
+            cpu,
+            ram,
+            disk,
+            bw,
+            start_up_delay,
+            cpu_saturation_percent,
+            ram_saturation_percent,
+            disk_saturation_percent,
+            bw_saturation_percent,
+        )
         self.env: simpy.Environment = env
         self.id: int = Container._id
         Container._id += 1
@@ -103,14 +115,22 @@ class Container(AbstractBaseModel):
             - Disk Usage (± `disk_saturation_percent`% of `disk`)
             - Bandwidth Usage (± `bw_saturation_percent`% of `bw`)
         """
-        self.current_cpu_usage += random.uniform(-self.cpu * (self.cpu_saturation_percent / 100),
-                                                 self.cpu * (self.cpu_saturation_percent / 100))
-        self.current_ram_usage += random.randint(-int(self.ram * (self.ram_saturation_percent / 100)),
-                                                 int(self.ram * (self.ram_saturation_percent / 100)))
-        self.current_disk_usage += random.randint(-int(self.disk * (self.disk_saturation_percent / 100)),
-                                                  int(self.disk * (self.disk_saturation_percent / 100)))
-        self.current_bw_usage += random.randint(-int(self.bw * (self.bw_saturation_percent / 100)),
-                                                int(self.bw * (self.bw_saturation_percent / 100)))
+        self.current_cpu_usage += random.uniform(
+            -self.cpu * (self.cpu_saturation_percent / 100),
+            self.cpu * (self.cpu_saturation_percent / 100),
+        )
+        self.current_ram_usage += random.randint(
+            -int(self.ram * (self.ram_saturation_percent / 100)),
+            int(self.ram * (self.ram_saturation_percent / 100)),
+        )
+        self.current_disk_usage += random.randint(
+            -int(self.disk * (self.disk_saturation_percent / 100)),
+            int(self.disk * (self.disk_saturation_percent / 100)),
+        )
+        self.current_bw_usage += random.randint(
+            -int(self.bw * (self.bw_saturation_percent / 100)),
+            int(self.bw * (self.bw_saturation_percent / 100)),
+        )
 
     def prevent_resources(self) -> None:
         """Ensures resource values do not drop below zero.

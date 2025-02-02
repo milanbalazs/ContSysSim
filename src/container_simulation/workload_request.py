@@ -1,6 +1,7 @@
 from typing import Optional
 import random
 
+
 class WorkloadRequest:
     """Represents a task (workload) that consumes CPU and RAM within a container.
 
@@ -35,7 +36,7 @@ class WorkloadRequest:
         disk_saturation_percent: float,
         bw_saturation_percent: float,
         priority: Optional[int] = None,
-        workload_type: Optional[str] = None
+        workload_type: Optional[str] = None,
     ) -> None:
         """Initializes a WorkloadRequest.
 
@@ -121,10 +122,14 @@ class WorkloadRequest:
 
         if isinstance(unit_value, int):
             # Generate a random Unit usage within this range
-            saturation_of_unit: int = random.randint(int(0 - saturation_value), int(saturation_value))
+            saturation_of_unit: int = random.randint(
+                int(0 - saturation_value), int(saturation_value)
+            )
         else:
             # Generate a random Unit usage within this range
-            saturation_of_unit: float = random.uniform(float(0.0 - saturation_value), float(saturation_value))
+            saturation_of_unit: float = random.uniform(
+                float(0.0 - saturation_value), float(saturation_value)
+            )
 
         return saturation_of_unit
 
@@ -157,7 +162,6 @@ class WorkloadRequest:
 
         return self.current_unit_workload(self.disk, self.disk_saturation_percent)
 
-
     @property
     def current_disk_saturation(self) -> int:
         return self.current_unit_saturation(self.disk, self.disk_saturation_percent)
@@ -174,7 +178,6 @@ class WorkloadRequest:
         """
 
         return self.current_unit_workload(self.bw, self.bw_saturation_percent)
-
 
     @property
     def current_bw_saturation(self) -> int:
@@ -197,11 +200,21 @@ class WorkloadRequest:
     def current_cpu_saturation(self) -> float:
         return self.current_unit_saturation(self.cpu, self.cpu_saturation_percent)
 
+
 if __name__ == "__main__":
     task1 = WorkloadRequest(
-        cpu=2.5, ram=1024, disk=20480, bw=1, delay=1.0, duration=5.0,
-        cpu_saturation_percent=10.0, ram_saturation_percent=5.0, disk_saturation_percent=1.5, bw_saturation_percent=0.5,
-        priority=1, workload_type="User Request"
+        cpu=2.5,
+        ram=1024,
+        disk=20480,
+        bw=1,
+        delay=1.0,
+        duration=5.0,
+        cpu_saturation_percent=10.0,
+        ram_saturation_percent=5.0,
+        disk_saturation_percent=1.5,
+        bw_saturation_percent=0.5,
+        priority=1,
+        workload_type="User Request",
     )
 
     print(task1)

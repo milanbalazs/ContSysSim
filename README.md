@@ -10,6 +10,8 @@ This framework enables users to:
 - Apply **saturation effects** on resource consumption.
 - Simulate **workload requests** with different delay, duration, and priority.
 - **Monitor** and **visualize** CPU, RAM, Disk, and Bandwidth utilization.
+- **Use First-Fit Load Balancing** to allocate workloads efficiently.
+- **Enable or disable resource reservations** for smarter workload scheduling.
 
 ---
 
@@ -43,7 +45,7 @@ pip install -e .
 ## 🚀 **How to Use?**
 
 ### 1️⃣ **Run a Simple Simulation**
-A **basic simulation** with a **single VM** and **one container** can be executed using (The installed `container-simulation` module is needed):
+A **basic simulation** with a **single VM** and **one container** can be executed using:
 ```bash
 python examples/simple.py
 ```
@@ -54,7 +56,22 @@ For a **multi-node environment** with multiple VMs and containers:
 python examples/multi_node.py
 ```
 
-### 3️⃣ **View Simulation Results**
+### 3️⃣ **Enable or Disable Load Balancer Reservations**
+With the **First-Fit with Reservations Load Balancer**, users can **toggle workload reservations** using the `use_reservations` parameter:
+
+#### **✅ First-Fit with Reservations (Default)**
+> The scheduler considers workload start time and duration when assigning resources.
+```python
+simulation = LbSimulation(use_reservations=True)
+```
+
+#### **⚡ Classic First-Fit (No Reservations)**
+> The scheduler ignores workload timing and places them immediately if resources are available.
+```python
+simulation = LbSimulation(use_reservations=False)
+```
+
+### 4️⃣ **View Simulation Results**
 After running the simulation, you can visualize the resource usage (Please see the example codes):
 ```python
 simulation.datacenter.vms[0].containers[0].visualize_usage()
@@ -67,9 +84,10 @@ simulation.datacenter.visualize_all_vms()
 ## 🔍 **Project Structure**
 ```bash
 container-simulation/
-│── examples/                # Example scripts for running simulations
-│   ├── simple.py            # Single VM & Container simulation
-│   ├── multi_node.py        # Multi-VM and multi-container simulation
+│── examples/                                  # Example scripts for running simulations
+│   ├── simple.py                              # Single VM & Container simulation
+│   ├── multi_node.py                          # Multi-VM and multi-container simulation
+│   ├── first_fit_container_load_balancer.py   # First-fit Container LoadBalancer simulation
 │
 │── src/                     # Core simulation framework
 │   ├── simulation.py        # Main simulation logic
@@ -78,6 +96,7 @@ container-simulation/
 │   ├── container.py         # Container class
 │   ├── computing_model.py   # Base model for computing resources
 │   ├── workload_request.py  # Workload management & task execution
+│   ├── loadbalancer.py      # Load balancer implementation
 │   ├── utils.py             # Utility functions (e.g., unit conversion)
 │   ├── visualizations.py    # Graphs & charts for monitoring
 │
@@ -112,12 +131,19 @@ container-simulation/
   - **Duration** for which it runs.
   - **Saturation percentage** to simulate fluctuating demand.
 
-### 🔹 **4. Simulation Engine**
+### 🔹 **4. Load Balancer**
+- Implements **First-Fit with Reservations Scheduling** for efficient workload placement.
+- Uses the `use_reservations` parameter to **toggle between**:
+  - **Smart scheduling (default)** → Considers workload start time & duration.
+  - **Immediate scheduling** → Places workloads as soon as resources are available.
+- Prevents **resource overload** by rejecting excessive workloads.
+
+### 🔹 **5. Simulation Engine**
 - Uses **SimPy** to manage event-driven execution.
 - Handles **VM startup delays**, **container execution**, and **monitoring**.
 - Runs the simulation for a fixed duration and logs resource usage.
 
-### 🔹 **5. Visualization**
+### 🔹 **6. Visualization**
 - Uses **Matplotlib** to plot **resource usage over time**.
 - Tracks and displays:
   - CPU, RAM, Disk, and Bandwidth consumption.
@@ -158,19 +184,8 @@ Want to contribute? Follow these steps:
 - Ensure you've activated the **virtual environment** (`source simulation_venv/bin/activate`).
 - Reinstall the package: `pip install -e .`
 
-**Q: "Cannot create virtual environment"**
-- Check if `python3-venv` is installed: `sudo apt install python3-venv`
-
 **Q: "Simulation hangs indefinitely"**
 - Ensure you set an appropriate `simulation_time` in your script.
-
----
-
-## 🏆 **Why Use This?**
-✅ **Simulates realistic workloads** in a containerized environment.  
-✅ **Tracks real-time resource usage** for better performance tuning.  
-✅ **Easy to extend** with new workload types, VMs, and configurations.  
-✅ **Comprehensive visualization** to analyze system behavior.  
 
 ---
 
@@ -186,4 +201,3 @@ Special thanks to the **SimPy** and **Matplotlib** communities for their contrib
 
 🔗 **Author:** _Milan Balazs_  
 🔗 **GitHub Repo:** [Container Simulation Framework](https://github.com/milanbalazs/container-simulation)
-```

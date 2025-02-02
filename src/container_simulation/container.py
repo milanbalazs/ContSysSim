@@ -1,17 +1,40 @@
 """Container Module.
 
-This module defines the Container class, which represents a container running inside
-a Virtual Machine (VM) in a simulated Docker Swarm environment using SimPy. Containers
-consume CPU and RAM resources and dynamically change their workload over time.
+This module defines the `Container` class, which represents a container running inside
+a Virtual Machine (VM) in a simulated Docker Swarm environment using SimPy.
+
+Containers consume CPU, RAM, Disk, and Bandwidth resources while dynamically updating
+their workload over time. They may also experience resource fluctuations due to
+random saturation effects.
+
+Classes:
+    Container: Represents a container running in a VM with dynamic resource consumption.
+
+Example:
+    Creating a container and assigning a workload request:
+
+    >>> from container_simulation.container import Container
+    >>> from container_simulation.workload_request import WorkloadRequest
+    >>> import simpy
+    >>> env = simpy.Environment()
+    >>> container = Container(env, "MyContainer", cpu=2, ram=1024, disk=2048, bw=100)
+    >>> workload = WorkloadRequest(cpu=1.0, ram=512, disk=1024, bw=50, delay=2.0, duration=10.0,
+    ...                           cpu_saturation_percent=5.0, ram_saturation_percent=3.0,
+    ...                           disk_saturation_percent=2.0, bw_saturation_percent=4.0)
+    >>> container.add_workload_request(workload)
+    >>> env.run(until=15)
+
+Attributes:
+    _id (int): A class-level identifier counter for containers, ensuring unique IDs.
 """
 
 import random
 
+import simpy
+
 from container_simulation.computing_model import AbstractBaseModel
 from container_simulation.visualizations import Visualisations
 from container_simulation.workload_request import WorkloadRequest
-
-import simpy
 
 
 class Container(AbstractBaseModel):
@@ -36,6 +59,8 @@ class Container(AbstractBaseModel):
         disk_usage_history (list[int]): Historical Disk usage data for visualization.
         bw_usage_history (list[int]): Historical Bandwidth usage data for visualization.
         time_history (list[int]): Timestamps for visualization.
+        workload_requests (dict[int | float, list[WorkloadRequest]]): A dictionary
+            mapping the simulation time to a list of workload requests.
     """
 
     _id: int = 0  # Class-level identifier counter for containers
@@ -91,6 +116,11 @@ class Container(AbstractBaseModel):
         self.workload_requests: dict[int | float, list[WorkloadRequest]] = {}
 
     def add_workload_request(self, workload_request: WorkloadRequest):
+        """Adds a new workload request to the container.
+
+        Args:
+            workload_request (WorkloadRequest): The workload request to be added.
+        """
         if self.env.now in self.workload_requests:
             self.workload_requests[self.env.now].append(workload_request)
         else:
@@ -98,6 +128,8 @@ class Container(AbstractBaseModel):
 
     def start(self) -> simpy.events.Timeout:
         """Simulates the container startup process with a delay.
+
+        The container remains inactive until the startup delay is completed.
 
         Yields:
             simpy.events.Timeout: A SimPy event representing the startup delay.
@@ -234,5 +266,9 @@ class Container(AbstractBaseModel):
             yield self.env.timeout(1)  # Update workload every time unit
 
     def visualize_usage(self) -> None:
-        """Visualizes CPU and RAM usage over time using Matplotlib."""
+        """Visualizes CPU and RAM usage over time using Matplotlib.
+
+        This method uses the `Visualisations` class to plot historical usage
+        statistics for analysis.
+        """
         self.visualisations.visualize_container_usage(self)

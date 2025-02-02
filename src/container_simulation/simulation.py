@@ -7,9 +7,9 @@ and Containers, simulating their startup and workload behavior over time.
 
 from typing import Optional
 
-from container_simulation.datacenter import DataCenter
-
 import simpy
+
+from container_simulation.datacenter import DataCenter
 
 
 class Simulation:

@@ -24,7 +24,7 @@ class Visualisations:
         if num_containers == 0:
             raise ValueError(f"VM '{vm.name}' has no running containers to visualize.")
 
-        fig, axes = plt.subplots(nrows=num_containers, ncols=4, figsize=(18, 5 * num_containers))
+        _, axes = plt.subplots(nrows=num_containers, ncols=4, figsize=(18, 5 * num_containers))
 
         if num_containers == 1:
             axes = [axes]  # Ensure axes is iterable

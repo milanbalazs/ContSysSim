@@ -1,3 +1,39 @@
+"""Workload Request Module.
+
+This module defines the `WorkloadRequest` class, which represents a computing workload
+within a container in a simulated environment. Each workload request specifies its CPU, RAM,
+Disk, and Bandwidth requirements, along with a duration and optional priority.
+
+The class provides methods to dynamically compute resource fluctuations (saturation)
+based on predefined percentage variations, ensuring realistic workload behavior.
+
+Classes:
+    WorkloadRequest: Represents a task that consumes computing resources in a container.
+
+Example:
+    Creating a workload request with specific resource requirements:
+
+    >>> task = WorkloadRequest(
+    ...     cpu=2.5,
+    ...     ram=1024,
+    ...     disk=20480,
+    ...     bw=1,
+    ...     delay=1.0,
+    ...     duration=5.0,
+    ...     cpu_saturation_percent=10.0,
+    ...     ram_saturation_percent=5.0,
+    ...     disk_saturation_percent=1.5,
+    ...     bw_saturation_percent=0.5,
+    ...     priority=1,
+    ...     workload_type="User Request",
+    ... )
+    >>> print(task1)
+    WorkloadRequest(id=0, type=User Request, CPU=2.5, RAM=1024, DISK=20480, BW=1, ...)
+
+Attributes:
+    _id (int): A class-level identifier counter for workload requests, ensuring unique IDs.
+"""
+
 from typing import Optional
 import random
 

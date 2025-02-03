@@ -2,16 +2,16 @@ from setuptools import setup, find_packages
 
 setup(
     name="container_simulation",
-    version="1.0.0",  # Update versioning as needed
+    version="1.0.0",
     author="Milan Balazs",
-    author_email="milanbalazs@example.com",
+    author_email="milanbalazs@example.com",  # TODO: Fix it
     description=(
         "A SimPy-based Containerized environment (Eg.: Docker Swarm) "
         "simulation with VMs and Containers"
     ),
     long_description=open("README.md", "r", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/milanbalazs/docker_swarm_simulation",  # Update GitHub repo URL
+    url="https://github.com/milanbalazs/container-simulation",
     packages=find_packages(where="src"),  # Discover packages inside `src`
     package_dir={"": "src"},  # Define src as the package directory
     install_requires=[

@@ -5,10 +5,13 @@ setup(
     version="1.0.0",  # Update versioning as needed
     author="Milan Balazs",
     author_email="milanbalazs@example.com",
-    description="A SimPy-based Containerized environment (Eg.: Docker Swarm) simulation with VMs and Containers",
+    description=(
+        "A SimPy-based Containerized environment (Eg.: Docker Swarm) "
+        "simulation with VMs and Containers"
+    ),
     long_description=open("README.md", "r", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/docker_swarm_simulation",  # Update GitHub repo URL
+    url="https://github.com/milanbalazs/docker_swarm_simulation",  # Update GitHub repo URL
     packages=find_packages(where="src"),  # Discover packages inside `src`
     package_dir={"": "src"},  # Define src as the package directory
     install_requires=[
@@ -28,4 +31,5 @@ setup(
     #         "run_simulation=examples.multi_node:MultiNodeSimulation",
     #     ],
     # },
+    keywords="Container Containerized Docker Swarm SimPy Simulation",
 )

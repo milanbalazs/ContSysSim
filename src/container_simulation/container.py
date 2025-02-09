@@ -121,6 +121,19 @@ class Container(AbstractBaseModel):
         Args:
             workload_request (WorkloadRequest): The workload request to be added.
         """
+        # Check if the workload is already assigned
+        for workloads in self.workload_requests.values():
+            if workload_request in workloads:
+                print(
+                    f"[Cont] - Workload '{workload_request.id}' ({workload_request.workload_type}) "
+                    f"is already assigned to {self.name} Container, skipping."
+                )
+                return  # Skip duplicate assignment
+
+        print(
+            f"[Cont] - Assign '{workload_request.id}' ({workload_request.workload_type}) "
+            f"Workload to {self.name} Container"
+        )
         if self.env.now in self.workload_requests:
             self.workload_requests[self.env.now].append(workload_request)
         else:
@@ -203,6 +216,14 @@ class Container(AbstractBaseModel):
             simpy.events.Timeout: A SimPy event representing the workload update interval.
         """
         while True:
+            print(
+                f"[Container DEBUG] Time {self.env.now}: {self.name} Running: {self.running} - "
+                f"CPU={self.current_cpu_usage}/{self.cpu}, "
+                f"RAM={self.current_ram_usage}/{self.ram}, "
+                f"Disk={self.current_disk_usage}/{self.disk}, "
+                f"BW={self.current_bw_usage}/{self.bw}"
+            )
+
             if self.running:
                 old_cpu_usage: float = self.current_cpu_usage
                 old_ram_usage: int = self.current_ram_usage

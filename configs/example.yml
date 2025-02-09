@@ -1,0 +1,115 @@
+datacenter:
+  name: Datacenter-1
+  vms:
+    - name: VM-1
+      cpu: 16 # Total CPU cores
+      ram: 32768 # RAM in MB
+      disk: 40960 # Disk in MB
+      bandwidth: 20000 # Network bandwidth in Mbps
+      cpu_saturation_percent: 4.0
+      ram_saturation_percent: 9.0
+      disk_saturation_percent: 2.0
+      bandwidth_saturation_percent: 12.0
+      containers:
+        - name: Container-1
+          cpu: 4
+          ram: 2048
+          disk: 4096
+          bandwidth: 2000
+          cpu_saturation_percent: 2.0
+          ram_saturation_percent: 4.0
+          disk_saturation_percent: 1.0
+          bandwidth_saturation_percent: 3.0
+          workloads:
+            - cpu: 2.0
+              ram: 1024
+              disk: 2048
+              bandwidth: 800
+              delay: 5.0
+              duration: 10.0
+              cpu_saturation_percent: 5.0
+              ram_saturation_percent: 10.0
+              disk_saturation_percent: 2.0
+              bandwidth_saturation_percent: 6.0
+              priority: 2
+              type: Backend Job
+        - name: Container-2
+          cpu: 6
+          ram: 3072
+          disk: 8192
+          bandwidth: 5000
+          cpu_saturation_percent: 3.0
+          ram_saturation_percent: 5.0
+          disk_saturation_percent: 1.5
+          bandwidth_saturation_percent: 4.0
+          workloads:
+            - cpu: 3.0
+              ram: 2048
+              disk: 4096
+              bandwidth: 1000
+              delay: 0.0
+              duration: 15.0
+              cpu_saturation_percent: 7.0
+              ram_saturation_percent: 12.0
+              disk_saturation_percent: 3.0
+              bandwidth_saturation_percent: 8.0
+              priority: 1
+              type: Frontend Job
+
+    - name: VM-2
+      cpu: 32
+      ram: 65536
+      disk: 102400
+      bandwidth: 40000
+      cpu_saturation_percent: 5.0
+      ram_saturation_percent: 10.0
+      disk_saturation_percent: 3.0
+      bandwidth_saturation_percent: 20.0
+      containers:
+        - name: Container-3
+          cpu: 8
+          ram: 4096
+          disk: 8192
+          bandwidth: 8000
+          cpu_saturation_percent: 4.0
+          ram_saturation_percent: 6.0
+          disk_saturation_percent: 2.0
+          bandwidth_saturation_percent: 5.0
+          workloads: []
+
+load_balancer:
+  enabled: true
+  type: first-fit-with-reservations # Options: first-fit-with-reservations, classic-first-fit
+  reservation_enabled: true # Enable or disable reservations
+  # Not used yet.
+  strategy_parameters:
+    max_attempts: 3 # Maximum attempts for finding a container for workload placement
+    fallback_strategy: round-robin # Alternative strategy if primary fails
+  target_containers:
+    - Container-1
+    - Container-3
+  workloads:
+    - cpu: 1.0
+      ram: 512
+      disk: 1024
+      bandwidth: 500
+      delay: 3.0
+      duration: 8.0
+      cpu_saturation_percent: 5.0
+      ram_saturation_percent: 8.0
+      disk_saturation_percent: 1.5
+      bandwidth_saturation_percent: 4.5
+      priority: 1
+      type: API Request
+    - cpu: 2.0
+      ram: 1024
+      disk: 2048
+      bandwidth: 1000
+      delay: 1.0
+      duration: 12.0
+      cpu_saturation_percent: 7.0
+      ram_saturation_percent: 9.5
+      disk_saturation_percent: 3.0
+      bandwidth_saturation_percent: 6.0
+      priority: 2
+      type: Data Processing

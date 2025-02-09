@@ -306,13 +306,17 @@ class FirstFitReservationContainerLoadBalancer(FirstFitReservationComponentLoadB
                     container, workload_req, start_time, end_time, container_resource_forecast
                 ):
                     print(
-                        f"[LB] - {workload_req.workload_type} assigned to "
-                        f"{container.name} container."
+                        f"[LB] - {workload_req.id} ({workload_req.workload_type}) workload "
+                        f"assigned to {container.name} container."
                     )
-                    container.add_workload_request(workload_req)
+                    # Directly mark workload as "active" and handle forecast updates
                     self.update_forecast(
                         container, workload_req, start_time, end_time, container_resource_forecast
                     )
+                    # Explicitly attach the workload without triggering redundant logic
+                    if container.env.now not in container.workload_requests:
+                        container.workload_requests[container.env.now] = []
+                    container.workload_requests[container.env.now].append(workload_req)
                     assigned = True
                     break
 

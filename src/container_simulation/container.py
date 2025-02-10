@@ -206,6 +206,38 @@ class Container(AbstractBaseModel):
         self.bw_usage_history.append(self.current_bw_usage)
         self.time_history.append(self.env.now)
 
+    def stop(self) -> None:
+        """Gracefully stops the container and resets resource usage.
+
+        This method stops the container, deactivates all workloads, and resets
+        resource usage to ensure the container is in a clean state.
+        """
+        if not self.running:
+            print(f"[{self.env.now}] Container '{self.name}' is already stopped.")
+            return
+
+        self.running = False
+        print(f"[{self.env.now}] Container '{self.name}' is stopping gracefully.")
+
+        # Deactivate all active workloads
+        for workloads in self.workload_requests.values():
+            for workload in workloads:
+                if workload.active:
+                    print(f"[{self.env.now}] {workload.id} ({workload.workload_type}) is stopping.")
+                    self.current_cpu_usage -= workload.current_cpu_workload
+                    self.current_ram_usage -= workload.current_ram_workload
+                    self.current_disk_usage -= workload.current_disk_workload
+                    self.current_bw_usage -= workload.current_bw_workload
+                    workload.active = False
+
+        # Reset resource usage
+        self.current_cpu_usage = 0
+        self.current_ram_usage = 0
+        self.current_disk_usage = 0
+        self.current_bw_usage = 0
+
+        print(f"[{self.env.now}] Container '{self.name}' stopped. Resources reset.")
+
     def run(self) -> simpy.events.Timeout:
         """SimPy process that updates workload every time unit.
 
@@ -216,6 +248,9 @@ class Container(AbstractBaseModel):
             simpy.events.Timeout: A SimPy event representing the workload update interval.
         """
         while True:
+            if not self.running:
+                print(f"[{self.env.now}] - {self.name} Container is not running.")
+                yield self.env.timeout(1)
             print(
                 f"[Container DEBUG] Time {self.env.now}: {self.name} Running: {self.running} - "
                 f"CPU={self.current_cpu_usage}/{self.cpu}, "

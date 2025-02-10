@@ -1,3 +1,5 @@
+simulation:
+  duration: 15
 datacenter:
   name: Datacenter-1
   vms:
@@ -6,16 +8,19 @@ datacenter:
       ram: 32768 # RAM in MB
       disk: 40960 # Disk in MB
       bandwidth: 20000 # Network bandwidth in Mbps
+      start_up_delay: 0.1
       cpu_saturation_percent: 4.0
       ram_saturation_percent: 9.0
       disk_saturation_percent: 2.0
       bandwidth_saturation_percent: 12.0
+      stop_lack_of_resource: false
       containers:
         - name: Container-1
           cpu: 4
           ram: 2048
           disk: 4096
           bandwidth: 2000
+          start_up_delay: 0.2
           cpu_saturation_percent: 2.0
           ram_saturation_percent: 4.0
           disk_saturation_percent: 1.0
@@ -25,8 +30,8 @@ datacenter:
               ram: 1024
               disk: 2048
               bandwidth: 800
-              delay: 5.0
-              duration: 10.0
+              delay: 1.0
+              duration: 8.0
               cpu_saturation_percent: 5.0
               ram_saturation_percent: 10.0
               disk_saturation_percent: 2.0
@@ -38,6 +43,7 @@ datacenter:
           ram: 3072
           disk: 8192
           bandwidth: 5000
+          start_up_delay: 0.6
           cpu_saturation_percent: 3.0
           ram_saturation_percent: 5.0
           disk_saturation_percent: 1.5
@@ -47,8 +53,8 @@ datacenter:
               ram: 2048
               disk: 4096
               bandwidth: 1000
-              delay: 0.0
-              duration: 15.0
+              delay: 0.5
+              duration: 6.0
               cpu_saturation_percent: 7.0
               ram_saturation_percent: 12.0
               disk_saturation_percent: 3.0
@@ -61,16 +67,19 @@ datacenter:
       ram: 65536
       disk: 102400
       bandwidth: 40000
+      start_up_delay: 0.0
       cpu_saturation_percent: 5.0
       ram_saturation_percent: 10.0
       disk_saturation_percent: 3.0
       bandwidth_saturation_percent: 20.0
+      stop_lack_of_resource: false
       containers:
         - name: Container-3
           cpu: 8
           ram: 4096
           disk: 8192
           bandwidth: 8000
+          start_up_delay: 0.2
           cpu_saturation_percent: 4.0
           ram_saturation_percent: 6.0
           disk_saturation_percent: 2.0
@@ -94,7 +103,7 @@ load_balancer:
       disk: 1024
       bandwidth: 500
       delay: 3.0
-      duration: 8.0
+      duration: 4.0
       cpu_saturation_percent: 5.0
       ram_saturation_percent: 8.0
       disk_saturation_percent: 1.5
@@ -106,7 +115,7 @@ load_balancer:
       disk: 2048
       bandwidth: 1000
       delay: 1.0
-      duration: 12.0
+      duration: 5.0
       cpu_saturation_percent: 7.0
       ram_saturation_percent: 9.5
       disk_saturation_percent: 3.0

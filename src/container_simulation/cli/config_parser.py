@@ -30,6 +30,7 @@ class Container:
     ram: int
     disk: int
     bandwidth: int
+    start_up_delay: float
     cpu_saturation_percent: float
     ram_saturation_percent: float
     disk_saturation_percent: float
@@ -46,10 +47,12 @@ class VM:
     ram: int
     disk: int
     bandwidth: int
+    start_up_delay: float
     cpu_saturation_percent: float
     ram_saturation_percent: float
     disk_saturation_percent: float
     bandwidth_saturation_percent: float
+    stop_lack_of_resource: bool
     containers: List[Container] = field(default_factory=list)
 
 
@@ -77,6 +80,7 @@ class DataCenter:
 class SimulationConfig:
     """Root configuration for the simulation."""
 
+    duration: int
     datacenter: DataCenter
     load_balancer: Optional[LoadBalancer] = None
 
@@ -102,13 +106,14 @@ def parse_container(data: dict) -> Container:
     Returns:
         Container: The parsed Container object.
     """
-    workloads = [parse_workload(w) for w in data.get("workloads", [])]
+    workloads: list[Workload] = [parse_workload(w) for w in data.get("workloads", [])]
     return Container(
         name=data["name"],
         cpu=data["cpu"],
         ram=data["ram"],
         disk=data["disk"],
         bandwidth=data["bandwidth"],
+        start_up_delay=data["start_up_delay"],
         cpu_saturation_percent=data["cpu_saturation_percent"],
         ram_saturation_percent=data["ram_saturation_percent"],
         disk_saturation_percent=data["disk_saturation_percent"],
@@ -126,17 +131,19 @@ def parse_vm(data: dict) -> VM:
     Returns:
         VM: The parsed VM object.
     """
-    containers = [parse_container(c) for c in data.get("containers", [])]
+    containers: list[Container] = [parse_container(c) for c in data.get("containers", [])]
     return VM(
         name=data["name"],
         cpu=data["cpu"],
         ram=data["ram"],
         disk=data["disk"],
         bandwidth=data["bandwidth"],
+        start_up_delay=data["start_up_delay"],
         cpu_saturation_percent=data["cpu_saturation_percent"],
         ram_saturation_percent=data["ram_saturation_percent"],
         disk_saturation_percent=data["disk_saturation_percent"],
         bandwidth_saturation_percent=data["bandwidth_saturation_percent"],
+        stop_lack_of_resource=data["stop_lack_of_resource"],
         containers=containers,
     )
 
@@ -150,7 +157,7 @@ def parse_datacenter(data: dict) -> DataCenter:
     Returns:
         DataCenter: The parsed DataCenter object.
     """
-    vms = [parse_vm(vm) for vm in data.get("vms", [])]
+    vms: list[VM] = [parse_vm(vm) for vm in data.get("vms", [])]
     return DataCenter(name=data["name"], vms=vms)
 
 
@@ -163,7 +170,7 @@ def parse_load_balancer(data: dict) -> LoadBalancer:
     Returns:
         LoadBalancer: The parsed LoadBalancer object.
     """
-    workloads = [parse_workload(w) for w in data.get("workloads", [])]
+    workloads: list[Workload] = [parse_workload(w) for w in data.get("workloads", [])]
     return LoadBalancer(
         enabled=data["enabled"],
         type=data["type"],
@@ -172,6 +179,19 @@ def parse_load_balancer(data: dict) -> LoadBalancer:
         workloads=workloads,
         target_containers=data.get("target_containers", []),  # Parse target containers
     )
+
+
+def parse_simulation_fields(data: dict) -> dict:
+    """Parses a simulation related configuration from a dictionary.
+
+    Args:
+        data (dict): The dictionary containing simulation details.
+
+    Returns:
+        LoadBalancer: The parsed simulation related configs in dict.
+    """
+
+    return data["simulation"]
 
 
 def parse_simulation_config(config_path: str) -> SimulationConfig:
@@ -186,12 +206,15 @@ def parse_simulation_config(config_path: str) -> SimulationConfig:
     with open(config_path, "r") as file:
         config_data = yaml.safe_load(file)
 
-    datacenter = parse_datacenter(config_data["datacenter"])
-    load_balancer = None
+    datacenter: DataCenter = parse_datacenter(config_data["datacenter"])
+    load_balancer: Optional[LoadBalancer] = None
     if "load_balancer" in config_data:
         load_balancer = parse_load_balancer(config_data["load_balancer"])
+    simulations_fields: dict = parse_simulation_fields(config_data)
 
-    return SimulationConfig(datacenter=datacenter, load_balancer=load_balancer)
+    return SimulationConfig(
+        datacenter=datacenter, load_balancer=load_balancer, duration=simulations_fields["duration"]
+    )
 
 
 if __name__ == "__main__":

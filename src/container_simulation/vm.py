@@ -49,6 +49,7 @@ class Vm(AbstractBaseModel):
         available_bw_history (list[int]): Historical available Network Bandwidth data
                                           for visualization.
         time_history (list[int]): Timestamps for visualization.
+        stop_lack_of_resource (bool): Stop the VM if the resource is not enough.
     """
 
     _id: int = 0
@@ -67,6 +68,7 @@ class Vm(AbstractBaseModel):
         ram_saturation_percent: float = 0.0,
         disk_saturation_percent: float = 0.0,
         bw_saturation_percent: float = 0.0,
+        stop_lack_of_resource: bool = False,
     ) -> None:
         """Initializes a Virtual Machine (VM) with resource limits and optional saturation handling.
 
@@ -89,6 +91,9 @@ class Vm(AbstractBaseModel):
                                                        Default to 0.0.
             bw_saturation_percent (float, optional): Bandwidth saturation percentage.
                                                      Default to 0.0.
+            stop_lack_of_resource (bool, optional): If True the VM is stopped if the resource is
+                                                    not enough.
+                                                    Default: False
         """
         super().__init__(
             name,
@@ -122,6 +127,9 @@ class Vm(AbstractBaseModel):
 
         # Visualisations
         self.visualisations: Visualisations = Visualisations()
+
+        # Stop the VM is the resource is not enough
+        self.stop_lack_of_resource: bool = stop_lack_of_resource
 
     def add_base_saturation(self) -> None:
         """Applies random saturation fluctuations to the VM's available resources.
@@ -238,10 +246,13 @@ class Vm(AbstractBaseModel):
 
     def stop(self) -> None:
         """Stops the VM and shuts down all running containers."""
+        if not self.stop_lack_of_resource:
+            print(f"[{self.env.now}] VM '{self.name}' has not enough resource but it won't stop!.")
+            return
         self.running = False
         print(f"[{self.env.now}] VM '{self.name}' SHUTTING DOWN due to insufficient resources.")
-        for container in self._containers:
-            container.running = False  # Stop all containers
+        for container in self._containers:  # Stop all containers
+            container.stop()
             print(f"[{self.env.now}] Container '{container.name}' stopped.")
 
     def start(self) -> simpy.events.Timeout:
@@ -254,7 +265,7 @@ class Vm(AbstractBaseModel):
             self.check_resources()
         except InsufficientResourcesError as e:
             print(f"[{self.env.now}] ERROR: {e}")
-            return  # Stop VM startup if resources are insufficient
+            return  # Stop VM startup if resources are not enough
 
         yield self.env.timeout(self.start_up_delay)  # Simulate startup delay
         self.running = True

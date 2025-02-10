@@ -93,6 +93,7 @@ class SimulationRunner:
             ram=container_config.ram,
             disk=container_config.disk,
             bw=container_config.bandwidth,
+            start_up_delay=container_config.start_up_delay,
             cpu_saturation_percent=container_config.cpu_saturation_percent,
             ram_saturation_percent=container_config.ram_saturation_percent,
             disk_saturation_percent=container_config.disk_saturation_percent,
@@ -121,10 +122,12 @@ class SimulationRunner:
             ram=vm_config.ram,
             disk=vm_config.disk,
             bw=vm_config.bandwidth,
+            start_up_delay=vm_config.start_up_delay,
             cpu_saturation_percent=vm_config.cpu_saturation_percent,
             ram_saturation_percent=vm_config.ram_saturation_percent,
             disk_saturation_percent=vm_config.disk_saturation_percent,
             bw_saturation_percent=vm_config.bandwidth_saturation_percent,
+            stop_lack_of_resource=vm_config.stop_lack_of_resource,
         )
         vm.containers = containers
         return vm
@@ -167,7 +170,7 @@ class SimulationRunner:
             raise RuntimeError(
                 "Simulation environment is not set up. Call setup_simulation() first."
             )
-        self.simulation.run(self.datacenter)
+        self.simulation.run(self.datacenter, simulation_time=self.config.duration)
         self.simulation.print_info()
         print("\nVisualization Results:")
         # self.datacenter.visualize_all_vms()

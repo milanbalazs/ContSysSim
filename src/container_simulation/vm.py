@@ -6,6 +6,7 @@ Docker Swarm environment using SimPy. VMs host containers and manage resource al
 
 import random
 from typing import Optional
+from logging import Logger
 
 import simpy
 
@@ -50,6 +51,7 @@ class Vm(AbstractBaseModel):
                                           for visualization.
         time_history (list[int]): Timestamps for visualization.
         stop_lack_of_resource (bool): Stop the VM if the resource is not enough.
+        _logger (Optional[Logger]): Logger object.
     """
 
     _id: int = 0
@@ -69,6 +71,7 @@ class Vm(AbstractBaseModel):
         disk_saturation_percent: float = 0.0,
         bw_saturation_percent: float = 0.0,
         stop_lack_of_resource: bool = False,
+        logger: Optional[Logger] = None,
     ) -> None:
         """Initializes a Virtual Machine (VM) with resource limits and optional saturation handling.
 
@@ -94,6 +97,7 @@ class Vm(AbstractBaseModel):
             stop_lack_of_resource (bool, optional): If True the VM is stopped if the resource is
                                                     not enough.
                                                     Default: False
+            logger (Optional[Logger]): Logger object.
         """
         super().__init__(
             name,
@@ -112,6 +116,7 @@ class Vm(AbstractBaseModel):
         Vm._id += 1
         self._containers: list[Container] = containers if containers else []
         self.running: bool = False
+        self._logger = logger
         self.process: simpy.Process = env.process(self.run())
 
         # Data storage for visualization
@@ -200,7 +205,7 @@ class Vm(AbstractBaseModel):
         self.bw_usage_history.append(total_bw_usage)
         self.time_history.append(self.env.now)
 
-        print(
+        self._logger.debug(
             f"[{self.env.now}] VM '{self.name}' Status - "
             f"Containers: {len(self.containers)}, "
             f"CPU: {format(total_cpu_usage, '.2f')}/{self.available_cpu} "
@@ -247,13 +252,17 @@ class Vm(AbstractBaseModel):
     def stop(self) -> None:
         """Stops the VM and shuts down all running containers."""
         if not self.stop_lack_of_resource:
-            print(f"[{self.env.now}] VM '{self.name}' has not enough resource but it won't stop!.")
+            self._logger.warning(
+                f"[{self.env.now}] VM '{self.name}' has not enough resource but it won't stop!"
+            )
             return
         self.running = False
-        print(f"[{self.env.now}] VM '{self.name}' SHUTTING DOWN due to insufficient resources.")
+        self._logger.error(
+            f"[{self.env.now}] VM '{self.name}' SHUTTING DOWN due to insufficient resources."
+        )
         for container in self._containers:  # Stop all containers
             container.stop()
-            print(f"[{self.env.now}] Container '{container.name}' stopped.")
+            self._logger.error(f"[{self.env.now}] Container '{container.name}' stopped.")
 
     def start(self) -> simpy.events.Timeout:
         """Simulates VM startup process with a delay and ensures enough resources are available.
@@ -264,12 +273,12 @@ class Vm(AbstractBaseModel):
         try:
             self.check_resources()
         except InsufficientResourcesError as e:
-            print(f"[{self.env.now}] ERROR: {e}")
+            self._logger.error(f"[{self.env.now}] ERROR: {e}")
             return  # Stop VM startup if resources are not enough
 
         yield self.env.timeout(self.start_up_delay)  # Simulate startup delay
         self.running = True
-        print(f"[{self.env.now}] VM '{self.name}' started.")
+        self._logger.info(f"[{self.env.now}] VM '{self.name}' started.")
 
         # Start all containers inside this VM
         for container in self._containers:
@@ -288,7 +297,7 @@ class Vm(AbstractBaseModel):
                 self.store_history()
                 self.check_resources()
             except InsufficientResourcesError as e:
-                print(f"[{self.env.now}] ERROR: {e}")
+                self._logger.error(f"[{self.env.now}] ERROR: {e}")
                 self.stop()
                 return  # Stop monitoring process
 
@@ -398,3 +407,23 @@ class Vm(AbstractBaseModel):
             new_containers (list[Container]): The new list of containers.
         """
         self._containers = new_containers
+
+    @property
+    def logger(self) -> Logger:
+        """Gets the logger of the VM.
+
+        Returns:
+            str: The logger of the VM.
+        """
+        return self._logger
+
+    @logger.setter
+    def logger(self, new_logger: Logger) -> None:
+        """Sets a logger name for the VM.
+
+        Args:
+            new_logger (str): The new logger to be assigned.
+        """
+        self._logger = new_logger
+        for container in self.containers:
+            container.logger = self._logger

@@ -217,6 +217,7 @@ def parse_simulation_config(config_path: str) -> SimulationConfig:
     )
 
 
+# That part is used only for debugging.
 if __name__ == "__main__":
     # Example usage
     config_file = "../../../configs/example.yml"  # Replace with your YAML file path

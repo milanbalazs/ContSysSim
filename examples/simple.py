@@ -43,6 +43,22 @@ class SingleNodeSimulation:
         # Create the simulation instance (event-driven environment)
         self.simulation = Simulation()
 
+        # Create a single Virtual Machine (VM)
+        self.nodes = [
+            Vm(
+                self.simulation.env,
+                name="single-manager-node",
+                cpu=8,  # Total CPU cores
+                ram=gb_to_mb(16),  # Total RAM in MB
+                disk=gb_to_mb(20),  # Total Disk in MB
+                bw=10000,  # Network Bandwidth in Mbps
+                cpu_saturation_percent=3.0,  # CPU fluctuation range
+                ram_saturation_percent=8.5,  # RAM fluctuation range
+                disk_saturation_percent=1.0,  # Disk fluctuation range
+                bw_saturation_percent=15.2,  # Bandwidth fluctuation range
+            )
+        ]
+
         # Create a single container instance
         self.containers = [
             Container(
@@ -59,21 +75,13 @@ class SingleNodeSimulation:
             )
         ]
 
-        # Create a single Virtual Machine (VM)
-        self.nodes = [
-            Vm(
-                self.simulation.env,
-                name="single-manager-node",
-                cpu=8,  # Total CPU cores
-                ram=gb_to_mb(16),  # Total RAM in MB
-                disk=gb_to_mb(20),  # Total Disk in MB
-                bw=10000,  # Network Bandwidth in Mbps
-                cpu_saturation_percent=3.0,  # CPU fluctuation range
-                ram_saturation_percent=8.5,  # RAM fluctuation range
-                disk_saturation_percent=1.0,  # Disk fluctuation range
-                bw_saturation_percent=15.2,  # Bandwidth fluctuation range
-            )
-        ]
+        # Assign the container to the VM
+        self.nodes[0].containers = self.containers
+
+        # Create a DataCenter with the defined VM
+        self.datacenter: DataCenter = DataCenter("MyDatacenter", vms=self.nodes)
+
+        self.simulation.datacenter = self.datacenter
 
         # Define a workload request (simulating a task running inside the container)
         task1 = WorkloadRequest(
@@ -94,14 +102,8 @@ class SingleNodeSimulation:
         # Assign the workload to the container
         self.containers[0].add_workload_request(task1)
 
-        # Assign the container to the VM
-        self.nodes[0].containers = self.containers
-
-        # Create a DataCenter with the defined VM
-        self.datacenter: DataCenter = DataCenter("MyDatacenter", vms=self.nodes)
-
         # Run the simulation in the DataCenter for 15 time units
-        self.simulation.run(self.datacenter, simulation_time=15)
+        self.simulation.run(simulation_time=15)
 
 
 if __name__ == "__main__":

@@ -29,6 +29,8 @@ Attributes:
 """
 
 import random
+from logging import Logger
+from typing import Optional
 
 import simpy
 
@@ -61,6 +63,7 @@ class Container(AbstractBaseModel):
         time_history (list[int]): Timestamps for visualization.
         workload_requests (dict[int | float, list[WorkloadRequest]]): A dictionary
             mapping the simulation time to a list of workload requests.
+        _logger (Optional[Logger]): Logger object.
     """
 
     _id: int = 0  # Class-level identifier counter for containers
@@ -78,6 +81,7 @@ class Container(AbstractBaseModel):
         ram_saturation_percent: float = 0.0,
         disk_saturation_percent: float = 0.0,
         bw_saturation_percent: float = 0.0,
+        logger: Optional[Logger] = None,
     ) -> None:
         """Initializes a Container instance."""
         super().__init__(
@@ -92,6 +96,7 @@ class Container(AbstractBaseModel):
             disk_saturation_percent,
             bw_saturation_percent,
         )
+        self._logger = logger
         self.env: simpy.Environment = env
         self.id: int = Container._id
         Container._id += 1
@@ -118,20 +123,24 @@ class Container(AbstractBaseModel):
     def add_workload_request(self, workload_request: WorkloadRequest):
         """Adds a new workload request to the container.
 
+        TODO: It is possible the logger instance is not set in case of special order of
+            initialization (Which is correct). It should be fixed.
+
         Args:
             workload_request (WorkloadRequest): The workload request to be added.
         """
         # Check if the workload is already assigned
         for workloads in self.workload_requests.values():
             if workload_request in workloads:
-                print(
-                    f"[Cont] - Workload '{workload_request.id}' ({workload_request.workload_type}) "
+                self._logger.info(
+                    f"[{self.env.now}] Workload '{workload_request.id}' "
+                    f"({workload_request.workload_type}) "
                     f"is already assigned to {self.name} Container, skipping."
                 )
                 return  # Skip duplicate assignment
 
-        print(
-            f"[Cont] - Assign '{workload_request.id}' ({workload_request.workload_type}) "
+        self._logger.info(
+            f"[{self.env.now}] Assign '{workload_request.id}' ({workload_request.workload_type}) "
             f"Workload to {self.name} Container"
         )
         if self.env.now in self.workload_requests:
@@ -149,7 +158,7 @@ class Container(AbstractBaseModel):
         """
         yield self.env.timeout(self.start_up_delay)  # Wait for start-up delay
         self.running = True
-        print(f"[{self.env.now}] Container '{self.name}' started.")
+        self._logger.info(f"[{self.env.now}] Container '{self.name}' started.")
 
     def add_base_saturation(self) -> None:
         """Applies random saturation fluctuations based on base resource values.
@@ -213,17 +222,19 @@ class Container(AbstractBaseModel):
         resource usage to ensure the container is in a clean state.
         """
         if not self.running:
-            print(f"[{self.env.now}] Container '{self.name}' is already stopped.")
+            self._logger.warning(f"[{self.env.now}] Container '{self.name}' is already stopped.")
             return
 
         self.running = False
-        print(f"[{self.env.now}] Container '{self.name}' is stopping gracefully.")
+        self._logger.info(f"[{self.env.now}] Container '{self.name}' is stopping gracefully.")
 
         # Deactivate all active workloads
         for workloads in self.workload_requests.values():
             for workload in workloads:
                 if workload.active:
-                    print(f"[{self.env.now}] {workload.id} ({workload.workload_type}) is stopping.")
+                    self._logger.info(
+                        f"[{self.env.now}] {workload.id} ({workload.workload_type}) is stopping."
+                    )
                     self.current_cpu_usage -= workload.current_cpu_workload
                     self.current_ram_usage -= workload.current_ram_workload
                     self.current_disk_usage -= workload.current_disk_workload
@@ -236,7 +247,7 @@ class Container(AbstractBaseModel):
         self.current_disk_usage = 0
         self.current_bw_usage = 0
 
-        print(f"[{self.env.now}] Container '{self.name}' stopped. Resources reset.")
+        self._logger.info(f"[{self.env.now}] Container '{self.name}' stopped. Resources reset.")
 
     def run(self) -> simpy.events.Timeout:
         """SimPy process that updates workload every time unit.
@@ -249,10 +260,10 @@ class Container(AbstractBaseModel):
         """
         while True:
             if not self.running:
-                print(f"[{self.env.now}] - {self.name} Container is not running.")
+                self._logger.info(f"[{self.env.now}] {self.name} Container is not running.")
                 yield self.env.timeout(1)
-            print(
-                f"[Container DEBUG] Time {self.env.now}: {self.name} Running: {self.running} - "
+            self._logger.debug(
+                f"Time {self.env.now}: {self.name} Running: {self.running} - "
                 f"CPU={self.current_cpu_usage}/{self.cpu}, "
                 f"RAM={self.current_ram_usage}/{self.ram}, "
                 f"Disk={self.current_disk_usage}/{self.disk}, "
@@ -310,7 +321,7 @@ class Container(AbstractBaseModel):
                 self.prevent_resources()
                 self.store_history()
 
-                print(
+                self._logger.info(
                     f"[{self.env.now}] Container '{self.name}' updated workload: "
                     f"CPU {format(old_cpu_usage, '.2f')}/{format(self.cpu, '.2f')} --> "
                     f"{format(self.current_cpu_usage, '.2f')}/{format(self.cpu, '.2f')}, "
@@ -371,3 +382,21 @@ class Container(AbstractBaseModel):
             int: The amount of free Disk available in the VM.
         """
         return max(0, self.disk - self.current_disk_usage)
+
+    @property
+    def logger(self) -> Logger:
+        """Gets the logger of the container.
+
+        Returns:
+            str: The logger of the container.
+        """
+        return self._logger
+
+    @logger.setter
+    def logger(self, new_logger: Logger) -> None:
+        """Sets a logger name for the container.
+
+        Args:
+            new_logger (str): The new logger to be assigned.
+        """
+        self._logger = new_logger

@@ -131,18 +131,20 @@ class LbSimulation:
             ),
         ]
 
-        # Assign workloads to containers using the Load Balancer
-        FirstFitReservationContainerLoadBalancer(
-            workload_reqs=workload_requests,
-            containers=self.containers,
-            use_reservations=use_reservations,  # Toggle between "real" First-Fit & Reservations
-        )
-
         # Assign containers to the VM
         self.nodes[0].containers = self.containers
 
         # Create a DataCenter with the defined VM
         self.datacenter: DataCenter = DataCenter("MyDatacenter", vms=self.nodes)
+
+        # Assign workloads to containers using the Load Balancer
+        FirstFitReservationContainerLoadBalancer(
+            workload_reqs=workload_requests,
+            containers=self.containers,
+            use_reservations=use_reservations,  # Toggle between "real" First-Fit & Reservations
+            # TODO: Solve that logger passing. It should be handled automatically.
+            logger=self.simulation.logger,
+        )
 
         # Run the simulation in the DataCenter for 15 time units
         self.simulation.run(self.datacenter, simulation_time=15)

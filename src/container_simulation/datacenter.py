@@ -4,6 +4,7 @@ This module defines the DataCenter class, which represents a data center that
 manages multiple Virtual Machines (VMs) in a simulated Docker Swarm environment.
 """
 
+from logging import Logger
 from typing import Optional, List
 
 from container_simulation.vm import Vm
@@ -21,17 +22,21 @@ class DataCenter:
         _name (str): The name of the data center.
         _vms (Optional[List[Vm]]): A list of Virtual Machines (VMs) in the data center.
         id (int): The unique identifier for the data center instance.
+        _logger (Optional[Logger]): Logger object.
     """
 
     _id: int = 0  # Class-level counter for unique DataCenter IDs
 
-    def __init__(self, name: str = "", vms: Optional[List[Vm]] = None) -> None:
+    def __init__(
+        self, name: str = "", vms: Optional[List[Vm]] = None, logger: Optional[Logger] = None
+    ) -> None:
         """Initializes a DataCenter instance.
 
         Args:
             name (str, optional): The name of the data center. Defaults to an empty string.
             vms (Optional[List[Vm]], optional): A list of VMs to initialize the data center.
                                                 Defaults to None.
+            logger (Optional[Logger]): Logger object.
         """
         self._name: str = name
         self._vms: Optional[List[Vm]] = vms if vms else []
@@ -40,6 +45,8 @@ class DataCenter:
 
         # Visualisations
         self.visualisations: Visualisations = Visualisations()
+
+        self._logger = logger
 
     @property
     def name(self) -> str:
@@ -58,6 +65,26 @@ class DataCenter:
             new_name (str): The new name to be assigned.
         """
         self._name = new_name
+
+    @property
+    def logger(self) -> Logger:
+        """Gets the logger of the data center.
+
+        Returns:
+            str: The logger of the data center.
+        """
+        return self._logger
+
+    @logger.setter
+    def logger(self, new_logger: Logger) -> None:
+        """Sets a logger name for the data center.
+
+        Args:
+            new_logger (str): The new logger to be assigned.
+        """
+        self._logger = new_logger
+        for vm in self.vms:
+            vm.logger = self._logger
 
     @property
     def vms(self) -> Optional[List[Vm]]:

@@ -10,10 +10,13 @@ Classes:
 Usage:
     Run the script with the desired configuration file:
         python3 src/container_simulation/config_parser.py --config configs/example.yml
+
+TODO: The First-Fit LoadBalancer with Reservation doesn't work as expected. It should be checked!
 """
 
 import argparse
 from typing import Optional, List
+from logging import Logger
 
 from container_simulation.datacenter import DataCenter
 from container_simulation.vm import Vm
@@ -21,7 +24,10 @@ from container_simulation.container import Container
 from container_simulation.workload_request import WorkloadRequest
 from container_simulation.simulation import Simulation
 from container_simulation.loadbalancer import FirstFitReservationContainerLoadBalancer
+from container_simulation.utils import get_logger
 from config_parser import SimulationConfig, parse_simulation_config
+
+LOGGER: Logger = get_logger(__name__)
 
 
 class SimulationRunner:
@@ -98,9 +104,10 @@ class SimulationRunner:
             ram_saturation_percent=container_config.ram_saturation_percent,
             disk_saturation_percent=container_config.disk_saturation_percent,
             bw_saturation_percent=container_config.bandwidth_saturation_percent,
+            logger=LOGGER,
         )
         for workload in workloads:
-            print(f"[Parsed Workload] - {workload}")
+            LOGGER.debug(f"[{self.simulation.env.now}] Parsed Workload: {workload}")
             container.add_workload_request(workload)
         return container
 
@@ -128,6 +135,7 @@ class SimulationRunner:
             disk_saturation_percent=vm_config.disk_saturation_percent,
             bw_saturation_percent=vm_config.bandwidth_saturation_percent,
             stop_lack_of_resource=vm_config.stop_lack_of_resource,
+            logger=LOGGER,
         )
         vm.containers = containers
         return vm
@@ -139,7 +147,7 @@ class SimulationRunner:
         This method initializes all VMs, containers, and the optional load balancer.
         """
         vms: List[Vm] = [self._create_vm(vm_config) for vm_config in self.config.datacenter.vms]
-        self.datacenter = DataCenter(self.config.datacenter.name, vms=vms)
+        self.datacenter = DataCenter(self.config.datacenter.name, vms=vms, logger=LOGGER)
 
         if self.config.load_balancer and self.config.load_balancer.enabled:
             workloads: List[WorkloadRequest] = [
@@ -157,6 +165,7 @@ class SimulationRunner:
                 workload_reqs=workloads,
                 containers=target_containers,
                 use_reservations=self.config.load_balancer.reservation_enabled,
+                logger=LOGGER,
             )
 
     def run(self) -> None:

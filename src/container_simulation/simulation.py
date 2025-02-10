@@ -6,10 +6,12 @@ and Containers, simulating their startup and workload behavior over time.
 """
 
 from typing import Optional
+from logging import Logger
 
 import simpy
 
 from container_simulation.datacenter import DataCenter
+from container_simulation.utils import get_logger
 
 
 class Simulation:
@@ -31,6 +33,7 @@ class Simulation:
         """
         self._env: simpy.Environment = simpy.Environment()  # Create a SimPy environment
         self._datacenter: Optional[DataCenter] = None
+        self._logger: Logger = get_logger(__name__)
 
     def run(self, datacenter: Optional[DataCenter] = None, simulation_time: int = 20) -> None:
         """Starts the simulation by running VMs and monitoring their status.
@@ -52,6 +55,9 @@ class Simulation:
             raise RuntimeError("Datacenter is not defined!")
 
         self._datacenter = datacenter or self._datacenter
+
+        if self._datacenter.logger is None:
+            self._datacenter.logger = self._logger
 
         for vm in self._datacenter.vms:
             self._env.process(vm.start())  # Start VM processes
@@ -155,3 +161,23 @@ class Simulation:
             new_datacenter (DataCenter): The new data center instance.
         """
         self._datacenter = new_datacenter
+        if self._datacenter.logger is None:
+            self._datacenter.logger = self._logger
+
+    @property
+    def logger(self) -> Logger:
+        """Gets the logger of the Simulation.
+
+        Returns:
+            str: The logger of the Simulation.
+        """
+        return self._logger
+
+    @logger.setter
+    def logger(self, new_logger: Logger) -> None:
+        """Sets a logger name for the Simulation.
+
+        Args:
+            new_logger (str): The new logger to be assigned.
+        """
+        self._logger = new_logger

@@ -37,6 +37,8 @@ Notes:
 
 import warnings
 from abc import ABC
+from logging import Logger
+from typing import Optional
 
 from container_simulation.vm import Vm
 from container_simulation.workload_request import WorkloadRequest
@@ -72,6 +74,7 @@ class FirstFitReservationComponentLoadBalancer(ABC):
             If `True`, tracks resource usage over time for future scheduling.
             If `False`, assigns workloads immediately using pure First-Fit.
             Defaults to `True`.
+        _logger (Optional[Logger]): Logger object.
     """
 
     def __init__(
@@ -79,6 +82,7 @@ class FirstFitReservationComponentLoadBalancer(ABC):
         workload_units: list[WorkloadRequest] | list[Container],
         execution_units: list[Container] | list[Vm],
         use_reservations: bool = True,
+        logger: Optional[Logger] = None,
     ) -> None:
         """Initializes the First-Fit Reservations Load Balancer.
 
@@ -91,11 +95,13 @@ class FirstFitReservationComponentLoadBalancer(ABC):
                 If `True`, tracks resource usage over time for future scheduling.
                 If `False`, assigns workloads immediately using pure First-Fit.
                 Defaults to `True`.
+            logger (Optional[Logger]): Logger object.
         """
 
         self._workload_units: list[WorkloadRequest] | list[Container] = workload_units
         self._execution_units: list[Container] | list[Vm] = execution_units
         self._use_reservations: bool = use_reservations
+        self._logger = logger
 
     @staticmethod
     def is_suitable_runner(workload_unit, execution_unit) -> bool:
@@ -243,6 +249,24 @@ class FirstFitReservationComponentLoadBalancer(ABC):
         """
         self._execution_units = new_execution_units
 
+    @property
+    def logger(self) -> Logger:
+        """Gets the logger of the execution unit.
+
+        Returns:
+            str: The logger of the execution unit.
+        """
+        return self._logger
+
+    @logger.setter
+    def logger(self, new_logger: Logger) -> None:
+        """Sets a logger name for the execution unit.
+
+        Args:
+            new_logger (str): The new logger to be assigned.
+        """
+        self._logger = new_logger
+
 
 class FirstFitReservationContainerLoadBalancer(FirstFitReservationComponentLoadBalancer):
     """First-Fit Reservations Load Balancer for assigning workloads to containers.
@@ -260,6 +284,7 @@ class FirstFitReservationContainerLoadBalancer(FirstFitReservationComponentLoadB
         workload_reqs: list[WorkloadRequest],
         containers: list[Container],
         use_reservations: bool = True,
+        logger: Optional[Logger] = None,
     ) -> None:
         """Initializes the First-Fit Reservations Container Load Balancer.
 
@@ -275,7 +300,9 @@ class FirstFitReservationContainerLoadBalancer(FirstFitReservationComponentLoadB
         self._workload_reqs: list[WorkloadRequest] = workload_reqs
         self._containers: list[Container] = containers
 
-        super().__init__(workload_reqs, containers, use_reservations=use_reservations)
+        super().__init__(
+            workload_reqs, containers, use_reservations=use_reservations, logger=logger
+        )
 
         self.assign_workload_req_to_container()
 
@@ -305,8 +332,9 @@ class FirstFitReservationContainerLoadBalancer(FirstFitReservationComponentLoadB
                 if self.can_accommodate_workload(
                     container, workload_req, start_time, end_time, container_resource_forecast
                 ):
-                    print(
-                        f"[LB] - {workload_req.id} ({workload_req.workload_type}) workload "
+                    self._logger.info(
+                        f"[{container.env.now}] {workload_req.id} "
+                        f"({workload_req.workload_type}) workload "
                         f"assigned to {container.name} container."
                     )
                     # Directly mark workload as "active" and handle forecast updates

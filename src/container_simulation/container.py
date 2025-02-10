@@ -37,6 +37,7 @@ import simpy
 from container_simulation.computing_model import AbstractBaseModel
 from container_simulation.visualizations import Visualisations
 from container_simulation.workload_request import WorkloadRequest
+from container_simulation.utils import get_logger  # Import singleton logger
 
 
 class Container(AbstractBaseModel):
@@ -96,7 +97,7 @@ class Container(AbstractBaseModel):
             disk_saturation_percent,
             bw_saturation_percent,
         )
-        self._logger = logger
+        self._logger = logger if logger else get_logger()  # Use shared logger
         self.env: simpy.Environment = env
         self.id: int = Container._id
         Container._id += 1
@@ -122,9 +123,6 @@ class Container(AbstractBaseModel):
 
     def add_workload_request(self, workload_request: WorkloadRequest):
         """Adds a new workload request to the container.
-
-        TODO: It is possible the logger instance is not set in case of special order of
-            initialization (Which is correct). It should be fixed.
 
         Args:
             workload_request (WorkloadRequest): The workload request to be added.

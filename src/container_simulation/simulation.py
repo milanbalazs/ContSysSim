@@ -33,7 +33,7 @@ class Simulation:
         """
         self._env: simpy.Environment = simpy.Environment()  # Create a SimPy environment
         self._datacenter: Optional[DataCenter] = None
-        self._logger: Logger = get_logger(__name__)
+        self._logger: Logger = get_logger()
 
     def run(self, datacenter: Optional[DataCenter] = None, simulation_time: int = 20) -> None:
         """Starts the simulation by running VMs and monitoring their status.
@@ -55,9 +55,6 @@ class Simulation:
             raise RuntimeError("Datacenter is not defined!")
 
         self._datacenter = datacenter or self._datacenter
-
-        if self._datacenter.logger is None:
-            self._datacenter.logger = self._logger
 
         for vm in self._datacenter.vms:
             self._env.process(vm.start())  # Start VM processes
@@ -161,8 +158,6 @@ class Simulation:
             new_datacenter (DataCenter): The new data center instance.
         """
         self._datacenter = new_datacenter
-        if self._datacenter.logger is None:
-            self._datacenter.logger = self._logger
 
     @property
     def logger(self) -> Logger:

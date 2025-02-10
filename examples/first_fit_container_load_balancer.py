@@ -142,8 +142,6 @@ class LbSimulation:
             workload_reqs=workload_requests,
             containers=self.containers,
             use_reservations=use_reservations,  # Toggle between "real" First-Fit & Reservations
-            # TODO: Solve that logger passing. It should be handled automatically.
-            logger=self.simulation.logger,
         )
 
         # Run the simulation in the DataCenter for 15 time units

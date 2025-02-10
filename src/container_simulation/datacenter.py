@@ -9,6 +9,7 @@ from typing import Optional, List
 
 from container_simulation.vm import Vm
 from container_simulation.visualizations import Visualisations
+from container_simulation.utils import get_logger  # Import singleton logger
 
 
 class DataCenter:
@@ -46,7 +47,7 @@ class DataCenter:
         # Visualisations
         self.visualisations: Visualisations = Visualisations()
 
-        self._logger = logger
+        self._logger = logger if logger else get_logger()
 
     @property
     def name(self) -> str:
@@ -83,8 +84,6 @@ class DataCenter:
             new_logger (str): The new logger to be assigned.
         """
         self._logger = new_logger
-        for vm in self.vms:
-            vm.logger = self._logger
 
     @property
     def vms(self) -> Optional[List[Vm]]:

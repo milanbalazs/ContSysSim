@@ -15,7 +15,6 @@ init(autoreset=True)
 class CustomFormatter(logging.Formatter):
     """Custom formatter to display abbreviated log levels with optional colors."""
 
-    # Mapping log levels to their 3-letter abbreviations and colors
     LEVEL_ABBREVIATIONS = {
         logging.DEBUG: "DBG",
         logging.INFO: "INF",
@@ -24,7 +23,6 @@ class CustomFormatter(logging.Formatter):
         logging.CRITICAL: "CRT",
     }
 
-    # ANSI color codes for log levels
     LEVEL_COLORS = {
         logging.DEBUG: Fore.WHITE,
         logging.INFO: Fore.CYAN,
@@ -33,21 +31,38 @@ class CustomFormatter(logging.Formatter):
         logging.CRITICAL: Fore.LIGHTRED_EX,
     }
 
-    def format(self, record: logging.LogRecord) -> str:
-        """Customize the log level display with abbreviations and colors."""
-        # Add level abbreviation and colorize it
-        color = self.LEVEL_COLORS.get(record.levelno, "")
-        record.levelname = (
-            f"{color}"
-            f"{self.LEVEL_ABBREVIATIONS.get(record.levelno, record.levelname[:3])}"
-            f"{Style.RESET_ALL}"
+    def __init__(self, use_colors: bool = True):
+        """Initialize the formatter.
+
+        Args:
+            use_colors (bool): Whether to use colors in the log output.
+        """
+        super().__init__(
+            "[{asctime}].[{name}].[{levelname}] -> {message} \t || {module}:{funcName}",
+            style="{",
+            datefmt="%Y-%m-%d %H:%M",
         )
+        self.use_colors = use_colors
 
-        # Add color if it is a console log
-        color = self.LEVEL_COLORS.get(record.levelno, "")
-        record.msg = f"{color}{record.msg}{Style.RESET_ALL}"  # Apply color to the message
+    def format(self, record: logging.LogRecord) -> str:
+        """Customize the log level display with abbreviations and optional colors."""
+        level_abbr = self.LEVEL_ABBREVIATIONS.get(record.levelno, record.levelname[:3])
 
-        return super().format(record)
+        # Use colors only if enabled
+        if self.use_colors:
+            color = self.LEVEL_COLORS.get(record.levelno, "")
+            levelname_colored = f"{color}{level_abbr}{Style.RESET_ALL}"
+            msg_colored = f"{color}{record.msg}{Style.RESET_ALL}"
+        else:
+            levelname_colored = level_abbr
+            msg_colored = record.msg
+
+        # Avoid modifying `record` directly to prevent issues in file logs
+        log_message = super().format(record)
+        log_message = log_message.replace(record.levelname, levelname_colored, 1)
+        log_message = log_message.replace(record.msg, msg_colored, 1)
+
+        return log_message
 
 
 def gb_to_mb(gb: float) -> int:
@@ -65,52 +80,51 @@ def gb_to_mb(gb: float) -> int:
     return int(gb * 1024)
 
 
-def get_logger(
-    name: str,
-    log_file: str = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
-    console_level: int = logging.INFO,
-) -> logging.Logger:
+def _create_logger() -> logging.Logger:
     """
-    Creates and configures a logger instance.
-
-    Args:
-        name (str): The name of the logger (usually __name__ of the module using it).
-        log_file (str, optional): Path of the log file. Defaults to "<current_time>.log".
-        console_level (int, optional): Logging level. Defaults to logging.INFO.
+    Creates a singleton logger instance for the framework.
 
     Returns:
         logging.Logger: Configured logger instance.
     """
     # Create a logger
-    logger: logging.Logger = logging.getLogger(name)
-    logger.setLevel(console_level)
+    logger: logging.Logger = logging.getLogger("ContainerSim")
 
-    # Check if the logger already has handlers (avoid duplicate handlers)
-    if not logger.hasHandlers():
-        # Create a file handler (rotates logs to avoid growing too large)
-        # file_handler: RotatingFileHandler =
-        #   RotatingFileHandler(log_file, maxBytes=5 * 1024 * 1024, backupCount=3)
-        file_handler = logging.FileHandler(log_file, mode="w", encoding="utf-8")
-        file_handler.setLevel(logging.DEBUG)
+    if logger.hasHandlers():
+        return logger  # Prevent multiple handlers from being added
 
-        # Create a console handler for stdout
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(console_level)
+    logger.setLevel(logging.DEBUG)  # Ensure all levels are captured
 
-        # Define a log format
-        formatter = CustomFormatter(
-            "[{asctime}].[{name}].[{levelname}] -> {message} \t || {module}:{funcName}",
-            style="{",
-            datefmt="%Y-%m-%d %H:%M",
-        )
-        file_handler.setFormatter(formatter)
-        console_handler.setFormatter(formatter)
+    # Ensure no propagation to the root logger (avoid duplicate logs)
+    logger.propagate = False
 
-        # Add handlers to the logger
-        logger.addHandler(file_handler)
-        logger.addHandler(console_handler)
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)  # Show only INFO+ in console
+
+    # File handler (ensures logs are written to a file)
+    log_file = f"simulation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    file_handler = logging.FileHandler(log_file, mode="w", encoding="utf-8")
+    file_handler.setLevel(logging.DEBUG)  # Capture all logs in the file
+
+    # Apply formatters
+    console_handler.setFormatter(CustomFormatter(use_colors=True))
+    file_handler.setFormatter(CustomFormatter(use_colors=False))  # Disable colors
+
+    # Attach handlers to logger
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
 
     return logger
+
+
+# **Global Singleton Logger**
+LOGGER = _create_logger()
+
+
+def get_logger() -> logging.Logger:
+    """Returns the shared singleton logger instance."""
+    return LOGGER
 
 
 # This part is for just testing.

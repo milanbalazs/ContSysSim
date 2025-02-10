@@ -81,8 +81,6 @@ class SingleNodeSimulation:
         # Create a DataCenter with the defined VM
         self.datacenter: DataCenter = DataCenter("MyDatacenter", vms=self.nodes)
 
-        self.simulation.datacenter = self.datacenter
-
         # Define a workload request (simulating a task running inside the container)
         task1 = WorkloadRequest(
             cpu=1.0,  # CPU required for this workload
@@ -103,7 +101,7 @@ class SingleNodeSimulation:
         self.containers[0].add_workload_request(task1)
 
         # Run the simulation in the DataCenter for 15 time units
-        self.simulation.run(simulation_time=15)
+        self.simulation.run(datacenter=self.datacenter, simulation_time=15)
 
 
 if __name__ == "__main__":

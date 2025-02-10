@@ -61,9 +61,6 @@ class MultiNodeSimulation:
         all_vms: list[Vm] = self.manager_vms + self.db_vms
         self.datacenter: DataCenter = DataCenter("MyDatacenter", vms=all_vms)
 
-        # This solution is needed while the logger instance issue presents.
-        self.simulation.datacenter = self.datacenter
-
         # Assign a sample workload request to a container
         task1 = WorkloadRequest(
             cpu=1.0,
@@ -83,7 +80,7 @@ class MultiNodeSimulation:
         self.common_manager_containers[0].add_workload_request(task1)
 
         # Run the simulation
-        self.simulation.run()
+        self.simulation.run(datacenter=self.datacenter)
 
     def get_common_manager_containers(self) -> list[Container]:
         """Creates a predefined list of manager containers.

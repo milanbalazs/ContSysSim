@@ -27,7 +27,7 @@ from container_simulation.loadbalancer import FirstFitReservationContainerLoadBa
 from container_simulation.utils import get_logger
 from config_parser import SimulationConfig, parse_simulation_config
 
-LOGGER: Logger = get_logger(__name__)
+LOGGER: Logger = get_logger()
 
 
 class SimulationRunner:
@@ -104,7 +104,6 @@ class SimulationRunner:
             ram_saturation_percent=container_config.ram_saturation_percent,
             disk_saturation_percent=container_config.disk_saturation_percent,
             bw_saturation_percent=container_config.bandwidth_saturation_percent,
-            logger=LOGGER,
         )
         for workload in workloads:
             LOGGER.debug(f"[{self.simulation.env.now}] Parsed Workload: {workload}")
@@ -135,7 +134,6 @@ class SimulationRunner:
             disk_saturation_percent=vm_config.disk_saturation_percent,
             bw_saturation_percent=vm_config.bandwidth_saturation_percent,
             stop_lack_of_resource=vm_config.stop_lack_of_resource,
-            logger=LOGGER,
         )
         vm.containers = containers
         return vm
@@ -146,10 +144,14 @@ class SimulationRunner:
 
         This method initializes all VMs, containers, and the optional load balancer.
         """
+        LOGGER.info("Setting up the simulation environment...")
+        LOGGER.debug(f"VMs from config: {self.config.datacenter.vms}")
+
         vms: List[Vm] = [self._create_vm(vm_config) for vm_config in self.config.datacenter.vms]
-        self.datacenter = DataCenter(self.config.datacenter.name, vms=vms, logger=LOGGER)
+        self.datacenter = DataCenter(self.config.datacenter.name, vms=vms)
 
         if self.config.load_balancer and self.config.load_balancer.enabled:
+            LOGGER.debug(f"Initializing Load Balancer with: {self.config.load_balancer.workloads}")
             workloads: List[WorkloadRequest] = [
                 self._create_workload(w) for w in self.config.load_balancer.workloads
             ]
@@ -165,7 +167,6 @@ class SimulationRunner:
                 workload_reqs=workloads,
                 containers=target_containers,
                 use_reservations=self.config.load_balancer.reservation_enabled,
-                logger=LOGGER,
             )
 
     def run(self) -> None:

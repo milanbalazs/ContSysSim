@@ -43,6 +43,7 @@ from typing import Optional
 from container_simulation.vm import Vm
 from container_simulation.workload_request import WorkloadRequest
 from container_simulation.container import Container
+from container_simulation.utils import get_logger  # Import singleton logger
 
 # Issue a warning at runtime when the module is imported
 warnings.warn(
@@ -101,7 +102,7 @@ class FirstFitReservationComponentLoadBalancer(ABC):
         self._workload_units: list[WorkloadRequest] | list[Container] = workload_units
         self._execution_units: list[Container] | list[Vm] = execution_units
         self._use_reservations: bool = use_reservations
-        self._logger = logger
+        self._logger = logger if logger else get_logger()
 
     @staticmethod
     def is_suitable_runner(workload_unit, execution_unit) -> bool:

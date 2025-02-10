@@ -13,6 +13,7 @@ import simpy
 from container_simulation.computing_model import AbstractBaseModel
 from container_simulation.container import Container
 from container_simulation.visualizations import Visualisations
+from container_simulation.utils import get_logger
 
 
 class InsufficientResourcesError(Exception):
@@ -116,7 +117,7 @@ class Vm(AbstractBaseModel):
         Vm._id += 1
         self._containers: list[Container] = containers if containers else []
         self.running: bool = False
-        self._logger = logger
+        self._logger = logger if logger else get_logger()
         self.process: simpy.Process = env.process(self.run())
 
         # Data storage for visualization
@@ -425,5 +426,3 @@ class Vm(AbstractBaseModel):
             new_logger (str): The new logger to be assigned.
         """
         self._logger = new_logger
-        for container in self.containers:
-            container.logger = self._logger

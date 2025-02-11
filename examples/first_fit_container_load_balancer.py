@@ -129,6 +129,20 @@ class LbSimulation:
                 priority=1,  # Priority level of workload
                 workload_type="2. User Request",  # Type of workload
             ),
+            WorkloadRequest(
+                cpu=0.5,  # CPU required for this workload
+                ram=128,  # RAM required in MB
+                disk=gb_to_mb(1),  # Disk required in MB
+                bw=200,  # Network bandwidth in Mbps
+                delay=1.0,  # Delay before the workload starts
+                duration=5.0,  # Duration the workload remains active
+                cpu_saturation_percent=1.0,  # CPU fluctuation range
+                ram_saturation_percent=2.5,  # RAM fluctuation range
+                disk_saturation_percent=3.5,  # Disk fluctuation range
+                bw_saturation_percent=5.5,  # Bandwidth fluctuation range
+                priority=1,  # Priority level of workload
+                workload_type="3. User Request",  # Type of workload
+            ),
         ]
 
         # Assign containers to the VM

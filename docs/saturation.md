@@ -45,6 +45,7 @@ Given:
 - $S = 10$ [%] (CPU saturation percentage).
 
 1. **Bounds for Current Workload**:
+
    $$LB = 2.5 - \frac{2.5 \cdot 10}{100} = 2.5 - 0.25 = 2.25$$
 
    $$UB = 2.5 + \frac{2.5 \cdot 10}{100} = 2.5 + 0.25 = 2.75$$
@@ -52,6 +53,7 @@ Given:
    The randomly fluctuated current workload $R_{current}$ lies between $2.25$ and $2.75$.
 
 2. **Saturation Effect**:
+
    $$R_{saturation} = Random(-\frac{2.5 \cdot 10}{100}, \frac{2.5 \cdot 10}{100}) = Random(-0.25, 0.25)$$
 
 ---
@@ -61,9 +63,11 @@ Given:
 For any resource type (CPU, RAM, Disk, Bandwidth):
 
 1. **Current Workload**:
+
    $$R_{current} = Random\left(R - \frac{R \cdot S}{100}, R + \frac{R \cdot S}{100}\right)$$
 
 2. **Current Saturation**:
+
    $$R_{saturation} = Random\left(-\frac{R \cdot S}{100}, \frac{R \cdot S}{100}\right)$$
 
 This formula allows realistic workload behavior by simulating fluctuating resource demands.
@@ -108,9 +112,11 @@ Given:
 - $S = 5$ [%] (CPU saturation percentage for the container).
 
 **Saturation Calculation**:
+
    $$C_{\text{saturation}} = Random(-\frac{2 \cdot 5}{100}, \frac{2 \cdot 5}{100}) = Random(-0.1, 0.1)$$
 
 **Resulting CPU Usage**:
+
    $$C_{current} = \sum_{i=1}^{n} W_{current} + C_{\text{saturation}}$$
 
 ---
@@ -155,9 +161,11 @@ Given:
 - Total RAM usage by containers: $\sum_{i=1}^{m} C_{current} = 12,000$ [MB].
 
 **Saturation Calculation**:
+
    $$V_{\text{saturation}} = Random(-\frac{16,384 \cdot 8}{100}, \frac{16,384 \cdot 8}{100}) = Random(-1,310.72, 1,310.72)$$
 
 **Available RAM**:
+
    $$V_{available} = 16,384 - (12,000 + V_{\text{saturation}})$$
 
 ---
@@ -165,12 +173,13 @@ Given:
 ## Summary
 
 1. **Workload Fluctuation**:
+
    $$R_{current} = Random(R - \frac{R \cdot S}{100}, R + \frac{R \cdot S}{100})$$
 
 2. **Container Saturation**:
+
    $$C_{current} = \sum_{i=1}^{n} W_{current} + C_{\text{saturation}}$$
 
 3. **VM Saturation**:
-   $$V_{available} = V - \sum_{i=1}^{m} C_{current} + V_{\text{saturation}}$$
 
-These formulas provide a robust way to simulate realistic and dynamic resource behavior for workloads, containers, and virtual machines.
+   $$V_{available} = V - \sum_{i=1}^{m} C_{current} + V_{\text{saturation}}$$

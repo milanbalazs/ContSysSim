@@ -15,6 +15,14 @@ This framework enables users to:
 
 ---
 
+### 🏗️ **High-Level Architecture**
+
+Below is the high-level architecture illustrating the framework's structure and its components:
+
+![High-Level Architecture](imgs/high_architecture.svg)
+
+---
+
 ## 🔧 **Local Installation**
 
 ### 1️⃣ **Clone the Repository**

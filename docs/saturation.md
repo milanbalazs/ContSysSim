@@ -130,7 +130,7 @@ The saturation can be only positive because it represents the VMs own consumptio
 
 The **current available resource** for a VM is:
 
-$$V_{available} = V - \left(\sum_{i=1}^{m} C_{current} + |V_{saturation}|\right)$$
+$$V_{available} = V - \left(\sum_{i=1}^{m} C_{current} + V_{saturation}\right)$$
 
 Where:
 

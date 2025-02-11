@@ -92,36 +92,43 @@ class Simulation:
 
         This function prints the output directly to the console.
         """
-        print("=" * 50)
-        print(f" Datacenter: {self._datacenter.name.upper()} ".center(50, "="))
-        print("=" * 50)
-        print(f"Total VMs: {len(self._datacenter.vms)}\n")
+
+        summary: list[str] = [
+            "\n",
+            "=" * 50,
+            f" Datacenter: {self._datacenter.name.upper()} ".center(50, "="),
+            "=" * 50,
+            f"Total VMs: {len(self._datacenter.vms)}\n",
+        ]
 
         for vm in self._datacenter.vms:
-            print("-" * 50)
-            print(f" VM: {vm.name} ".center(50, "-"))
-            print(f" CPU: {vm.cpu} Cores | Available CPU: {vm.available_cpu}")
-            print(f" RAM: {vm.ram} MB | Available RAM: {vm.available_ram}")
-            print(f" DISK: {vm.disk} MB | Available Disk: {vm.available_disk}")
-            print("-" * 50)
+            summary.append("-" * 50)
+            summary.append(f" VM: {vm.name} ".center(50, "-"))
+            summary.append(f" CPU: {vm.cpu} Cores | Available CPU: {vm.available_cpu:.2f}")
+            summary.append(f" RAM: {vm.ram} MB | Available RAM: {vm.available_ram} MB")
+            summary.append(f" DISK: {vm.disk} MB | Available Disk: {vm.available_disk} MB")
+            summary.append("-" * 50)
 
             if vm.containers:
-                print("   Containers:")
-                print("   " + "-" * 40)
+                summary.append("   Containers:")
+                summary.append("   " + "-" * 40)
                 for container in vm.containers:
-                    print(
+                    summary.append(
                         f"   • {container.name:<15} | "
                         f"CPU: {container.cpu:<2} | "
                         f"RAM: {container.ram} MB | "
-                        f"Disk: {container.disk}"
+                        f"Disk: {container.disk} MB"
                     )
-                print("   " + "-" * 40)
+                summary.append("   " + "-" * 40)
             else:
-                print("   No Containers Assigned.")
+                summary.append("   No Containers Assigned.")
 
-        print("=" * 50)
-        print(" Simulation Summary Complete ")
-        print("=" * 50)
+        summary.append("=" * 50)
+        summary.append(" Simulation Summary Complete ")
+        summary.append("=" * 50)
+
+        # Join all the strings and log the full summary
+        self._logger.info("\n".join(summary))
 
     @property
     def env(self) -> simpy.Environment:

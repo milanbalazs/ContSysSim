@@ -80,55 +80,79 @@ def gb_to_mb(gb: float) -> int:
     return int(gb * 1024)
 
 
-def _create_logger() -> logging.Logger:
-    """
-    Creates a singleton logger instance for the framework.
+class LoggerManager:
+    """Manages the logger instance with configurable log file paths."""
 
-    Returns:
-        logging.Logger: Configured logger instance.
-    """
-    # Create a logger
-    logger: logging.Logger = logging.getLogger("ContainerSim")
+    def __init__(self, default_log_file: str = None):
+        """Initialize the LoggerManager with default settings.
 
-    if logger.hasHandlers():
-        return logger  # Prevent multiple handlers from being added
+        Args:
+            default_log_file (str): Default log file path (if not provided).
+        """
+        if default_log_file is None:
+            default_log_file = f"simulation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
-    logger.setLevel(logging.DEBUG)  # Ensure all levels are captured
+        self.logger = logging.getLogger("ContainerSim")
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.propagate = False
 
-    # Ensure no propagation to the root logger (avoid duplicate logs)
-    logger.propagate = False
+        # Default handlers
+        self.console_handler = self._create_console_handler()
+        self.file_handler = self._create_file_handler(default_log_file)
 
-    # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)  # Show only INFO+ in console
+        # Attach handlers to the logger
+        self.logger.addHandler(self.console_handler)
+        self.logger.addHandler(self.file_handler)
 
-    # File handler (ensures logs are written to a file)
-    log_file = f"simulation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-    file_handler = logging.FileHandler(log_file, mode="w", encoding="utf-8")
-    file_handler.setLevel(logging.DEBUG)  # Capture all logs in the file
+    @staticmethod
+    def _create_console_handler() -> logging.Handler:
+        """Creates a console handler with colored output."""
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(CustomFormatter(use_colors=True))
+        return console_handler
 
-    # Apply formatters
-    console_handler.setFormatter(CustomFormatter(use_colors=True))
-    file_handler.setFormatter(CustomFormatter(use_colors=False))  # Disable colors
+    @staticmethod
+    def _create_file_handler(log_file: str) -> logging.Handler:
+        """Creates a file handler without colored output."""
+        file_handler = logging.FileHandler(log_file, mode="w", encoding="utf-8")
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(CustomFormatter(use_colors=False))
+        return file_handler
 
-    # Attach handlers to logger
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
+    def update_log_file(self, new_log_file: str) -> None:
+        """Update the log file path dynamically.
 
-    return logger
+        Args:
+            new_log_file (str): New log file path to use.
+        """
+        # Remove the old file handler
+        self.logger.removeHandler(self.file_handler)
+
+        # Create a new file handler with the updated path
+        self.file_handler = self._create_file_handler(new_log_file)
+        self.logger.addHandler(self.file_handler)
+
+        # Log the change
+        self.logger.info(f"Log file updated to: {new_log_file}")
 
 
-# **Global Singleton Logger**
-LOGGER = _create_logger()
+# Initialize a shared LoggerManager
+_LOGGER_MANAGER = LoggerManager()
 
 
 def get_logger() -> logging.Logger:
-    """Returns the shared singleton logger instance."""
-    return LOGGER
+    """Returns the shared logger instance."""
+    return _LOGGER_MANAGER.logger
+
+
+def update_log_file(new_log_file: str) -> None:
+    """Update the log file path for the shared logger."""
+    _LOGGER_MANAGER.update_log_file(new_log_file)
 
 
 # This part is for just testing.
 if __name__ == "__main__":
-    logger_instance = get_logger(__name__)
+    logger_instance = get_logger()
     logger_instance.info("dasfd")
     logger_instance.warning("fffdf")

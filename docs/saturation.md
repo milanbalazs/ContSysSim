@@ -185,4 +185,4 @@ Given:
 
 3. **VM Saturation**:
 
-   $$V_{available} = V - \sum_{i=1}^{m} C_{current} + V_{\text{saturation}}$$
+   $$V_{available} = V - \left(\sum_{i=1}^{m} C_{current} + V_{\text{saturation}}\right)$$

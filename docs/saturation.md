@@ -95,7 +95,7 @@ Where:
 
 The base saturation $C_{saturation}$ for the container is calculated as:
 
-$$C_{\text{saturation}} = Random\left(-\frac{C \cdot S}{100}, \frac{C \cdot S}{100}\right)$$
+$$C_{\text{saturation}} = Random(\left(-\frac{C \cdot S}{100}, \frac{C \cdot S}{100}\right)$$
 
 Where:
 
@@ -125,9 +125,12 @@ Given:
 
 ### **Formula for VM Resource Saturation**
 
-Virtual Machines experience saturation effects on their **available resources** (total capacity minus the usage by containers). The **current available resource** for a VM is:
+Virtual Machines experience saturation effects on their **available resources** (total capacity minus the usage by containers).
+The saturation can be only positive because it represents the VMs own consumption, like kernel functions or other processes.
 
-$$V_{available} = V - \sum_{i=1}^{m} C_{current} + V_{saturation}$$
+The **current available resource** for a VM is:
+
+$$V_{available} = V - \left(\sum_{i=1}^{m} C_{current} + |V_{saturation}|\right)$$
 
 Where:
 
@@ -143,7 +146,7 @@ Where:
 
 The base saturation $V_{saturation}$ for the VM is calculated as:
 
-$$V_{\text{saturation}} = Random\left(-\frac{V \cdot S}{100}, \frac{V \cdot S}{100}\right)$$
+$$V_{\text{saturation}} = |Random\left(-\frac{V \cdot S}{100}, \frac{V \cdot S}{100}\right)|$$
 
 Where:
 
@@ -162,7 +165,7 @@ Given:
 
 **Saturation Calculation**:
 
-   $$V_{\text{saturation}} = Random(-\frac{16,384 \cdot 8}{100}, \frac{16,384 \cdot 8}{100}) = Random(-1,310.72, 1,310.72)$$
+   $$V_{\text{saturation}} = |Random(-\frac{16,384 \cdot 8}{100}, \frac{16,384 \cdot 8}{100})| = |Random(-1,310.72, 1,310.72)|$$
 
 **Available RAM**:
 

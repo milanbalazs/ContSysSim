@@ -45,18 +45,34 @@ pip install -e .
 ## 🚀 **How to Use?**
 
 ### 1️⃣ **Run a Simple Simulation**
-A **basic simulation** with a **single VM** and **one container** can be executed using:
+A **basic simulation** with a **single VM** and **one container** can be executed using ([simple.py](examples/simple.py)):
 ```bash
 python examples/simple.py
 ```
 
 ### 2️⃣ **Run a Multi-Node Simulation**
-For a **multi-node environment** with multiple VMs and containers:
+For a **multi-node environment** with multiple VMs and containers ([multi_node.py](examples/multi_node.py)):
 ```bash
 python examples/multi_node.py
 ```
 
-### 3️⃣ **Enable or Disable Load Balancer Reservations**
+### 3️⃣ **Configuration-Based Simulation**
+The framework also supports running simulations entirely through a **YAML configuration file**. This allows you to define the entire simulation setup, including VMs, Containers, Workloads, and Load Balancer configurations, without modifying the code.
+
+#### **Steps to Run**
+1. Create a YAML configuration file. See the [Configuration Guide](./src/container_simulation/cli/README.md) for details and examples.
+2. Run the simulation by specifying the configuration file:
+
+```bash
+python cli_starter.py --config path/to/config.yml
+```
+
+#### **Example Configuration**
+Refer to the [Configuration Guide](./src/container_simulation/cli/README.md) for a detailed breakdown of the configuration structure and an example YAML file.
+
+---
+
+### 4️⃣ **Enable or Disable Load Balancer Reservations**
 With the **First-Fit with Reservations Load Balancer**, users can **toggle workload reservations** using the `use_reservations` parameter:
 
 #### **✅ First-Fit with Reservations (Default)**
@@ -69,43 +85,6 @@ simulation = LbSimulation(use_reservations=True)
 > The scheduler ignores workload timing and places them immediately if resources are available.
 ```python
 simulation = LbSimulation(use_reservations=False)
-```
-
-### 4️⃣ **View Simulation Results**
-After running the simulation, you can visualize the resource usage (Please see the example codes):
-```python
-simulation.datacenter.vms[0].containers[0].visualize_usage()
-simulation.datacenter.vms[0].visualize_usage()
-simulation.datacenter.visualize_all_vms()
-```
-
----
-
-## 🔍 **Project Structure**
-```bash
-container-simulation/
-│── examples/                                  # Example scripts for running simulations
-│   ├── simple.py                              # Single VM & Container simulation
-│   ├── multi_node.py                          # Multi-VM and multi-container simulation
-│   ├── first_fit_container_load_balancer.py   # First-fit Container LoadBalancer simulation
-│
-│── src/                     # Core simulation framework
-│   ├── simulation.py        # Main simulation logic
-│   ├── datacenter.py        # Datacenter managing all VMs
-│   ├── vm.py                # Virtual Machine class
-│   ├── container.py         # Container class
-│   ├── computing_model.py   # Base model for computing resources
-│   ├── workload_request.py  # Workload management & task execution
-│   ├── loadbalancer.py      # Load balancer implementation
-│   ├── utils.py             # Utility functions (e.g., unit conversion)
-│   ├── visualizations.py    # Graphs & charts for monitoring
-│
-│── tools/                   # Utility scripts
-│   ├── create_venv.sh       # Automates virtual environment creation
-│
-│── setup.py                 # Package setup file
-│── pyproject.toml           # Modern packaging standard
-│── README.md                # Project documentation
 ```
 
 ---

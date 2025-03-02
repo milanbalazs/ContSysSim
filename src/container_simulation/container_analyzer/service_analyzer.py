@@ -9,7 +9,7 @@ from container_simulation.utils import get_logger
 LOGGER: Logger = get_logger()
 
 
-class ContainerAnalyzer(ContainerAnalyzerAbstract):
+class ServiceAnalyzer(ContainerAnalyzerAbstract):
     def __init__(
         self,
         container_id: Optional[str] = None,
@@ -19,14 +19,14 @@ class ContainerAnalyzer(ContainerAnalyzerAbstract):
         super().__init__(container_id, container_name, docker_client)
 
     def get_stats(self) -> dict:
-        container_stat: docker.models.containers.Container = self.docker_client.containers.get(
+        container_stat: docker.models.services.Service = self.docker_client.services.get(
             self.container_ref
         )
-        status: dict = container_stat.stats(decode=None, stream=False)
+        status: dict = container_stat.attrs
         return status
 
 
 # JUST FOR TESTING
 if __name__ == "__main__":
-    ca = ContainerAnalyzer("0800b9b5426c")
-    print(ca.get_stats())
+    sa = ServiceAnalyzer("0800b9b5426c")
+    print(sa.get_stats())

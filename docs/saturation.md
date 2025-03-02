@@ -7,7 +7,7 @@
 Let:
 
 - $R$ = Base resource requirement (e.g., CPU, RAM, Disk, Bandwidth).
-- $S$ = Saturation percentage (e.g., $cpu{\_saturation\_percent}$).
+- $S$ = Saturation percentage (e.g., $cpu\_saturation\_percent$).
 - $R_{current}$ = Current workload requirement after fluctuation.
 - $R_{saturation}$ = Saturation effect applied to the base resource.
 - $LB$ = Lower bound of fluctuation = $R - \frac{R \cdot S}{100}$.

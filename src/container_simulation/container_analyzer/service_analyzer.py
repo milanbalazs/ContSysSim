@@ -31,5 +31,5 @@ class ServiceAnalyzer(ContainerAnalyzerAbstract):
 
 # JUST FOR TESTING
 if __name__ == "__main__":
-    sa = ServiceAnalyzer("0800b9b5426c")
-    print(sa.get_stats())
+    sa = ServiceAnalyzer()
+    print(sa.get_stats("0800b9b5426c"))

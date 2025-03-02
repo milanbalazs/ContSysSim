@@ -31,5 +31,5 @@ class ContainerAnalyzer(ContainerAnalyzerAbstract):
 
 # JUST FOR TESTING
 if __name__ == "__main__":
-    ca = ContainerAnalyzer("0800b9b5426c")
-    print(ca.get_stats())
+    ca = ContainerAnalyzer()
+    print(ca.get_stats("0800b9b5426c"))

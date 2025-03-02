@@ -45,3 +45,20 @@ class ContainerAnalyzerAbstract(ABC):
         container_name: Optional[str] = None,
     ) -> dict:
         pass
+
+    def get_disk_usage(
+        self,
+        container_id: Optional[str] = None,
+        container_name: Optional[str] = None,
+    ) -> float:
+        container_ref: str = self.get_container_ref(container_id, container_name)
+        disk_info = self.docker_client.df()  # Get system-wide disk usage details
+
+        # Find container disk usage
+        for container in disk_info["Containers"]:
+            if container["Id"].startswith(container_ref) or any(
+                container_ref in name for name in container["Names"]
+            ):
+                return round(container["SizeRootFs"] / (1024**2), 2)  # Convert bytes to MB
+
+        return 0.0  # If container ID is not found

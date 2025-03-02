@@ -118,20 +118,58 @@ class ContainerizedSystemAnalyzer:
             "tx_speed_mbps": round(tx_speed, 2),
         }
 
+    def get_total_network_usage(self, start_stat: dict, end_stat: dict) -> dict:
+        """
+        Calculate the total network data used (MB) within a time window.
+
+        Returns:
+        - dict : Total network usage in MB.
+        """
+        networks_start = start_stat.get("networks", {})
+        networks_end = end_stat.get("networks", {})
+
+        if not networks_start or not networks_end:
+            print("WARNING: No network data available.")
+            return {"total_rx_mb": 0.0, "total_tx_mb": 0.0}
+
+        # Auto-detect the first available network interface
+        network_interface = next(iter(networks_start), None)
+        if not network_interface:
+            print("WARNING: No network interfaces found.")
+            return {"total_rx_mb": 0.0, "total_tx_mb": 0.0}
+
+        print(f"DEBUG: Using network interface: {network_interface}")
+
+        # Extract data
+        rx_start = networks_start.get(network_interface, {}).get("rx_bytes", 0)
+        tx_start = networks_start.get(network_interface, {}).get("tx_bytes", 0)
+        rx_end = networks_end.get(network_interface, {}).get("rx_bytes", 0)
+        tx_end = networks_end.get(network_interface, {}).get("tx_bytes", 0)
+
+        print(f"DEBUG: Network RX start: {rx_start} bytes, end: {rx_end} bytes")  # Debugging
+        print(f"DEBUG: Network TX start: {tx_start} bytes, end: {tx_end} bytes")  # Debugging
+
+        total_rx = max(rx_end - rx_start, 0) / (1024**2)  # Convert bytes to MB
+        total_tx = max(tx_end - tx_start, 0) / (1024**2)  # Convert bytes to MB
+
+        return {
+            "total_rx_mb": round(total_rx, 2),
+            "total_tx_mb": round(total_tx, 2),
+        }
+
     def analyze_container_performance(
         self,
         container_or_service_id: Optional[str] = None,
         container_or_service_name: Optional[str] = None,
     ) -> dict:
-        """Collect data over a time window and compute average exact resource consumption values."""
+        """Collect data over a time window and compute total resource consumption values."""
         start_time = time.time()
         cpu_cores_samples = []
         ram_usage_samples = []
         disk_usage_samples = []
-        net_rx_samples = []
-        net_tx_samples = []
 
-        previous_stat = self.analyzer.get_stats(container_or_service_id, container_or_service_name)
+        # Get initial stats
+        start_stat = self.analyzer.get_stats(container_or_service_id, container_or_service_name)
 
         while (time.time() - start_time) < self.time_window:
             time.sleep(self.period)
@@ -146,20 +184,18 @@ class ContainerizedSystemAnalyzer:
             # Disk Usage (instead of R/W speed)
             disk_usage_samples.append(self.analyzer.get_disk_usage(container_or_service_id))
 
-            # Network Bandwidth
-            net_bw = self.get_network_bandwidth_mb(current_stat, previous_stat)
+        # Get final stats after the time window
+        end_stat = self.analyzer.get_stats(container_or_service_id, container_or_service_name)
 
-            net_rx_samples.append(net_bw["rx_speed_mbps"])
-            net_tx_samples.append(net_bw["tx_speed_mbps"])
-
-            previous_stat = current_stat  # Update previous stat for next iteration
+        # Compute total network usage
+        total_network_usage = self.get_total_network_usage(start_stat, end_stat)
 
         return {
             "average_cpu_cores": round(mean(cpu_cores_samples), 3),
             "average_ram_usage_mb": round(mean(ram_usage_samples), 2),
             "average_disk_usage_mb": round(mean(disk_usage_samples), 2),
-            "average_network_rx_mbps": round(mean(net_rx_samples), 2),
-            "average_network_tx_mbps": round(mean(net_tx_samples), 2),
+            "total_network_rx_mb": total_network_usage["total_rx_mb"],
+            "total_network_tx_mb": total_network_usage["total_tx_mb"],
         }
 
 
@@ -170,5 +206,5 @@ if __name__ == "__main__":
     print(f"Average CPU Usage: {result['average_cpu_cores']} cores")
     print(f"Average RAM Usage: {result['average_ram_usage_mb']} MB")
     print(f"Average Disk Space Used: {result['average_disk_usage_mb']} MB")
-    print(f"Average Network RX Speed: {result['average_network_rx_mbps']} MB/s")
-    print(f"Average Network TX Speed: {result['average_network_tx_mbps']} MB/s")
+    print(f"Total Network RX: {result['total_network_rx_mb']} MB")
+    print(f"Total Network TX: {result['total_network_tx_mb']} MB")

@@ -54,4 +54,4 @@ jobs:
           pip install -r requirements.txt
 
       - name: Check Formatting with Black
-        run: black --check src
+        run: black --check --diff src

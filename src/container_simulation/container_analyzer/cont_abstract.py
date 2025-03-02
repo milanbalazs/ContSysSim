@@ -16,16 +16,16 @@ class ContainerAnalyzerAbstract(ABC):
         container_name: Optional[str] = None,
         docker_client: Optional[docker.DockerClient] = None,
     ) -> None:
-        if container_id:
-            self.container_ref: str = container_id
-        elif container_name:
-            self.container_ref: str = container_name
-        elif container_id and container_name:
+        if container_id and container_name:
             LOGGER.warning(
                 "The both of 'container_id', 'container_name' parameters are defined. "
                 "'container_id' will be used!"
             )
             self.container_ref: str = container_id
+        elif container_id:
+            self.container_ref: str = container_id
+        elif container_name:
+            self.container_ref: str = container_name
         else:
             error_msg: str = "The 'container_id' or 'container_name' has to be defined!"
             LOGGER.critical(error_msg)

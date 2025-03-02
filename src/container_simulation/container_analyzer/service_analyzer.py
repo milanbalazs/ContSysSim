@@ -13,14 +13,17 @@ class ServiceAnalyzer(ContainerAnalyzerAbstract):
     def __init__(
         self,
         container_id: Optional[str] = None,
-        container_name: Optional[str] = None,
-        docker_client: Optional[docker.DockerClient] = None,
     ) -> None:
-        super().__init__(container_id, container_name, docker_client)
+        super().__init__(container_id)
 
-    def get_stats(self) -> dict:
+    def get_stats(
+        self,
+        container_id: Optional[str] = None,
+        container_name: Optional[str] = None,
+    ) -> dict:
+        container_ref: str = self.get_container_ref(container_id, container_name)
         container_stat: docker.models.services.Service = self.docker_client.services.get(
-            self.container_ref
+            container_ref
         )
         status: dict = container_stat.attrs
         return status

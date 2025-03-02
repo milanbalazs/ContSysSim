@@ -58,66 +58,6 @@ class ContainerizedSystemAnalyzer:
 
         return round(memory_usage / (1024**2), 2)  # Convert to MB
 
-    def get_disk_io_mb(self, current_stat: dict, previous_stat: dict) -> dict:
-        """Calculate disk read/write speed in MB per second."""
-        t1 = self.parse_timestamp(current_stat["read"])
-        t0 = self.parse_timestamp(previous_stat["read"])
-        delta_t = (t1 - t0).total_seconds()
-
-        if delta_t <= 0:
-            return {"read_speed_mbps": 0.0, "write_speed_mbps": 0.0}
-
-        # Get disk I/O values safely
-        def get_disk_value(stats, op):
-            return (
-                sum(
-                    item["value"]
-                    for item in stats.get("io_service_bytes_recursive", [])
-                    if item["op"] == op
-                )
-                if stats.get("io_service_bytes_recursive")
-                else 0
-            )
-
-        read_bytes_now = get_disk_value(current_stat["blkio_stats"], "read")
-        write_bytes_now = get_disk_value(current_stat["blkio_stats"], "write")
-
-        read_bytes_prev = get_disk_value(previous_stat["blkio_stats"], "read")
-        write_bytes_prev = get_disk_value(previous_stat["blkio_stats"], "write")
-
-        read_speed = (read_bytes_now - read_bytes_prev) / (1024**2 * delta_t)  # Convert to MB/s
-        write_speed = (write_bytes_now - write_bytes_prev) / (
-            1024**2 * delta_t
-        )  # Convert to MB/s
-
-        return {
-            "read_speed_mbps": round(read_speed, 2),
-            "write_speed_mbps": round(write_speed, 2),
-        }
-
-    def get_network_bandwidth_mb(self, current_stat: dict, previous_stat: dict) -> dict:
-        """Calculate network receive and transmit speed in MB per second."""
-        t1 = self.parse_timestamp(current_stat["read"])
-        t0 = self.parse_timestamp(previous_stat["read"])
-        delta_t = (t1 - t0).total_seconds()
-
-        if delta_t <= 0:
-            return {"rx_speed_mbps": 0.0, "tx_speed_mbps": 0.0}
-
-        rx_bytes_now = current_stat["networks"]["eth0"]["rx_bytes"]
-        tx_bytes_now = current_stat["networks"]["eth0"]["tx_bytes"]
-
-        rx_bytes_prev = previous_stat["networks"]["eth0"]["rx_bytes"]
-        tx_bytes_prev = previous_stat["networks"]["eth0"]["tx_bytes"]
-
-        rx_speed = (rx_bytes_now - rx_bytes_prev) / (1024**2 * delta_t)  # Convert to MB/s
-        tx_speed = (tx_bytes_now - tx_bytes_prev) / (1024**2 * delta_t)  # Convert to MB/s
-
-        return {
-            "rx_speed_mbps": round(rx_speed, 2),
-            "tx_speed_mbps": round(tx_speed, 2),
-        }
-
     def get_total_network_usage(self, start_stat: dict, end_stat: dict) -> dict:
         """
         Calculate the total network data used (MB) within a time window.

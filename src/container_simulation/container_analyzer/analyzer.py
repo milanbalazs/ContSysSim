@@ -32,7 +32,8 @@ import time
 import json
 from typing import Optional
 from datetime import datetime
-from statistics import mean
+
+# from statistics import mean
 from logging import Logger
 
 from container_simulation.utils import get_logger
@@ -332,8 +333,9 @@ class ContainerizedSystemAnalyzer:
 
         return {
             # "average_cpu_cores": round(mean(cpu_cores_samples[docker_entity_ref].values()), 3),
-            # "average_ram_usage_mb": round(mean(ram_usage_samples[docker_entity_ref].values()), 2),
-            # "average_disk_usage_mb": round(mean(disk_usage_samples[docker_entity_ref].values()), 2),
+            # Below the "_mb" suffix is needed, I just removed due to too long line...
+            # "average_ram_usage": round(mean(ram_usage_samples[docker_entity_ref].values()), 2),
+            # "average_disk_usage": round(mean(disk_usage_samples[docker_entity_ref].values()), 2),
             # "average_rx_mb": round(mean(rx_usage_samples[docker_entity_ref].values()), 2),
             # "average_tx_mb": round(mean(tx_usage_samples[docker_entity_ref].values()), 2),
             "samples_cpu": cpu_cores_samples,

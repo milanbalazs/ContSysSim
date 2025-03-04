@@ -1,3 +1,36 @@
+"""
+Abstract Base Class for Container and Service Analyzers
+
+This module provides an abstract base class (`ContainerAnalyzerAbstract`) for analyzing
+Docker containers and Swarm services. It defines methods for retrieving container/service
+statistics, disk usage, and entity listings.
+
+Classes:
+    - ContainerAnalyzerAbstract:
+        Abstract class defining common methods for container/service analysis.
+
+Methods:
+    - get_container_or_service_ref(container_or_service_id, container_or_service_name) -> str:
+      Determines the reference ID or name of a container/service.
+    - get_stats(container_or_service_id, container_or_service_name) -> dict:
+      Abstract method to retrieve container/service statistics.
+    - get_disk_usage(container_or_service_id, container_or_service_name, swarm_mode) -> float:
+      Retrieves the total disk usage of a container or Swarm service.
+    - get_entity() -> list[docker.models.containers.Container | docker.models.services.Service]:
+      Abstract method to list all available containers or services.
+
+Usage Example:
+    class MyContainerAnalyzer(ContainerAnalyzerAbstract):
+        def get_stats(self, container_id, container_name):
+            return self.docker_client.containers.get(container_id).stats(stream=False)
+
+        def get_entity(self):
+            return self.docker_client.containers.list(all=True)
+
+    analyzer = MyContainerAnalyzer()
+    stats = analyzer.get_stats(container_id="0800b9b5426c")
+"""
+
 from logging import Logger
 from typing import Optional
 from abc import ABC, abstractmethod
@@ -10,10 +43,28 @@ LOGGER: Logger = get_logger()
 
 
 class ContainerAnalyzerAbstract(ABC):
+    """
+    Abstract base class for analyzing Docker containers and Swarm services.
+
+    This class provides an interface for retrieving container/service statistics,
+    disk usage, and entity listings, which should be implemented by subclasses.
+
+    Attributes:
+        docker_client (docker.DockerClient):
+            A Docker client instance for interacting with the Docker API.
+    """
+
     def __init__(
         self,
         docker_client: Optional[docker.DockerClient] = None,
     ) -> None:
+        """
+        Initializes the abstract container analyzer.
+
+        Args:
+            docker_client (Optional[docker.DockerClient]): A Docker client instance.
+                If not provided, a new instance is created from the environment.
+        """
         self.docker_client: docker.client.DockerClient = docker_client or docker.from_env()
 
     @staticmethod
@@ -21,9 +72,26 @@ class ContainerAnalyzerAbstract(ABC):
         container_or_service_id: Optional[str] = None,
         container_or_service_name: Optional[str] = None,
     ) -> str:
+        """
+        Determines the reference identifier for a container or Swarm service.
+
+        If both `container_or_service_id` and `container_or_service_name` are provided,
+        `container_or_service_id` is prioritized.
+
+        Args:
+            container_or_service_id (Optional[str]): The unique ID of the container/service.
+            container_or_service_name (Optional[str]): The name of the container/service.
+
+        Returns:
+            str: The reference ID or name of the container/service.
+
+        Raises:
+            AttributeError: If neither `container_or_service_id` nor
+                `container_or_service_name` is provided.
+        """
         if container_or_service_id and container_or_service_name:
             LOGGER.warning(
-                "The both of 'container_or_service_id', 'container_or_service_name' parameters are defined. "
+                "Both 'container_or_service_id' and 'container_or_service_name' are provided. "
                 "'container_or_service_id' will be used!"
             )
             container_ref: str = container_or_service_id
@@ -33,7 +101,7 @@ class ContainerAnalyzerAbstract(ABC):
             container_ref: str = container_or_service_name
         else:
             error_msg: str = (
-                "The 'container_or_service_id' or 'container_or_service_name' has to be defined!"
+                "The 'container_or_service_id' or 'container_or_service_name' must be provided!"
             )
             LOGGER.critical(error_msg)
             raise AttributeError(error_msg)
@@ -46,6 +114,16 @@ class ContainerAnalyzerAbstract(ABC):
         container_or_service_id: Optional[str] = None,
         container_or_service_name: Optional[str] = None,
     ) -> dict:
+        """
+        Abstract method to retrieve statistics of a Docker container or Swarm service.
+
+        Args:
+            container_or_service_id (Optional[str]): The unique ID of the container/service.
+            container_or_service_name (Optional[str]): The name of the container/service.
+
+        Returns:
+            dict: A dictionary containing statistics (e.g., CPU, RAM, Disk, Network usage).
+        """
         pass
 
     def get_disk_usage(
@@ -54,7 +132,22 @@ class ContainerAnalyzerAbstract(ABC):
         container_or_service_name: Optional[str] = None,
         swarm_mode: bool = False,
     ) -> float:
+        """
+        Retrieves the total disk usage of a Docker container or a Swarm service.
+
+        If Swarm mode is enabled, it calculates the total disk usage for all tasks (replicas)
+        of a given service.
+
+        Args:
+            container_or_service_id (Optional[str]): The unique ID of the container/service.
+            container_or_service_name (Optional[str]): The name of the container/service.
+            swarm_mode (bool, optional): Whether the target is a Swarm service (default: False).
+
+        Returns:
+            float: Total disk usage in MB. If the container/service is not found, returns 0.0.
+        """
         disk_info: dict = self.docker_client.df()  # Get system-wide disk usage details
+
         if swarm_mode:
             # Get all tasks (containers) belonging to the service
             tasks: list = self.docker_client.api.tasks(
@@ -97,4 +190,11 @@ class ContainerAnalyzerAbstract(ABC):
     def get_entity(
         self,
     ) -> list[docker.models.containers.Container | docker.models.services.Service]:
+        """
+        Abstract method to list all available containers or services.
+
+        Returns:
+            list[docker.models.containers.Container | docker.models.services.Service]:
+            A list of container or service entities.
+        """
         pass

@@ -1,3 +1,34 @@
+"""
+Containerized System Analyzer
+
+This module provides functionality for monitoring and analyzing the resource usage
+of Docker containers and Swarm services. It collects CPU, RAM, Disk, and Network
+statistics over a specified time window and computes average resource consumption.
+
+Classes:
+    - ContainerizedSystemAnalyzer: Monitors and analyzes container/service resource usage.
+
+Functions:
+    - parse_timestamp(timestamp: str) -> datetime: Parses and converts an ISO 8601 timestamp.
+    - get_cpu_cores_used(stat: dict) -> float: Computes the number of CPU cores actively used.
+    - get_ram_usage_mb(stat: dict) -> float: Retrieves RAM usage in MB.
+    - get_total_network_usage(start_stat: dict, end_stat: dict) -> dict: Calculates network usage.
+    - analyze_container_performance(container_or_service_id: Optional[str],
+        container_or_service_name: Optional[str]) -> dict:
+            Collects resource usage statistics over a time window and computes averages.
+
+Usage Example:
+    analyzer = ContainerizedSystemAnalyzer(time_window=20, period=0.1)
+    result = analyzer.analyze_container_performance("0800b9b5426c")
+
+    print(f"Average CPU Usage: {result['average_cpu_cores']} cores")
+    print(f"Average RAM Usage: {result['average_ram_usage_mb']} MB")
+    print(f"Average Disk Space Used: {result['average_disk_usage_mb']} MB")
+    print(f"Total Network RX: {result['average_rx_mb']} MB")
+    print(f"Total Network TX: {result['average_tx_mb']} MB")
+"""
+
+
 import time
 from typing import Optional
 from datetime import datetime
@@ -12,6 +43,19 @@ LOGGER: Logger = get_logger()
 
 
 class ContainerizedSystemAnalyzer:
+    """
+    Analyzes resource consumption of Docker containers or
+    Swarm services over a specified time window.
+    This class collects CPU, RAM, Disk, and Network usage statistics and computes averages.
+
+    Attributes:
+        time_window (int): The total duration (in seconds) for monitoring.
+        period (float): The interval (in seconds) between each measurement.
+        entries (list[str]): A list of resource metrics to monitor (e.g., "cpu", "ram", "disk"...).
+        analyzer (ContainerAnalyzer | ServiceAnalyzer):
+            The appropriate analyzer instance based on swarm mode.
+    """
+
     def __init__(
         self,
         time_window: int = 20,
@@ -19,6 +63,17 @@ class ContainerizedSystemAnalyzer:
         swarm_mode: bool = False,
         entries: Optional[list[str]] = None,
     ) -> None:
+        """
+        Initializes the containerized system analyzer.
+
+        Args:
+            time_window (int, optional): Duration (in seconds) to monitor
+                the container/service.
+            period (float, optional): Sampling interval (in seconds) between measurements.
+            swarm_mode (bool, optional): Whether to analyze a Swarm service instead of a container.
+            entries (Optional[list[str]], optional): List of metrics to track
+                (default: ["cpu", "ram", "disk", "bw"]).
+        """
         self.time_window: int = time_window
         self.period: float = period
         self.entries: list[str] = entries or ["cpu", "ram", "disk", "bw"]
@@ -29,7 +84,16 @@ class ContainerizedSystemAnalyzer:
 
     @staticmethod
     def parse_timestamp(timestamp: str) -> datetime:
-        """Parse the ISO 8601 timestamp from Docker stats, handling nanoseconds."""
+        """
+        Parses an ISO 8601 timestamp and converts it to a datetime object.
+        Handles nanoseconds by truncating them to microseconds.
+
+        Args:
+            timestamp (str): The timestamp string in ISO 8601 format.
+
+        Returns:
+            datetime: Parsed datetime object.
+        """
         timestamp: str = timestamp.rstrip("Z")  # Remove 'Z' if present
         parts: list[str] = timestamp.split(".")  # Split timestamp at decimal
 
@@ -41,7 +105,15 @@ class ContainerizedSystemAnalyzer:
 
     @staticmethod
     def get_cpu_cores_used(stat: dict) -> float:
-        """Calculate the number of CPU cores actively used."""
+        """
+        Calculates the number of CPU cores actively used by the container or service.
+
+        Args:
+            stat (dict): The statistics dictionary retrieved from Docker.
+
+        Returns:
+            float: The number of CPU cores actively used.
+        """
         precpu_stats: dict = stat["precpu_stats"]
         cpu_stats: dict = stat["cpu_stats"]
 
@@ -59,7 +131,15 @@ class ContainerizedSystemAnalyzer:
 
     @staticmethod
     def get_ram_usage_mb(stat: dict) -> float:
-        """Calculate RAM usage in MB."""
+        """
+        Calculates the RAM usage of the container/service in megabytes (MB).
+
+        Args:
+            stat (dict): The statistics dictionary retrieved from Docker.
+
+        Returns:
+            float: RAM usage in MB.
+        """
         memory_stats: dict = stat["memory_stats"]
         memory_usage: int = memory_stats["usage"]  # Bytes
 
@@ -67,6 +147,18 @@ class ContainerizedSystemAnalyzer:
 
     @staticmethod
     def get_total_network_usage(start_stat: dict, end_stat: dict) -> dict:
+        """
+        Computes the total network data used (MB) within the monitoring window.
+
+        Args:
+            start_stat (dict): Initial network statistics.
+            end_stat (dict): Final network statistics.
+
+        Returns:
+            dict: A dictionary containing:
+                - "total_rx_mb" (float): Total received data in MB.
+                - "total_tx_mb" (float): Total transmitted data in MB.
+        """
         networks_start: dict = start_stat.get("networks", {})
         networks_end: dict = end_stat.get("networks", {})
 
@@ -104,6 +196,27 @@ class ContainerizedSystemAnalyzer:
         container_or_service_id: Optional[str] = None,
         container_or_service_name: Optional[str] = None,
     ) -> dict:
+        """
+        Collects resource usage statistics for a Docker container
+            or Swarm service over a time window.
+
+        Args:
+            container_or_service_id (Optional[str], optional): The container or service ID.
+            container_or_service_name (Optional[str], optional): The container or service name.
+
+        Returns:
+            dict: A dictionary containing:
+                - "average_cpu_cores" (float): Average CPU cores used.
+                - "average_ram_usage_mb" (float): Average RAM usage in MB.
+                - "average_disk_usage_mb" (float): Average disk usage in MB.
+                - "average_rx_mb" (float): Average network received data in MB.
+                - "average_tx_mb" (float): Average network transmitted data in MB.
+                - "samples_cpu" (dict): CPU usage samples over time.
+                - "samples_ram" (dict): RAM usage samples over time.
+                - "samples_disk" (dict): Disk usage samples over time.
+                - "samples_rx" (dict): Network RX samples over time.
+                - "samples_tx" (dict): Network TX samples over time.
+        """
         start_time: float = time.time()
         cpu_cores_samples: dict = {}
         ram_usage_samples: dict = {}

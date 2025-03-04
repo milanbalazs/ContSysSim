@@ -18,15 +18,18 @@ class ServiceAnalyzer(ContainerAnalyzerAbstract):
 
     def get_stats(
         self,
-        container_id: Optional[str] = None,
-        container_name: Optional[str] = None,
+        service_id: Optional[str] = None,
+        service_name: Optional[str] = None,
     ) -> dict:
-        container_ref: str = self.get_container_ref(container_id, container_name)
+        container_ref: str = self.get_container_or_service_ref(service_id, service_name)
         container_stat: docker.models.services.Service = self.docker_client.services.get(
             container_ref
         )
         status: dict = container_stat.attrs
         return status
+
+    def get_entity(self) -> list[docker.models.services.Service]:
+        return self.docker_client.services.list(all=True)
 
 
 # JUST FOR TESTING

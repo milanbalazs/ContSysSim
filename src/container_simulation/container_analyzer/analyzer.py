@@ -2,9 +2,13 @@ import time
 from typing import Optional
 from datetime import datetime
 from statistics import mean
+from logging import Logger
 
+from container_simulation.utils import get_logger
 from container_simulation.container_analyzer.container_analyzer import ContainerAnalyzer
 from container_simulation.container_analyzer.service_analyzer import ServiceAnalyzer
+
+LOGGER: Logger = get_logger()
 
 
 class ContainerizedSystemAnalyzer:
@@ -14,36 +18,38 @@ class ContainerizedSystemAnalyzer:
         period: float = 0.1,
         swarm_mode: bool = False,
         entries: Optional[list[str]] = None,
-    ):
-        self.time_window = time_window
-        self.period = period
-        self.entries = entries or ["cpu", "ram", "disk", "bw"]
+    ) -> None:
+        self.time_window: int = time_window
+        self.period: float = period
+        self.entries: list[str] = entries or ["cpu", "ram", "disk", "bw"]
         if swarm_mode:
             self.analyzer: ServiceAnalyzer = ServiceAnalyzer()
         else:
             self.analyzer: ContainerAnalyzer = ContainerAnalyzer()
 
-    def parse_timestamp(self, timestamp: str) -> datetime:
+    @staticmethod
+    def parse_timestamp(timestamp: str) -> datetime:
         """Parse the ISO 8601 timestamp from Docker stats, handling nanoseconds."""
-        timestamp = timestamp.rstrip("Z")  # Remove 'Z' if present
-        parts = timestamp.split(".")  # Split timestamp at decimal
+        timestamp: str = timestamp.rstrip("Z")  # Remove 'Z' if present
+        parts: list[str] = timestamp.split(".")  # Split timestamp at decimal
 
         if len(parts) == 2 and len(parts[1]) > 6:
             # Convert nanoseconds to microseconds by truncating extra digits
-            timestamp = f"{parts[0]}.{parts[1][:6]}"
+            timestamp: str = f"{parts[0]}.{parts[1][:6]}"
 
         return datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S.%f")
 
-    def get_cpu_cores_used(self, stat: dict) -> float:
+    @staticmethod
+    def get_cpu_cores_used(stat: dict) -> float:
         """Calculate the number of CPU cores actively used."""
-        precpu_stats = stat["precpu_stats"]
-        cpu_stats = stat["cpu_stats"]
+        precpu_stats: dict = stat["precpu_stats"]
+        cpu_stats: dict = stat["cpu_stats"]
 
-        total_usage_diff = (
+        total_usage_diff: float = (
             cpu_stats["cpu_usage"]["total_usage"] - precpu_stats["cpu_usage"]["total_usage"]
         )
-        system_usage_diff = cpu_stats["system_cpu_usage"] - precpu_stats["system_cpu_usage"]
-        online_cpus = cpu_stats["online_cpus"]
+        system_usage_diff: float = cpu_stats["system_cpu_usage"] - precpu_stats["system_cpu_usage"]
+        online_cpus: float = cpu_stats["online_cpus"]
 
         return (
             round((total_usage_diff / system_usage_diff) * online_cpus, 3)
@@ -51,46 +57,42 @@ class ContainerizedSystemAnalyzer:
             else 0.0
         )
 
-    def get_ram_usage_mb(self, stat: dict) -> float:
+    @staticmethod
+    def get_ram_usage_mb(stat: dict) -> float:
         """Calculate RAM usage in MB."""
-        memory_stats = stat["memory_stats"]
-        memory_usage = memory_stats["usage"]  # Bytes
+        memory_stats: dict = stat["memory_stats"]
+        memory_usage: int = memory_stats["usage"]  # Bytes
 
         return round(memory_usage / (1024**2), 2)  # Convert to MB
 
-    def get_total_network_usage(self, start_stat: dict, end_stat: dict) -> dict:
-        """
-        Calculate the total network data used (MB) within a time window.
-
-        Returns:
-        - dict : Total network usage in MB.
-        """
-        networks_start = start_stat.get("networks", {})
-        networks_end = end_stat.get("networks", {})
+    @staticmethod
+    def get_total_network_usage(start_stat: dict, end_stat: dict) -> dict:
+        networks_start: dict = start_stat.get("networks", {})
+        networks_end: dict = end_stat.get("networks", {})
 
         if not networks_start or not networks_end:
-            print("WARNING: No network data available.")
+            LOGGER.warning("No network data available. 0 (zero) will be used!")
             return {"total_rx_mb": 0.0, "total_tx_mb": 0.0}
 
         # Auto-detect the first available network interface
-        network_interface = next(iter(networks_start), None)
+        network_interface: str = next(iter(networks_start), None)
         if not network_interface:
-            print("WARNING: No network interfaces found.")
+            LOGGER.warning("No network interfaces found. 0 (zero) will be used!")
             return {"total_rx_mb": 0.0, "total_tx_mb": 0.0}
 
-        print(f"DEBUG: Using network interface: {network_interface}")
+        LOGGER.debug(f"DEBUG: Using network interface: {network_interface}")
 
         # Extract data
-        rx_start = networks_start.get(network_interface, {}).get("rx_bytes", 0)
-        tx_start = networks_start.get(network_interface, {}).get("tx_bytes", 0)
-        rx_end = networks_end.get(network_interface, {}).get("rx_bytes", 0)
-        tx_end = networks_end.get(network_interface, {}).get("tx_bytes", 0)
+        rx_start: int = networks_start.get(network_interface, {}).get("rx_bytes", 0)
+        tx_start: int = networks_start.get(network_interface, {}).get("tx_bytes", 0)
+        rx_end: int = networks_end.get(network_interface, {}).get("rx_bytes", 0)
+        tx_end: int = networks_end.get(network_interface, {}).get("tx_bytes", 0)
 
-        print(f"DEBUG: Network RX start: {rx_start} bytes, end: {rx_end} bytes")  # Debugging
-        print(f"DEBUG: Network TX start: {tx_start} bytes, end: {tx_end} bytes")  # Debugging
+        LOGGER.debug(f"DEBUG: Network RX start: {rx_start} bytes, end: {rx_end} bytes")  # Debugging
+        LOGGER.debug(f"DEBUG: Network TX start: {tx_start} bytes, end: {tx_end} bytes")  # Debugging
 
-        total_rx = max(rx_end - rx_start, 0) / (1024**2)  # Convert bytes to MB
-        total_tx = max(tx_end - tx_start, 0) / (1024**2)  # Convert bytes to MB
+        total_rx: float = max(rx_end - rx_start, 0) / (1024**2)  # Convert bytes to MB
+        total_tx: float = max(tx_end - tx_start, 0) / (1024**2)  # Convert bytes to MB
 
         return {
             "total_rx_mb": round(total_rx, 2),
@@ -102,40 +104,69 @@ class ContainerizedSystemAnalyzer:
         container_or_service_id: Optional[str] = None,
         container_or_service_name: Optional[str] = None,
     ) -> dict:
-        """Collect data over a time window and compute total resource consumption values."""
-        start_time = time.time()
-        cpu_cores_samples = []
-        ram_usage_samples = []
-        disk_usage_samples = []
+        start_time: float = time.time()
+        cpu_cores_samples: dict = {}
+        ram_usage_samples: dict = {}
+        disk_usage_samples: dict = {}
+        rx_usage_samples: dict = {}
+        tx_usage_samples: dict = {}
 
         # Get initial stats
-        start_stat = self.analyzer.get_stats(container_or_service_id, container_or_service_name)
+        previous_stat: dict = self.analyzer.get_stats(
+            container_or_service_id, container_or_service_name
+        )
+
+        sample_tick: float = 0
 
         while (time.time() - start_time) < self.time_window:
-            time.sleep(self.period)
-            current_stat = self.analyzer.get_stats(
+            current_stat: dict = self.analyzer.get_stats(
                 container_or_service_id, container_or_service_name
             )
 
             # CPU and RAM usage
-            cpu_cores_samples.append(self.get_cpu_cores_used(current_stat))
-            ram_usage_samples.append(self.get_ram_usage_mb(current_stat))
+            cpu_cores_samples[str(sample_tick)] = self.get_cpu_cores_used(current_stat)
+            ram_usage_samples[str(sample_tick)] = self.get_ram_usage_mb(current_stat)
 
             # Disk Usage (instead of R/W speed)
-            disk_usage_samples.append(self.analyzer.get_disk_usage(container_or_service_id))
+            disk_usage_samples[str(sample_tick)] = self.analyzer.get_disk_usage(
+                container_or_service_id
+            )
 
-        # Get final stats after the time window
-        end_stat = self.analyzer.get_stats(container_or_service_id, container_or_service_name)
+            # Extract network stats
+            networks_current = current_stat.get("networks", {})
+            networks_previous = previous_stat.get("networks", {})
 
-        # Compute total network usage
-        total_network_usage = self.get_total_network_usage(start_stat, end_stat)
+            # Auto-detect the first available network interface
+            network_interface: str = next(iter(networks_current), None)
+
+            if network_interface and network_interface in networks_previous:
+                rx_now = networks_current[network_interface].get("rx_bytes", 0)
+                tx_now = networks_current[network_interface].get("tx_bytes", 0)
+
+                rx_prev = networks_previous[network_interface].get("rx_bytes", 0)
+                tx_prev = networks_previous[network_interface].get("tx_bytes", 0)
+
+                # Calculate per-tick network usage
+                rx_usage_samples[str(sample_tick)] = max(rx_now - rx_prev, 0) / (1024**2)  # MB
+                tx_usage_samples[str(sample_tick)] = max(tx_now - tx_prev, 0) / (1024**2)  # MB
+
+            # Update previous stat for next iteration
+            previous_stat = current_stat
+
+            sample_tick += self.period
+            time.sleep(self.period)
 
         return {
-            "average_cpu_cores": round(mean(cpu_cores_samples), 3),
-            "average_ram_usage_mb": round(mean(ram_usage_samples), 2),
-            "average_disk_usage_mb": round(mean(disk_usage_samples), 2),
-            "total_network_rx_mb": total_network_usage["total_rx_mb"],
-            "total_network_tx_mb": total_network_usage["total_tx_mb"],
+            "average_cpu_cores": round(mean(cpu_cores_samples.values()), 3),
+            "average_ram_usage_mb": round(mean(ram_usage_samples.values()), 2),
+            "average_disk_usage_mb": round(mean(disk_usage_samples.values()), 2),
+            "average_rx_mb": round(mean(rx_usage_samples.values()), 2),
+            "average_tx_mb": round(mean(tx_usage_samples.values()), 2),
+            "samples_cpu": cpu_cores_samples,
+            "samples_ram": ram_usage_samples,
+            "samples_disk": disk_usage_samples,
+            "samples_rx": rx_usage_samples,
+            "samples_tx": tx_usage_samples,
         }
 
 
@@ -146,5 +177,5 @@ if __name__ == "__main__":
     print(f"Average CPU Usage: {result['average_cpu_cores']} cores")
     print(f"Average RAM Usage: {result['average_ram_usage_mb']} MB")
     print(f"Average Disk Space Used: {result['average_disk_usage_mb']} MB")
-    print(f"Total Network RX: {result['total_network_rx_mb']} MB")
-    print(f"Total Network TX: {result['total_network_tx_mb']} MB")
+    print(f"Total Network RX: {result['average_rx_mb']} MB")
+    print(f"Total Network TX: {result['average_tx_mb']} MB")

@@ -18,11 +18,11 @@ $$\text{CPU Cores Used} = \left(\frac{\Delta \text{total usage}}{\Delta \text{sy
 
 Where:
 
-$$\Delta \text{total usage} = \text{cpu_stats['cpu_usage']['total_usage']} - \text{precpu_stats['cpu_usage']['total_usage']}$$
+$$\Delta \text{total usage} = \texttt{cpu\_stats['cpu\_usage']['total\_usage']} - \texttt{precpu_stats['cpu\_usage']['total\_usage']}$$
 
-$$\Delta \text{system usage} = \text{cpu_stats['system_cpu_usage']} - \text{precpu_stats['system_cpu_usage']}$$
+$$\Delta \text{system usage} = \texttt{cpu\_stats['system\_cpu\_usage']} - \texttt{precpu_stats['system\_cpu\_usage']}$$
 
-$$\text{online CPUs} = \text{cpu_stats['online_cpus']}$$
+$$\text{online CPUs} = \texttt{cpu\_stats['online\_cpus']}$$
 
 ### **Description**
 

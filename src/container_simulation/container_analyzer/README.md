@@ -77,7 +77,7 @@ To compute **total network traffic**, we need the following values from `Docker 
 - `txInitBytes` → `start_stat[networks]['tx_bytes']` → Total transmitted bytes (Init values)
 - `rxFinalBytes` → `end_stat[pre_networks][interface]['rx_bytes']` → Total received bytes (Final values)
 - `txFinalBytes` → `end_stat[pre_networks][interface]['tx_bytes']` → Total transmitted bytes (Final values)
-- 
+
 ### **Formula**
 
 $$\text{Total Network RX (MB)} = \frac{\text{Final RX Bytes} - \text{Initial RX Bytes}}{1024^2}$$

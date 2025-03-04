@@ -6,11 +6,11 @@
 
 To compute **CPU cores used**, we need the following values from `Docker stats`:
 
-- `cpu_stats['cpu_usage']['total_usage']`
-- `precpu_stats['cpu_usage']['total_usage']`
-- `cpu_stats['system_cpu_usage']`
-- `precpu_stats['system_cpu_usage']`
-- `cpu_stats['online_cpus']`
+- `cpuTotalUsage` → `cpu_stats['cpu_usage']['total_usage']`
+- `cpuPreTotalUsage` → `precpu_stats['cpu_usage']['total_usage']`
+- `cpuSystemUsgae` → `cpu_stats['system_cpu_usage']`
+- `cpuPreSystemUsgae` → `precpu_stats['system_cpu_usage']`
+- `cpuOnline` → `cpu_stats['online_cpus']`
 
 ### **Formula**
 
@@ -18,11 +18,11 @@ $$\text{CPU Cores Used} = \left(\frac{\Delta \text{total usage}}{\Delta \text{sy
 
 Where:
 
-$$\Delta \text{total usage} = \texttt{cpu\_stats['cpu\_usage']['total\_usage']} - \texttt{precpu_stats['cpu\_usage']['total\_usage']}$$
+$$\Delta \text{total usage} = \text{cpuTotalUsage} - \text{cpuPreTotalUsage}$$
 
-$$\Delta \text{system usage} = \texttt{cpu\_stats['system\_cpu\_usage']} - \texttt{precpu_stats['system\_cpu\_usage']}$$
+$$\Delta \text{system usage} = \text{cpuSystemUsgae} - \text{cpuPreSystemUsgae}$$
 
-$$\text{online CPUs} = \texttt{cpu\_stats['online\_cpus']}$$
+$$\text{online CPUs} = \text{cpuOnline}$$
 
 ### **Description**
 
@@ -39,11 +39,11 @@ $$\text{online CPUs} = \texttt{cpu\_stats['online\_cpus']}$$
 
 To determine **RAM consumption in MB**, we need the following values from `Docker stats`:
 
-- `memory_stats['usage']` (current memory usage in bytes)
+- `memoryUsage` → `memory_stats['usage']` (current memory usage in bytes)
 
 ### **Formula**
 
-$$\text{RAM Usage (MB)} = \frac{\text{memory_stats['usage']}}{1024^2}$$
+$$\text{RAM Usage (MB)} = \frac{\text{memoryUsage}}{1024^2}$$
 
 ### **Description**
 
@@ -70,23 +70,30 @@ Instead of measuring **Disk Read/Write speeds**, we now compute the **total disk
 Instead of measuring **network speed (MB/s)**, we calculate the **total network data used (MB)**.
 
 ### **Extracted Parameters**
-To compute **total network traffic**, we need:
-- `networks[interface]['rx_bytes']` → Total received bytes
-- `networks[interface]['tx_bytes']` → Total transmitted bytes
 
+To compute **total network traffic**, we need the following values from `Docker stats`:
+
+- `rxInitBytes` → `start_stat[networks][interface]['rx_bytes']` → Total received bytes (Init values)
+- `txInitBytes` → `start_stat[networks]['tx_bytes']` → Total transmitted bytes (Init values)
+- `rxFinalBytes` → `end_stat[pre_networks][interface]['rx_bytes']` → Total received bytes (Final values)
+- `txFinalBytes` → `end_stat[pre_networks][interface]['tx_bytes']` → Total transmitted bytes (Final values)
+- 
 ### **Formula**
+
 $$\text{Total Network RX (MB)} = \frac{\text{Final RX Bytes} - \text{Initial RX Bytes}}{1024^2}$$
 
 $$\text{Total Network TX (MB)} = \frac{\text{Final TX Bytes} - \text{Initial TX Bytes}}{1024^2}$$
 
 Where:
 
-$$\text{Initial RX Bytes} = \text{start_stat['networks'][interface]['rx_bytes']}$$  
-$$\text{Final RX Bytes} = \text{end_stat['networks'][interface]['rx_bytes']}$$
+$$\text{Initial RX Bytes} = \text{rxInitBytes}$$
 
-$$\text{Initial TX Bytes} = \text{start_stat['networks'][interface]['tx_bytes']}$$  
-$$\text{Final TX Bytes} = \text{end_stat['networks'][interface]['tx_bytes']}$$  
+$$\text{Final RX Bytes} = \text{rxFinalBytes}$$
+
+$$\text{Initial TX Bytes} = \text{txInitBytes}$$
+
+$$\text{Final TX Bytes} = \text{txFinalBytes}$$
 
 ### **Description**
-- Instead of **network speed**, we now compute **total data sent and received** over the time window.
+- Instead of **network speed**, compute **total data sent and received** over the time window.
 - This helps in tracking **container network consumption** instead of just speed.

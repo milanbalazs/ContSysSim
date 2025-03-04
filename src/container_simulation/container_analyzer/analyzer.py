@@ -28,7 +28,6 @@ Usage Example:
     print(f"Total Network TX: {result['average_tx_mb']} MB")
 """
 
-
 import time
 from typing import Optional
 from datetime import datetime

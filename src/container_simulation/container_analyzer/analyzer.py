@@ -313,9 +313,9 @@ class ContainerizedSystemAnalyzer:
                 )
 
                 # Disk Usage (instead of R/W speed)
-                disk_usage_samples[docker_entity_name][
-                    formatted_tick
-                ] = self.analyzer.get_disk_usage(container_or_service_name=docker_entity_name)
+                disk_usage_samples[docker_entity_name][formatted_tick] = (
+                    self.analyzer.get_disk_usage(container_or_service_name=docker_entity_name)
+                )
 
                 # Extract network stats
                 networks_current = current_stat.get("networks", {})

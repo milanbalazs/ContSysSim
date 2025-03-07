@@ -33,7 +33,7 @@ import json
 from typing import Optional
 from datetime import datetime
 
-# from statistics import mean
+from statistics import mean
 from logging import Logger
 
 from container_simulation.utils import get_logger
@@ -127,7 +127,7 @@ class ContainerizedSystemAnalyzer:
         online_cpus: float = cpu_stats["online_cpus"]
 
         return (
-            round((total_usage_diff / system_usage_diff) * online_cpus, 3)
+            round((total_usage_diff / system_usage_diff) * online_cpus, 4)
             if system_usage_diff > 0
             else 0.0
         )
@@ -146,7 +146,7 @@ class ContainerizedSystemAnalyzer:
         memory_stats: dict = stat["memory_stats"]
         memory_usage: int = memory_stats["usage"]  # Bytes
 
-        return round(memory_usage / (1024**2), 2)  # Convert to MB
+        return round(memory_usage / (1024**2), 4)  # Convert to MB
 
     @staticmethod
     def get_total_network_usage(start_stat: dict, end_stat: dict) -> dict:
@@ -190,9 +190,35 @@ class ContainerizedSystemAnalyzer:
         total_tx: float = max(tx_end - tx_start, 0) / (1024**2)  # Convert bytes to MB
 
         return {
-            "total_rx_mb": round(total_rx, 2),
-            "total_tx_mb": round(total_tx, 2),
+            "total_rx_mb": round(total_rx, 4),
+            "total_tx_mb": round(total_tx, 4),
         }
+
+    def get_mean_values(self, samples: dict) -> dict:
+        """
+        Computes the mean values from collected resource usage samples.
+
+        Args:
+            samples (dict): A dictionary containing resource usage samples.
+
+        Returns:
+            dict: A dictionary with entity-wise mean values.
+        """
+        return_structure: dict = {}
+        tmp_structure: dict = {}
+
+        for entity, ticks in samples.items():  # ticks is now the inner dict (time: value)
+            if entity not in tmp_structure:
+                tmp_structure[entity] = []
+
+            for tick in ticks:  # Iterate over actual sample tick timestamps
+                tmp_structure[entity].append(ticks[tick])
+
+        # Compute the mean for each entity
+        for entity in tmp_structure.keys():
+            return_structure[entity] = round(mean(tmp_structure[entity]), 4)  # Proper mean
+
+        return return_structure
 
     # TODO: This method is too big. Cross-check how can be split it.
     def analyze_container_performance(
@@ -234,16 +260,12 @@ class ContainerizedSystemAnalyzer:
         """
         start_time: float = time.time()
 
+        previous_stat: dict = {}
         cpu_cores_samples: dict = {}
         ram_usage_samples: dict = {}
         disk_usage_samples: dict = {}
         rx_usage_samples: dict = {}
         tx_usage_samples: dict = {}
-
-        # Get initial stats
-        previous_stat: dict = self.analyzer.get_stats(
-            container_or_service_id, container_or_service_name
-        )
 
         if all_entity:
             analyze_entities = self.analyzer.get_entity()
@@ -258,40 +280,46 @@ class ContainerizedSystemAnalyzer:
 
         already_analyzed: list[str] = []
 
+        # TODO: Fix the timestamp in the structure. The tick is not OK.
+
         while (time.time() - start_time) < self.time_window:
             for docker_entity in analyze_entities:
-                if docker_entity not in already_analyzed:
-                    cpu_cores_samples[docker_entity] = {}
-                    ram_usage_samples[docker_entity] = {}
-                    disk_usage_samples[docker_entity] = {}
-                    rx_usage_samples[docker_entity] = {}
-                    tx_usage_samples[docker_entity] = {}
-
-                already_analyzed.append(docker_entity)
-
-                current_stat: dict = self.analyzer.get_stats(
-                    container_or_service_id, container_or_service_name
-                )
-
-                # Format sample_tick to remove floating-point precision errors
+                docker_entity_name = docker_entity.name
                 formatted_tick: str = "{:.2f}".format(sample_tick).rstrip("0").rstrip(".")
 
+                # Ensure entity is initialized
+                if docker_entity_name not in already_analyzed:
+                    previous_stat[docker_entity_name] = self.analyzer.get_stats(
+                        name=docker_entity_name
+                    )
+
+                    cpu_cores_samples[docker_entity_name] = {}
+                    ram_usage_samples[docker_entity_name] = {}
+                    disk_usage_samples[docker_entity_name] = {}
+                    rx_usage_samples[docker_entity_name] = {}
+                    tx_usage_samples[docker_entity_name] = {}
+
+                    already_analyzed.append(docker_entity_name)
+
+                # Get current stats
+                current_stat: dict = self.analyzer.get_stats(name=docker_entity_name)
+
                 # CPU and RAM usage
-                cpu_cores_samples[docker_entity][formatted_tick] = self.get_cpu_cores_used(
+                cpu_cores_samples[docker_entity_name][formatted_tick] = self.get_cpu_cores_used(
                     current_stat
                 )
-                ram_usage_samples[docker_entity][formatted_tick] = self.get_ram_usage_mb(
+                ram_usage_samples[docker_entity_name][formatted_tick] = self.get_ram_usage_mb(
                     current_stat
                 )
 
                 # Disk Usage (instead of R/W speed)
-                disk_usage_samples[docker_entity][formatted_tick] = self.analyzer.get_disk_usage(
-                    container_or_service_id
-                )
+                disk_usage_samples[docker_entity_name][
+                    formatted_tick
+                ] = self.analyzer.get_disk_usage(container_or_service_name=docker_entity_name)
 
                 # Extract network stats
                 networks_current = current_stat.get("networks", {})
-                networks_previous = previous_stat.get("networks", {})
+                networks_previous = previous_stat[docker_entity_name].get("networks", {})
 
                 # Auto-detect the first available network interface
                 network_interface: str = next(iter(networks_current), None)
@@ -304,15 +332,19 @@ class ContainerizedSystemAnalyzer:
                     tx_prev = networks_previous[network_interface].get("tx_bytes", 0)
 
                     # Calculate per-tick network usage
-                    rx_usage_samples[docker_entity][formatted_tick] = max(rx_now - rx_prev, 0) / (
+                    rx_usage_samples[docker_entity_name][formatted_tick] = max(
+                        rx_now - rx_prev, 0
+                    ) / (
                         1024**2
                     )  # MB
-                    tx_usage_samples[docker_entity][formatted_tick] = max(tx_now - tx_prev, 0) / (
+                    tx_usage_samples[docker_entity_name][formatted_tick] = max(
+                        tx_now - tx_prev, 0
+                    ) / (
                         1024**2
                     )  # MB
 
-            # Update previous stat for next iteration
-            previous_stat = current_stat
+                # Update previous stats **after** all measurements
+                previous_stat[docker_entity_name] = current_stat
 
             sample_tick += self.period
             time.sleep(self.period)
@@ -332,12 +364,11 @@ class ContainerizedSystemAnalyzer:
             LOGGER.info(f"Results saved to {filename}")
 
         return {
-            # "average_cpu_cores": round(mean(cpu_cores_samples[docker_entity_ref].values()), 3),
-            # Below the "_mb" suffix is needed, I just removed due to too long line...
-            # "average_ram_usage": round(mean(ram_usage_samples[docker_entity_ref].values()), 2),
-            # "average_disk_usage": round(mean(disk_usage_samples[docker_entity_ref].values()), 2),
-            # "average_rx_mb": round(mean(rx_usage_samples[docker_entity_ref].values()), 2),
-            # "average_tx_mb": round(mean(tx_usage_samples[docker_entity_ref].values()), 2),
+            "mean_cpu_cores": self.get_mean_values(cpu_cores_samples),
+            "mean_ram_usage_mb": self.get_mean_values(ram_usage_samples),
+            "mean_disk_usage_mb": self.get_mean_values(disk_usage_samples),
+            "mean_rx_mb": self.get_mean_values(rx_usage_samples),
+            "mean_tx_mb": self.get_mean_values(tx_usage_samples),
             "samples_cpu": cpu_cores_samples,
             "samples_ram": ram_usage_samples,
             "samples_disk": disk_usage_samples,
@@ -347,13 +378,13 @@ class ContainerizedSystemAnalyzer:
 
 
 if __name__ == "__main__":
-    analyzer = ContainerizedSystemAnalyzer(time_window=20, period=0.1)
-    result = analyzer.analyze_container_performance("0800b9b5426c", write_to_file=True)
+    analyzer = ContainerizedSystemAnalyzer(time_window=30, period=0.1)
+    result = analyzer.analyze_container_performance(all_entity=True, write_to_file=True)
 
     print("FINISHED!")
 
-    # print(f"Average CPU Usage: {result['average_cpu_cores']} cores")
-    # print(f"Average RAM Usage: {result['average_ram_usage_mb']} MB")
-    # print(f"Average Disk Space Used: {result['average_disk_usage_mb']} MB")
-    # print(f"Total Network RX: {result['average_rx_mb']} MB")
-    # print(f"Total Network TX: {result['average_tx_mb']} MB")
+    print(f"Average CPU Usage: {result['mean_cpu_cores']} cores")
+    print(f"Average RAM Usage: {result['mean_ram_usage_mb']} MB")
+    print(f"Average Disk Space Used: {result['mean_disk_usage_mb']} MB")
+    print(f"Total Network RX: {result['mean_rx_mb']} MB")
+    print(f"Total Network TX: {result['mean_tx_mb']} MB")

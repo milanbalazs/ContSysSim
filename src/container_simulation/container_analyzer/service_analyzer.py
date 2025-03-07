@@ -56,8 +56,8 @@ class ServiceAnalyzer(ContainerAnalyzerAbstract):
 
     def get_stats(
         self,
-        service_id: Optional[str] = None,
-        service_name: Optional[str] = None,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
     ) -> dict:
         """
         Retrieves real-time resource statistics for a specified Docker Swarm service.
@@ -65,8 +65,8 @@ class ServiceAnalyzer(ContainerAnalyzerAbstract):
         The statistics include CPU usage, RAM usage, disk I/O, and network I/O.
 
         Args:
-            service_id (Optional[str]): The unique ID of the Swarm service.
-            service_name (Optional[str]): The name of the Swarm service.
+            id (Optional[str]): The unique ID of the Swarm service.
+            name (Optional[str]): The name of the Swarm service.
 
         Returns:
             dict: A dictionary containing service statistics, including:
@@ -85,11 +85,8 @@ class ServiceAnalyzer(ContainerAnalyzerAbstract):
             >>> stats = analyzer.get_stats(service_id="0800b9b5426c")
             >>> print(stats)
         """
-        container_ref: str = self.get_container_or_service_ref(service_id, service_name)
-        container_stat: docker.models.services.Service = self.docker_client.services.get(
-            container_ref
-        )
-        status: dict = container_stat.attrs
+        container_ref: docker.models.services.Service = self.get_container_or_service_ref(id, name)
+        status: dict = container_ref.attrs
         return status
 
     def get_entity(self) -> list[docker.models.services.Service]:
@@ -105,7 +102,7 @@ class ServiceAnalyzer(ContainerAnalyzerAbstract):
             >>> for service in services:
             >>>     print(service.name)
         """
-        return self.docker_client.services.list(all=True)
+        return self.docker_client.services.list()
 
 
 # JUST FOR TESTING

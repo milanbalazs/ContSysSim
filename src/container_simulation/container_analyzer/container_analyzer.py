@@ -55,8 +55,8 @@ class ContainerAnalyzer(ContainerAnalyzerAbstract):
 
     def get_stats(
         self,
-        container_id: Optional[str] = None,
-        container_name: Optional[str] = None,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
     ) -> dict:
         """
         Retrieves real-time resource statistics for a specified Docker container.
@@ -64,8 +64,8 @@ class ContainerAnalyzer(ContainerAnalyzerAbstract):
         The statistics include CPU usage, RAM usage, disk I/O, and network I/O.
 
         Args:
-            container_id (Optional[str]): The unique ID of the container.
-            container_name (Optional[str]): The name of the container.
+            id (Optional[str]): The unique ID of the container.
+            name (Optional[str]): The name of the container.
 
         Returns:
             dict: A dictionary containing container statistics, including:
@@ -84,11 +84,10 @@ class ContainerAnalyzer(ContainerAnalyzerAbstract):
             >>> stats = analyzer.get_stats(container_id="0800b9b5426c")
             >>> print(stats)
         """
-        container_ref: str = self.get_container_or_service_ref(container_id, container_name)
-        container_stat: docker.models.containers.Container = self.docker_client.containers.get(
-            container_ref
+        container_ref: docker.models.containers.Container = self.get_container_or_service_ref(
+            id, name
         )
-        status: dict = container_stat.stats(decode=None, stream=False)
+        status: dict = container_ref.stats(decode=None, stream=False)
         return status
 
     def get_entity(self) -> list[docker.models.containers.Container]:
@@ -104,7 +103,7 @@ class ContainerAnalyzer(ContainerAnalyzerAbstract):
             >>> for container in containers:
             >>>     print(container.name)
         """
-        return self.docker_client.containers.list(all=True)
+        return self.docker_client.containers.list()
 
 
 # JUST FOR TESTING

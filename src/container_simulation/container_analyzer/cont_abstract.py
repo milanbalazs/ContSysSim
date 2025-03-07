@@ -67,11 +67,11 @@ class ContainerAnalyzerAbstract(ABC):
         """
         self.docker_client: docker.client.DockerClient = docker_client or docker.from_env()
 
-    @staticmethod
     def get_container_or_service_ref(
+        self,
         container_or_service_id: Optional[str] = None,
         container_or_service_name: Optional[str] = None,
-    ) -> str:
+    ) -> docker.models.containers.Container | docker.models.services.Service:
         """
         Determines the reference identifier for a container or Swarm service.
 
@@ -83,7 +83,8 @@ class ContainerAnalyzerAbstract(ABC):
             container_or_service_name (Optional[str]): The name of the container/service.
 
         Returns:
-            str: The reference ID or name of the container/service.
+            docker.models.containers.Container | docker.models.services.Service:
+                The Container or Service object.
 
         Raises:
             AttributeError: If neither `container_or_service_id` nor
@@ -106,20 +107,23 @@ class ContainerAnalyzerAbstract(ABC):
             LOGGER.critical(error_msg)
             raise AttributeError(error_msg)
 
-        return container_ref
+        try:
+            return self.docker_client.containers.get(container_ref)
+        except Exception:
+            return self.docker_client.services.get(container_ref)
 
     @abstractmethod
     def get_stats(
         self,
-        container_or_service_id: Optional[str] = None,
-        container_or_service_name: Optional[str] = None,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
     ) -> dict:
         """
         Abstract method to retrieve statistics of a Docker container or Swarm service.
 
         Args:
-            container_or_service_id (Optional[str]): The unique ID of the container/service.
-            container_or_service_name (Optional[str]): The name of the container/service.
+            id (Optional[str]): The unique ID of the container/service.
+            name (Optional[str]): The name of the container/service.
 
         Returns:
             dict: A dictionary containing statistics (e.g., CPU, RAM, Disk, Network usage).
@@ -175,12 +179,14 @@ class ContainerAnalyzerAbstract(ABC):
 
         else:
             # Normal mode: Get disk usage for a single container
-            container_ref: str = self.get_container_or_service_ref(
-                container_or_service_id, container_or_service_name
+            container_ref: docker.models.containers.Container | docker.models.services.Service = (
+                self.get_container_or_service_ref(
+                    container_or_service_id, container_or_service_name
+                )
             )
             for container in disk_info["Containers"]:
-                if container["Id"].startswith(container_ref) or any(
-                    container_ref in name for name in container["Names"]
+                if container["Id"].startswith(container_ref.id) or any(
+                    container_ref.name in name for name in container["Names"]
                 ):
                     return round(container["SizeRootFs"] / (1024**2), 2)  # Convert bytes to MB
 

@@ -20,16 +20,11 @@ Functions:
 Usage Example:
     analyzer = ContainerizedSystemAnalyzer(time_window=20, period=0.1)
     result = analyzer.analyze_container_performance("0800b9b5426c")
-
-    print(f"Average CPU Usage: {result['average_cpu_cores']} cores")
-    print(f"Average RAM Usage: {result['average_ram_usage_mb']} MB")
-    print(f"Average Disk Space Used: {result['average_disk_usage_mb']} MB")
-    print(f"Total Network RX: {result['average_rx_mb']} MB")
-    print(f"Total Network TX: {result['average_tx_mb']} MB")
 """
 
 import time
 import json
+import socket
 from typing import Optional
 from datetime import datetime
 
@@ -195,31 +190,23 @@ class ContainerizedSystemAnalyzer:
         }
 
     @staticmethod
-    def get_mean_values(samples: dict) -> dict:
+    def get_mean_values(entity_samples: dict, resource_property: str) -> float:
         """
-        Computes the mean values from collected resource usage samples.
+        Computes the mean values from collected resource usage samples for a single entity.
 
         Args:
-            samples (dict): A dictionary containing resource usage samples.
+            entity_samples (dict): A dictionary containing resource usage samples for one entity.
+            resource_property (str): The key in the dict which will be used for mean calculation.
 
         Returns:
-            dict: A dictionary with entity-wise mean values.
+            float: The mean value for the given resource property.
         """
-        return_structure: dict = {}
-        tmp_structure: dict = {}
+        if resource_property not in entity_samples:
+            LOGGER.warning(f"{resource_property} not found in entity_samples")
+            return 0.0  # Return 0 if the resource is missing
 
-        for entity, ticks in samples.items():  # ticks is now the inner dict (time: value)
-            if entity not in tmp_structure:
-                tmp_structure[entity] = []
-
-            for tick in ticks:  # Iterate over actual sample tick timestamps
-                tmp_structure[entity].append(ticks[tick])
-
-        # Compute the mean for each entity
-        for entity in tmp_structure.keys():
-            return_structure[entity] = round(mean(tmp_structure[entity]), 4)  # Proper mean
-
-        return return_structure
+        values = list(entity_samples[resource_property].values())
+        return round(mean(values), 4) if values else 0.0  # Return mean or 0 if empty
 
     def analyze_container_performance(
         self,
@@ -253,11 +240,10 @@ class ContainerizedSystemAnalyzer:
                 - "samples_tx" (dict): Network TX samples over time.
         """
         start_time: float = time.time()
-        previous_stat, samples = self._initialize_sample_storage()
         analyze_entities = self._get_analyze_entities(
             container_or_service_id, container_or_service_name, all_entity
         )
-
+        previous_stat, samples = self._initialize_sample_storage(analyze_entities)
         sample_tick: float = 0
         already_analyzed: list[str] = []
 
@@ -273,8 +259,50 @@ class ContainerizedSystemAnalyzer:
 
         return self._compute_results(samples)
 
-    @staticmethod
-    def _initialize_sample_storage() -> tuple[dict, dict]:
+    def _get_service_node_host(self, service_name: str) -> list[str]:
+        """
+        Retrieves the hostname of the Swarm node where the service is running.
+
+        Args:
+            service_name (str): The name of the Swarm service.
+
+        Returns:
+            list[str]: The hostnames of the nodes where running the tasks of the service.
+        """
+        nodes: list[str] = []
+        try:
+            service_tasks = self.analyzer.docker_client.api.tasks(filters={"service": service_name})
+
+            if not service_tasks:
+                LOGGER.warning(
+                    f"No tasks found for service {service_name}. Returning empty host list."
+                )
+                return nodes
+
+            # Extract the running tasks
+            for task in service_tasks:
+                if task["Status"]["State"] == "running":
+                    node_id = task["NodeID"]  # Get the node where the service is running
+
+                    # Get node details
+                    node_info = self.analyzer.docker_client.nodes.get(node_id)
+                    node_hostname = node_info.attrs["Description"]["Hostname"]
+                    nodes.append(node_hostname)
+
+            if not nodes:
+                LOGGER.warning(
+                    f"Service {service_name} has no running tasks. Returning empty host list."
+                )
+            return nodes
+
+        except Exception as unexpected_error:
+            LOGGER.warning(
+                f"Error retrieving node hostname for service {service_name}. "
+                f"Returning empty host list.\n{unexpected_error}"
+            )
+            return nodes
+
+    def _initialize_sample_storage(self, analyze_entities) -> tuple[dict, dict]:
         """
         Initializes the storage dictionaries for previous stats and resource usage samples.
 
@@ -283,13 +311,29 @@ class ContainerizedSystemAnalyzer:
                 - previous_stat (dict): Stores previous statistical data for each entity.
                 - samples (dict): Stores the collected CPU, RAM, Disk, and Network samples.
         """
-        return {}, {
-            "cpu_cores_samples": {},
-            "ram_usage_samples": {},
-            "disk_usage_samples": {},
-            "rx_usage_samples": {},
-            "tx_usage_samples": {},
-        }
+        samples: dict = {}
+        for docker_entity in analyze_entities:
+            docker_entity_name = docker_entity.name
+
+            # Detect host based on mode
+            if isinstance(self.analyzer, ServiceAnalyzer):  # Swarm mode
+                entity_hosts_lst: list[str] = self._get_service_node_host(docker_entity_name)
+                if not entity_hosts_lst:
+                    entity_host = "UNKNOWN"
+                else:
+                    entity_host = ",".join(entity_hosts_lst)
+            else:  # Normal Docker container mode
+                entity_host: str = socket.gethostname()
+
+            samples[docker_entity_name] = {
+                "host": entity_host,  # Store detected host
+                "cpu_cores_samples": {},
+                "ram_usage_samples": {},
+                "disk_usage_samples": {},
+                "rx_usage_samples": {},
+                "tx_usage_samples": {},
+            }
+        return {}, samples
 
     def _get_analyze_entities(
         self,
@@ -343,7 +387,6 @@ class ContainerizedSystemAnalyzer:
 
             if docker_entity_name not in already_analyzed:
                 previous_stat[docker_entity_name] = self.analyzer.get_stats(name=docker_entity_name)
-                self._initialize_entity_samples(samples, docker_entity_name)
                 already_analyzed.append(docker_entity_name)
 
             current_stat: dict = self.analyzer.get_stats(name=docker_entity_name)
@@ -353,21 +396,6 @@ class ContainerizedSystemAnalyzer:
             )
 
             previous_stat[docker_entity_name] = current_stat
-
-    @staticmethod
-    def _initialize_entity_samples(samples: dict, entity_name: str) -> None:
-        """
-        Initializes the sample dictionaries for a new entity.
-
-        Args:
-            samples (dict): Dictionary storing resource usage samples.
-            entity_name (str): Name of the entity being analyzed.
-        """
-        samples["cpu_cores_samples"][entity_name] = {}
-        samples["ram_usage_samples"][entity_name] = {}
-        samples["disk_usage_samples"][entity_name] = {}
-        samples["rx_usage_samples"][entity_name] = {}
-        samples["tx_usage_samples"][entity_name] = {}
 
     def _update_samples(
         self,
@@ -387,13 +415,13 @@ class ContainerizedSystemAnalyzer:
             current_stat (dict): The current statistics of the entity.
             previous_stat (dict): The previous statistics of the entity.
         """
-        samples["cpu_cores_samples"][entity_name][formatted_tick] = self.get_cpu_cores_used(
+        samples[entity_name]["cpu_cores_samples"][formatted_tick] = self.get_cpu_cores_used(
             current_stat
         )
-        samples["ram_usage_samples"][entity_name][formatted_tick] = self.get_ram_usage_mb(
+        samples[entity_name]["ram_usage_samples"][formatted_tick] = self.get_ram_usage_mb(
             current_stat
         )
-        samples["disk_usage_samples"][entity_name][formatted_tick] = self.analyzer.get_disk_usage(
+        samples[entity_name]["disk_usage_samples"][formatted_tick] = self.analyzer.get_disk_usage(
             container_or_service_name=entity_name
         )
 
@@ -431,10 +459,10 @@ class ContainerizedSystemAnalyzer:
             rx_prev = networks_previous[network_interface].get("rx_bytes", 0)
             tx_prev = networks_previous[network_interface].get("tx_bytes", 0)
 
-            samples["rx_usage_samples"][entity_name][formatted_tick] = max(rx_now - rx_prev, 0) / (
+            samples[entity_name]["rx_usage_samples"][formatted_tick] = max(rx_now - rx_prev, 0) / (
                 1024**2
             )  # MB
-            samples["tx_usage_samples"][entity_name][formatted_tick] = max(tx_now - tx_prev, 0) / (
+            samples[entity_name]["tx_usage_samples"][formatted_tick] = max(tx_now - tx_prev, 0) / (
                 1024**2
             )  # MB
 
@@ -461,17 +489,19 @@ class ContainerizedSystemAnalyzer:
         Returns:
             dict: Dictionary containing mean resource values and sample data.
         """
+        mean_values = {}
+        for entity_name, resource_data in samples.items():
+            mean_values[entity_name] = {
+                "mean_cpu_cores": self.get_mean_values(resource_data, "cpu_cores_samples"),
+                "mean_ram_usage_mb": self.get_mean_values(resource_data, "ram_usage_samples"),
+                "mean_disk_usage_mb": self.get_mean_values(resource_data, "disk_usage_samples"),
+                "mean_rx_mb": self.get_mean_values(resource_data, "rx_usage_samples"),
+                "mean_tx_mb": self.get_mean_values(resource_data, "tx_usage_samples"),
+            }
+
         return {
-            "mean_cpu_cores": self.get_mean_values(samples["cpu_cores_samples"]),
-            "mean_ram_usage_mb": self.get_mean_values(samples["ram_usage_samples"]),
-            "mean_disk_usage_mb": self.get_mean_values(samples["disk_usage_samples"]),
-            "mean_rx_mb": self.get_mean_values(samples["rx_usage_samples"]),
-            "mean_tx_mb": self.get_mean_values(samples["tx_usage_samples"]),
-            "samples_cpu": samples["cpu_cores_samples"],
-            "samples_ram": samples["ram_usage_samples"],
-            "samples_disk": samples["disk_usage_samples"],
-            "samples_rx": samples["rx_usage_samples"],
-            "samples_tx": samples["tx_usage_samples"],
+            "mean_values": mean_values,
+            "samples": samples,  # Keep the raw samples if needed
         }
 
 
@@ -481,8 +511,4 @@ if __name__ == "__main__":
 
     print("FINISHED!")
 
-    print(f"Average CPU Usage: {result['mean_cpu_cores']} cores")
-    print(f"Average RAM Usage: {result['mean_ram_usage_mb']} MB")
-    print(f"Average Disk Space Used: {result['mean_disk_usage_mb']} MB")
-    print(f"Total Network RX: {result['mean_rx_mb']} MB")
-    print(f"Total Network TX: {result['mean_tx_mb']} MB")
+    print(f"Mean Values: {result['mean_values']}")

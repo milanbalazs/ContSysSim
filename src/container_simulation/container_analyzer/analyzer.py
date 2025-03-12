@@ -489,7 +489,7 @@ class ContainerizedSystemAnalyzer:
         Returns:
             dict: Dictionary containing mean resource values and sample data.
         """
-        mean_values = {}
+        mean_values: dict[str, dict[str, float]] = {}
         for entity_name, resource_data in samples.items():
             mean_values[entity_name] = {
                 "mean_cpu_cores": self.get_mean_values(resource_data, "cpu_cores_samples"),
@@ -506,9 +506,85 @@ class ContainerizedSystemAnalyzer:
 
 
 if __name__ == "__main__":
-    analyzer = ContainerizedSystemAnalyzer(time_window=30, period=0.1)
-    result = analyzer.analyze_container_performance(all_entity=True, write_to_file=True)
+    import argparse
 
-    print("FINISHED!")
+    def parse_arguments() -> argparse.Namespace:
+        """
+        Parses command-line arguments for running the containerized system analyzer.
 
-    print(f"Mean Values: {result['mean_values']}")
+        Returns:
+            argparse.Namespace: Parsed command-line arguments.
+        """
+        parser: argparse.ArgumentParser = argparse.ArgumentParser(
+            description="Analyze and monitor Docker container or Swarm service resource usage."
+        )
+
+        parser.add_argument(
+            "--time-window",
+            type=int,
+            default=20,
+            help=("Total duration (in seconds) for monitoring resource usage. "
+                  "Default is 20 seconds."),
+        )
+
+        parser.add_argument(
+            "--period",
+            type=float,
+            default=0.1,
+            help=("Sampling interval (in seconds) between each measurement. "
+                  "Default is 0.1 seconds."),
+        )
+
+        parser.add_argument(
+            "--swarm-mode",
+            action="store_true",
+            help="Enable analysis for Docker Swarm services instead of standalone containers.",
+        )
+
+        parser.add_argument(
+            "--all-entities",
+            action="store_true",
+            help="If enabled, analyze all available Docker entities (containers, services).",
+        )
+
+        parser.add_argument(
+            "--container-id",
+            type=str,
+            default=None,
+            help=(
+                "ID of the specific container/service to analyze. "
+                "Required if --all-entities is not set."
+            ),
+        )
+
+        parser.add_argument(
+            "--container-name",
+            type=str,
+            default=None,
+            help=(
+                "Name of the specific container/service to analyze. "
+                "Required if --all-entities is not set."
+            ),
+        )
+
+        parser.add_argument(
+            "--write-to-file",
+            action="store_true",
+            help="If enabled, writes the collected analysis data to a JSON file.",
+        )
+
+        return parser.parse_args()
+
+    args: argparse.Namespace = parse_arguments()
+    analyzer: ContainerizedSystemAnalyzer = ContainerizedSystemAnalyzer(
+        time_window=args.time_window, period=args.period, swarm_mode=args.swarm_mode
+    )
+
+    result: dict = analyzer.analyze_container_performance(
+        container_or_service_id=args.container_id,
+        container_or_service_name=args.container_name,
+        all_entity=args.all_entities,
+        write_to_file=args.write_to_file,
+    )
+
+    LOGGER.info(f"Mean Values: {result['mean_values']}")

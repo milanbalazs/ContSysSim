@@ -172,3 +172,4 @@ cython_debug/
 
 # Unique
 simulation_venv
+container_analysis_20*

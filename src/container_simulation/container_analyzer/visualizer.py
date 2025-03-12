@@ -29,7 +29,6 @@ Usage Example:
 
 import json
 import os
-import argparse
 import matplotlib.pyplot as plt
 from typing import Any
 
@@ -126,28 +125,29 @@ class ContainerResourceVisualizer:
             self.plot_resource_usage(entity_name)
 
 
-def main() -> None:
-    """
-    Parses command-line arguments and runs the visualizer.
-    """
-    parser: argparse.ArgumentParser = argparse.ArgumentParser(
-        description="Visualize resource usage data for Docker containers or Swarm services."
-    )
-    parser.add_argument(
-        "--json_file",
-        type=str,
-        help="Path to the JSON file containing resource usage data.",
-    )
-
-    args: argparse.Namespace = parser.parse_args()
-    json_file_path: str = args.json_file
-
-    try:
-        visualizer: ContainerResourceVisualizer = ContainerResourceVisualizer(json_file_path)
-        visualizer.visualize_all()
-    except Exception as unexpected_error:
-        print(f"Error: {unexpected_error}")
-
-
 if __name__ == "__main__":
+    import argparse
+
+    def main() -> None:
+        """
+        Parses command-line arguments and runs the visualizer.
+        """
+        parser: argparse.ArgumentParser = argparse.ArgumentParser(
+            description="Visualize resource usage data for Docker containers or Swarm services."
+        )
+        parser.add_argument(
+            "--json_file",
+            type=str,
+            help="Path to the JSON file containing resource usage data.",
+        )
+
+        args: argparse.Namespace = parser.parse_args()
+        json_file_path: str = args.json_file
+
+        try:
+            visualizer: ContainerResourceVisualizer = ContainerResourceVisualizer(json_file_path)
+            visualizer.visualize_all()
+        except Exception as unexpected_error:
+            print(f"Error: {unexpected_error}")
+
     main()

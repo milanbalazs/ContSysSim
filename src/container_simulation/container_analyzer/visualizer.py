@@ -26,6 +26,7 @@ Usage Example:
 
     This will generate plots for each monitored container/service.
 """
+
 import json
 import os
 import argparse

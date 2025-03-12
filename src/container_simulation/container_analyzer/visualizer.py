@@ -30,7 +30,12 @@ Usage Example:
 import json
 import os
 import matplotlib.pyplot as plt
-from typing import Any
+from typing import Any, Optional
+from logging import Logger
+
+from container_simulation.utils import get_logger
+
+LOGGER: Logger = get_logger()
 
 
 class ContainerResourceVisualizer:
@@ -38,31 +43,47 @@ class ContainerResourceVisualizer:
     Visualizes resource usage for Docker containers or Swarm services.
 
     Attributes:
-        data_file (str): Path to the JSON file containing resource usage data.
         data (dict): Parsed JSON data containing resource usage statistics.
     """
 
-    def __init__(self, data_file: str) -> None:
+    def __init__(self, data_file: Optional[str] = None, data: Optional[dict] = None) -> None:
         """
         Initializes the visualizer by loading resource usage data.
 
         Args:
-            data_file (str): Path to the JSON file containing resource usage data.
+            data_file (Optional[str]): Path to the JSON file containing resource usage data.
+            data (Optional[dict]): The data itself.
         """
-        self.data_file: str = data_file
-        self.data: dict[str, Any] = self._load_data()
+        if not data_file and not data:
+            error_msg: str = "The 'data_file' or 'data' should be set!"
+            LOGGER.error(error_msg)
+            raise AttributeError(error_msg)
+        if data_file and data:
+            LOGGER.warning(
+                "Both of 'data_file', 'data' parameters are set! " "The Json file will be used!"
+            )
+        if data_file:
+            self.data: dict[str, Any] = self._load_data(data_file)
+        else:
+            self.data: dict[str, Any] = data
 
-    def _load_data(self) -> dict[str, Any]:
+    @staticmethod
+    def _load_data(data_file: str) -> dict[str, Any]:
         """
         Loads the JSON resource usage data.
+
+        Args:
+            data_file (str): Path to the JSON file containing resource usage data.
 
         Returns:
             dict: Parsed JSON data.
         """
-        if not os.path.exists(self.data_file):
-            raise FileNotFoundError(f"Error: File '{self.data_file}' not found.")
+        if not os.path.exists(data_file):
+            error_msg: str = "File '{data_file}' not found."
+            LOGGER.error(error_msg)
+            raise FileNotFoundError(error_msg)
 
-        with open(self.data_file, "r", encoding="utf-8") as file:
+        with open(data_file, "r", encoding="utf-8") as file:
             return json.load(file)
 
     def plot_resource_usage(self, entity_name: str) -> None:

@@ -70,6 +70,18 @@ python analyzer.py --container-name my-container
 python analyzer.py --container-name my-swarm-service --swarm-mode
 ```
 
+#### Monitor all running containers/services and visualize them
+
+```sh
+python analyzer.py --all-entities --visualize
+```
+
+#### Monitor all running containers/services, visualize them and save the data to JSON
+
+```sh
+python analyzer.py --all-entities --visualize --write-to-file
+```
+
 ### CLI Options
 
 | Argument           | Description                                                              |
@@ -81,6 +93,7 @@ python analyzer.py --container-name my-swarm-service --swarm-mode
 | `--container-id`   | ID of a specific container to analyze                                    |
 | `--container-name` | Name of a specific container or service to analyze                       |
 | `--write-to-file`  | Save collected data to a JSON file                                       |
+| `--visualize`      | Enable to visualize the result (default: `False`)                        |
 
 ## Output
 

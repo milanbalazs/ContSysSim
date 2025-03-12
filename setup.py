@@ -15,8 +15,11 @@ setup(
     packages=find_packages(where="src"),  # Discover packages inside `src`
     package_dir={"": "src"},  # Define src as the package directory
     install_requires=[
-        "simpy>=4.1.1",  # Required package for simulation
-        "matplotlib>=3.8.2",  # Required for visualizations
+        "simpy==4.1.1",  # Required package for simulation
+        "matplotlib==3.8.2",  # Required for visualizations
+        "colorama==0.4.6",
+        "docker==7.1.0",
+        "PyYAML==6.0.2",
     ],
     classifiers=[
         "Development Status :: 4 - Beta",

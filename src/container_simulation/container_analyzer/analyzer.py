@@ -34,6 +34,7 @@ from logging import Logger
 from container_simulation.utils import get_logger
 from container_simulation.container_analyzer.container_analyzer import ContainerAnalyzer
 from container_simulation.container_analyzer.service_analyzer import ServiceAnalyzer
+from container_simulation.container_analyzer.visualizer import ContainerResourceVisualizer
 
 LOGGER: Logger = get_logger()
 
@@ -52,6 +53,7 @@ class ContainerizedSystemAnalyzer:
         entries (list[str]): A list of resource metrics to monitor (e.g., "cpu", "ram", "disk"...).
         analyzer (ContainerAnalyzer | ServiceAnalyzer):
             The appropriate analyzer instance based on swarm mode.
+        visualize: (Optional[bool]): If enabled, the result will be visualized.
     """
 
     def __init__(
@@ -60,6 +62,7 @@ class ContainerizedSystemAnalyzer:
         period: float = 0.1,
         swarm_mode: bool = False,
         entries: Optional[list[str]] = None,
+        visualize: bool = False,
     ) -> None:
         """
         Initializes the containerized system analyzer.
@@ -71,10 +74,12 @@ class ContainerizedSystemAnalyzer:
             swarm_mode (bool, optional): Whether to analyze a Swarm service instead of a container.
             entries (Optional[list[str]], optional): List of metrics to track
                 (default: ["cpu", "ram", "disk", "bw"]).
+            visualize: (Optional[bool]): If enabled, the result will be visualized.
         """
         self.time_window: int = time_window
         self.period: float = period
         self.entries: list[str] = entries or ["cpu", "ram", "disk", "bw"]
+        self.visualize: bool = visualize
         if swarm_mode:
             self.analyzer: ServiceAnalyzer = ServiceAnalyzer()
         else:
@@ -256,6 +261,10 @@ class ContainerizedSystemAnalyzer:
 
         if write_to_file:
             self._write_results_to_file(samples)
+
+        if self.visualize:
+            visualizer: ContainerResourceVisualizer = ContainerResourceVisualizer(data=samples)
+            visualizer.visualize_all()
 
         return self._compute_results(samples)
 
@@ -577,11 +586,20 @@ if __name__ == "__main__":
             help="If enabled, writes the collected analysis data to a JSON file.",
         )
 
+        parser.add_argument(
+            "--visualize",
+            action="store_true",
+            help="If enabled, the result will be visualized.",
+        )
+
         return parser.parse_args()
 
     args: argparse.Namespace = parse_arguments()
     analyzer: ContainerizedSystemAnalyzer = ContainerizedSystemAnalyzer(
-        time_window=args.time_window, period=args.period, swarm_mode=args.swarm_mode
+        time_window=args.time_window,
+        period=args.period,
+        swarm_mode=args.swarm_mode,
+        visualize=args.visualize,
     )
 
     result: dict = analyzer.analyze_container_performance(

@@ -523,16 +523,20 @@ if __name__ == "__main__":
             "--time-window",
             type=int,
             default=20,
-            help=("Total duration (in seconds) for monitoring resource usage. "
-                  "Default is 20 seconds."),
+            help=(
+                "Total duration (in seconds) for monitoring resource usage. "
+                "Default is 20 seconds."
+            ),
         )
 
         parser.add_argument(
             "--period",
             type=float,
             default=0.1,
-            help=("Sampling interval (in seconds) between each measurement. "
-                  "Default is 0.1 seconds."),
+            help=(
+                "Sampling interval (in seconds) between each measurement. "
+                "Default is 0.1 seconds."
+            ),
         )
 
         parser.add_argument(

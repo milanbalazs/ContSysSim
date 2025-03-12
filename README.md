@@ -185,7 +185,7 @@ This project is licensed under the **MIT License**.
 ---
 
 ## 🙌 **Acknowledgments**
-Special thanks to the **SimPy** and **Matplotlib** communities for their contributions to event-driven simulations and data visualization.
+TODO
 
 ---
 

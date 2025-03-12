@@ -8,11 +8,13 @@ This framework enables users to:
 - Define **Virtual Machines (VMs)** with limited resources (CPU, RAM, Disk, Bandwidth).
 - Deploy multiple **Containers** inside VMs with dynamic workloads.
 - Apply **saturation effects** on resource consumption.
-  - [Description of saturation](docs/saturation.md)
+  - [Description of saturation calculations](docs/saturation.md)
 - Simulate **workload requests** with different delay, duration, and priority.
 - **Monitor** and **visualize** CPU, RAM, Disk, and Bandwidth utilization.
 - **Use First-Fit Load Balancing** to allocate workloads efficiently.
 - **Enable or disable resource reservations** for smarter workload scheduling.
+- **Monitoring and data collection** of an existing containerized system.
+  - [Description of container Analyzer tool](src/container_simulation/container_analyzer/README.md)
 
 ---
 

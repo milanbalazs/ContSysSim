@@ -1,99 +1,164 @@
-# **Container Analyzer**
+# Containerized System Analyzer
 
-## **1. CPU Usage Calculation**
+## Overview
 
-### **Extracted Parameters**
+The **Containerized System Analyzer** is a Python-based tool for monitoring and analyzing
+resource usage in **Docker containers** and **Docker Swarm services**.
+It collects real-time data on **CPU**, **RAM**, **Disk**, and **Network usage** over a
+specified time window and computes average resource consumption.
 
-To compute **CPU cores used**, we need the following values from `Docker stats`:
+This tool is useful for system administrators, DevOps engineers,
+and developers who need detailed insights into containerized applications' resource usage.
 
-- `cpuTotalUsage` → `cpu_stats['cpu_usage']['total_usage']`
-- `cpuPreTotalUsage` → `precpu_stats['cpu_usage']['total_usage']`
-- `cpuSystemUsgae` → `cpu_stats['system_cpu_usage']`
-- `cpuPreSystemUsgae` → `precpu_stats['system_cpu_usage']`
-- `cpuOnline` → `cpu_stats['online_cpus']`
+## Features
 
-### **Formula**
+- **Monitor CPU, RAM, Disk, and Network usage** for Docker containers and Swarm services.
+- **Analyze real-time statistics** and compute average resource consumption.
+- **Support for standalone Docker containers** and **Docker Swarm services**.
+- **Flexible time window and sampling interval** for monitoring.
+- **Save resource usage data to a JSON file** for further analysis.
+- **Command-line interface (CLI) support** with customizable parameters.
+- **Visualization module** to generate plots for resource consumption trends.
 
-$$\text{CPU Cores Used} = \left(\frac{\Delta \text{total usage}}{\Delta \text{system usage}} \right) \times \text{online CPUs}$$
+## Resource calculation formulas
 
-Where:
+The detailed calculation formulas for the resources can be found:
 
-$$\Delta \text{total usage} = \text{cpuTotalUsage} - \text{cpuPreTotalUsage}$$
+- [Formulas](analyzer_formulas.md)
 
-$$\Delta \text{system usage} = \text{cpuSystemUsgae} - \text{cpuPreSystemUsgae}$$
+## Installation
 
-$$\text{online CPUs} = \text{cpuOnline}$$
+### Prerequisites
 
-### **Description**
+- Python 3.11+
+- Docker installed and running containers/services
 
-- `total_usage` represents the CPU time consumed by the container.
-- `system_cpu_usage` represents the total system CPU time.
-- We take the difference between current and previous values to get the **CPU consumption**.
-- The result is multiplied by the **number of available CPUs** to obtain **CPU cores actively used**.
+### Setup
 
----
+Clone the repository and generate Python virtual environment:
 
-## **2. RAM Usage Calculation**
+```sh
+cd <repo_folder>
+./tools/create_venv.sh
+source simulation_venv/bin/activate
+```
 
-### **Extracted Parameters**
+## Usage
 
-To determine **RAM consumption in MB**, we need the following values from `Docker stats`:
+### Running the Analyzer
 
-- `memoryUsage` → `memory_stats['usage']` (current memory usage in bytes)
+The tool can be executed from the command line with different configurations:
 
-### **Formula**
+#### Monitor all running containers/services
 
-$$\text{RAM Usage (MB)} = \frac{\text{memoryUsage}}{1024^2}$$
+```sh
+python analyzer.py --all-entities --time-window 30 --period 0.1 --write-to-file
+```
+#### Monitor a specific container by ID or Name
 
-### **Description**
+```sh
+python analyzer.py --container-id 0800b9b5426c
+```
 
-- This formula converts the memory usage from **bytes** to **megabytes (MB)**.
-- Unlike percentage-based memory usage, this method provides the **exact amount of RAM consumed** by the container.
+```sh
+python analyzer.py --container-name my-container
+```
 
----
+#### Monitor a specific Docker Swarm service
 
-## **3. Disk Usage Calculation**
+```sh
+python analyzer.py --container-name my-swarm-service --swarm-mode
+```
 
-Instead of measuring **Disk Read/Write speeds**, we now compute the **total disk space used** by the container.
+### CLI Options
 
-### **Extracted Parameters**
+| Argument           | Description                                                              |
+|--------------------|--------------------------------------------------------------------------|
+| `--time-window`    | Total duration (in seconds) for monitoring (default: `20`)               |
+| `--period`         | Sampling interval (in seconds) between each measurement (default: `0.1`) |
+| `--swarm-mode`     | Enable analysis for Docker Swarm services                                |
+| `--all-entities`   | Analyze all running containers or services                               |
+| `--container-id`   | ID of a specific container to analyze                                    |
+| `--container-name` | Name of a specific container or service to analyze                       |
+| `--write-to-file`  | Save collected data to a JSON file                                       |
 
-- `self.analyzer.get_disk_usage(container_id)`
+## Output
 
-### **Description**
-- This retrieves the **total storage space occupied** by the container.
-- Unlike disk I/O speed, this metric **shows actual space usage** on disk.
+### JSON Format
 
----
+If the `--write-to-file` option is enabled, the resource usage statistics are saved in JSON format:
 
-## **4. Network Usage Calculation**
-Instead of measuring **network speed (MB/s)**, we calculate the **total network data used (MB)**.
+```json
+{
+    "my-container": {
+        "host": "my-hostname",
+        "cpu_cores_samples": { "0": 0.0098, "0.1": 0.0156 },
+        "ram_usage_samples": { "0": 331.625, "0.1": 332.0898 },
+        "disk_usage_samples": { "0": 724.33 },
+        "rx_usage_samples": { "0": 0.0 },
+        "tx_usage_samples": { "0": 0.0 }
+    }
+}
+```
 
-### **Extracted Parameters**
+### Console Output
 
-To compute **total network traffic**, we need the following values from `Docker stats`:
+The tool also prints summary statistics:
 
-- `rxInitBytes` → `start_stat[networks][interface]['rx_bytes']` → Total received bytes (Init values)
-- `txInitBytes` → `start_stat[networks]['tx_bytes']` → Total transmitted bytes (Init values)
-- `rxFinalBytes` → `end_stat[pre_networks][interface]['rx_bytes']` → Total received bytes (Final values)
-- `txFinalBytes` → `end_stat[pre_networks][interface]['tx_bytes']` → Total transmitted bytes (Final values)
+```
+Mean Values:
+my-container:
+  - CPU Usage: 0.0098 cores
+  - RAM Usage: 331.62 MB
+  - Disk Usage: 724.33 MB
+  - Network RX: 0.0 MB
+  - Network TX: 0.0 MB
+```
 
-### **Formula**
+## Visualization
 
-$$\text{Total Network RX (MB)} = \frac{\text{Final RX Bytes} - \text{Initial RX Bytes}}{1024^2}$$
+To analyze trends over time, use the `visualizer.py` module:
 
-$$\text{Total Network TX (MB)} = \frac{\text{Final TX Bytes} - \text{Initial TX Bytes}}{1024^2}$$
+```sh
+python visualizer.py --json_file path/to/output.json
+```
 
-Where:
+This will generate time-series plots for each resource type (CPU, RAM, Disk, and Network).
 
-$$\text{Initial RX Bytes} = \text{rxInitBytes}$$
+**Example:**
 
-$$\text{Final RX Bytes} = \text{rxFinalBytes}$$
+![visualizer](imgs/visualizer.png)
 
-$$\text{Initial TX Bytes} = \text{txInitBytes}$$
+## Modules
 
-$$\text{Final TX Bytes} = \text{txFinalBytes}$$
+### `analyzer.py`
 
-### **Description**
-- Instead of **network speed**, compute **total data sent and received** over the time window.
-- This helps in tracking **container network consumption** instead of just speed.
+- Collects and processes container/service statistics.
+- Computes mean resource usage.
+- Supports CLI options for configuration.
+
+### `cont_abstract.py`
+
+- Defines an **abstract base class** for analyzing Docker containers and services.
+- Implements methods for retrieving statistics and disk usage.
+
+### `container_analyzer.py`
+
+- Concrete implementation for **Docker containers**.
+- Retrieves real-time CPU, RAM, Disk, and Network statistics.
+
+### `service_analyzer.py`
+
+- Concrete implementation for **Docker Swarm services**.
+- Retrieves real-time statistics for Swarm tasks.
+
+### `visualizer.py`
+
+- Parses the JSON data from `analyzer.py`.
+- Generates **time-series plots** for resource usage trends.
+
+## Future Enhancements
+
+- Add **container health monitoring** and alerting.
+- Implement **real-time dashboards**.
+- Extend support for **Kubernetes pods**.

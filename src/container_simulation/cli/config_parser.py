@@ -40,7 +40,7 @@ class Container:
 
 @dataclass
 class Node:
-    """Represents a Virtual Machine (Node) in the data center."""
+    """Represents a Node in the data center."""
 
     name: str
     cpu: int

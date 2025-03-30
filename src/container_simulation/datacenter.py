@@ -1,7 +1,7 @@
 """DataCenter Module.
 
 This module defines the DataCenter class, which represents a data center that
-manages multiple Virtual Machines (Nodes) in a simulated Docker Swarm environment.
+manages multiple Nodes in a simulated Docker Swarm environment.
 """
 
 from logging import Logger
@@ -13,7 +13,7 @@ from container_simulation.utils import get_logger  # Import singleton logger
 
 
 class DataCenter:
-    """Represents a Data Center that manages Virtual Machines (Nodes).
+    """Represents a Data Center that manages Nodes.
 
     The DataCenter class stores and manages a collection of Nodes, allowing
     users to add new Nodes dynamically and retrieve existing ones.
@@ -21,7 +21,7 @@ class DataCenter:
     Attributes:
         _id (int): Class-level counter to generate unique IDs for each DataCenter instance.
         _name (str): The name of the data center.
-        _nodes (Optional[List[Node]]): A list of Virtual Machines (Nodes) in the data center.
+        _nodes (Optional[List[Node]]): A list of Nodes in the data center.
         id (int): The unique identifier for the data center instance.
         _logger (Optional[Logger]): Logger object.
     """
@@ -90,7 +90,7 @@ class DataCenter:
         """Gets the list of Nodes in the data center.
 
         Returns:
-            Optional[List[Node]]: A list of Virtual Machines (Nodes) in the data center.
+            Optional[List[Node]]: A list of Nodes in the data center.
         """
         return self._nodes
 

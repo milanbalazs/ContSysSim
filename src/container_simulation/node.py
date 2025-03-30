@@ -1,6 +1,6 @@
 """Node Module.
 
-This module defines the Node class, which represents a Virtual Machine (Node) in a simulated
+This module defines the Node class, which represents a Node in a simulated
 Docker Swarm environment using SimPy. Nodes host containers and manage resource allocations.
 """
 
@@ -29,7 +29,7 @@ class InsufficientResourcesError(Exception):
 
 
 class Node(AbstractBaseModel):
-    """Represents a Virtual Machine (Node) in a simulated environment.
+    """Represents a Node in a simulated environment.
 
     A Node is responsible for managing containers, tracking CPU, RAM, Disk, and Bandwidth usage,
     and simulating startup, monitoring, and workload updates. Additionally, it applies random
@@ -74,7 +74,7 @@ class Node(AbstractBaseModel):
         stop_lack_of_resource: bool = False,
         logger: Optional[Logger] = None,
     ) -> None:
-        """Initializes a Virtual Machine (Node) with resource limits and optional saturation handling.
+        """Initializes a Node with resource limits and optional saturation handling.
 
         Args:
             env (simpy.Environment): The SimPy environment for event scheduling.
@@ -85,7 +85,8 @@ class Node(AbstractBaseModel):
             bw (int): The total Network Bandwidth (Data Transfer) capacity of the Node in Mbps.
             start_up_delay (float, optional): The time required for the Node to start.
                                               Default to 0.5.
-            containers (Optional[list[Container]], optional): List of containers assigned to the Node.
+            containers (Optional[list[Container]], optional): List of containers assigned
+                                                              to the Node.
                                                               Default to None.
             cpu_saturation_percent (float, optional): CPU saturation percentage.
                                                       Default to 0.0.

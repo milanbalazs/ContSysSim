@@ -1,7 +1,7 @@
 """Container Module.
 
 This module defines the `Container` class, which represents a container running inside
-a Virtual Machine (Node) in a simulated Docker Swarm environment using SimPy.
+a Node in a simulated Docker Swarm environment using SimPy.
 
 Containers consume CPU, RAM, Disk, and Bandwidth resources while dynamically updating
 their workload over time. They may also experience resource fluctuations due to
@@ -43,7 +43,7 @@ from container_simulation.utils import get_logger  # Import singleton logger
 class Container(AbstractBaseModel):
     """Represents a container in a simulated environment.
 
-    A container runs inside a Virtual Machine (Node) and consumes CPU, RAM, Disk,
+    A container runs inside a Node and consumes CPU, RAM, Disk,
     and Bandwidth resources.
     It has a startup delay before becoming active and updates its workload dynamically.
 

@@ -1,7 +1,7 @@
 """Simulation Module.
 
 This module defines the Simulation class, which simulates a Docker Swarm-like
-environment using SimPy. It manages a DataCenter with Virtual Machines (Nodes)
+environment using SimPy. It manages a DataCenter with Nodes
 and Containers, simulating their startup and workload behavior over time.
 """
 
@@ -66,7 +66,7 @@ class Simulation:
         """Prints a summary of the simulated data center's resources.
 
         This method provides an overview of the data center, including:
-        - The total number of Virtual Machines (Nodes).
+        - The total number of Nodes.
         - The CPU, RAM, and Disk capacity of each Node.
         - The available (free) CPU, RAM, and Disk for each Node.
         - A list of assigned Containers and their resource allocations.

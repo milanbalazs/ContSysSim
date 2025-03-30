@@ -1,6 +1,8 @@
 # Configuration-Based Container Simulation
 
-This guide explains how to set up and run the simulation using a YAML configuration file. The configuration file allows you to define the entire simulation environment, including Virtual Machines (Nodes), Containers, Workloads, and an optional Load Balancer.
+This guide explains how to set up and run the simulation using a YAML configuration file.
+The configuration file allows you to define the entire simulation environment,
+including Nodes, Containers, Workloads, and an optional Load Balancer.
 
 ---
 
@@ -30,7 +32,7 @@ simulation:
 ---
 
 ### 2. **Data Center**
-Defines the data center, including its Virtual Machines (Nodes) and their associated Containers.
+Defines the data center, including its Nodes and their associated Containers.
 
 #### Example:
 

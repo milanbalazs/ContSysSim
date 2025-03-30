@@ -1,7 +1,7 @@
 """Load Balancer Module.
 
 This module defines a simple **First-Fit Reservations Load Balancer** for distributing workloads
-to containers and assigning containers to Virtual Machines (Nodes). The load balancer
+to containers and assigning containers to Nodes. The load balancer
 operates using a **First-Fit Reservations strategy**, where each workload is assigned to the
 first available container or Node that meets its resource requirements.
 
@@ -60,7 +60,7 @@ class FirstFitReservationComponentLoadBalancer(ABC):
 
     This class serves as a generic **First-Fit Reservations Load Balancer**,
     allowing the distribution of workload units (either WorkloadRequests or Containers)
-    across available runner units (either Containers or Virtual Machines).
+    across available runner units (either Containers or Nodes).
 
     This class allows First-Fit load balancing with the option to:
     - **Enable reservations** (tracks resource usage over time).
@@ -357,7 +357,7 @@ class FirstFitReservationContainerLoadBalancer(FirstFitReservationComponentLoadB
 
 
 class FirstFitReservationNodeLoadBalancer(FirstFitReservationComponentLoadBalancer):
-    """First-Fit Reservations Load Balancer for assigning containers to Virtual Machines (Nodes).
+    """First-Fit Reservations Load Balancer for assigning containers to Nodes.
 
     This class assigns `Container` instances to the first available `Node` that has
     sufficient resources.

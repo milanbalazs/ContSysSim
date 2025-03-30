@@ -1,7 +1,7 @@
 """Abstract Base Model Module.
 
 This module defines the AbstractBaseModel class, which serves as a base
-for both Virtual Machines (Nodes) and Containers. It provides attributes
+for both Nodes and Containers. It provides attributes
 for name, CPU, RAM, and startup delay, along with property methods for
 accessing and modifying these attributes.
 """

@@ -3,8 +3,8 @@
 This script demonstrates a simple Docker Swarm-like simulation using SimPy.
 
 It creates:
-- A **DataCenter** with a single Virtual Machine (VM).
-- A **Container** running inside the VM.
+- A **DataCenter** with a single Virtual Machine (Node).
+- A **Container** running inside the Node.
 - A **Workload Request** simulating a resource-consuming task.
 
 The script then runs the simulation and prints the status of resources.
@@ -12,7 +12,7 @@ The script then runs the simulation and prints the status of resources.
 
 # Import necessary modules
 from container_simulation.datacenter import DataCenter
-from container_simulation.vm import Vm
+from container_simulation.node import Node
 from container_simulation.container import Container
 from container_simulation.workload_request import WorkloadRequest
 from container_simulation.utils import gb_to_mb
@@ -20,32 +20,32 @@ from container_simulation.simulation import Simulation
 
 
 class SingleNodeSimulation:
-    """Simulates a single-node environment with VMs and containers.
+    """Simulates a single-node environment with Nodes and containers.
 
     This class initializes:
-    - A **single manager node (VM)**.
+    - A **single manager node (Node)**.
     - A **container** assigned to this node.
     - A **workload request** to simulate resource consumption.
-    - A **data center** managing the VM.
+    - A **data center** managing the Node.
 
     The simulation runs for a specified duration and logs resource usage.
 
     Attributes:
         simulation (Simulation): The simulation environment.
-        datacenter (DataCenter): The data center managing VMs and containers.
-        nodes (list[Vm]): List of Virtual Machines in the data center.
-        containers (list[Container]): List of containers assigned to the VMs.
+        datacenter (DataCenter): The data center managing Nodes and containers.
+        nodes (list[Node]): List of Virtual Machines in the data center.
+        containers (list[Container]): List of containers assigned to the Nodes.
     """
 
     def __init__(self) -> None:
-        """Initializes the simulation environment with VMs and containers."""
+        """Initializes the simulation environment with Nodes and containers."""
 
         # Create the simulation instance (event-driven environment)
         self.simulation = Simulation()
 
-        # Create a single Virtual Machine (VM)
+        # Create a single Virtual Machine (Node)
         self.nodes = [
-            Vm(
+            Node(
                 self.simulation.env,
                 name="single-manager-node",
                 cpu=8,  # Total CPU cores
@@ -75,11 +75,11 @@ class SingleNodeSimulation:
             )
         ]
 
-        # Assign the container to the VM
+        # Assign the container to the Node
         self.nodes[0].containers = self.containers
 
-        # Create a DataCenter with the defined VM
-        self.datacenter: DataCenter = DataCenter("MyDatacenter", vms=self.nodes)
+        # Create a DataCenter with the defined Node
+        self.datacenter: DataCenter = DataCenter("MyDatacenter", nodes=self.nodes)
 
         # Define a workload request (simulating a task running inside the container)
         task1 = WorkloadRequest(
@@ -114,21 +114,21 @@ if __name__ == "__main__":
     # Uncomment the following lines to visualize the simulation results:
 
     # Visualize the resource usage of the first container
-    single_node_simulation.datacenter.vms[0].containers[0].visualize_usage()
+    single_node_simulation.datacenter.nodes[0].containers[0].visualize_usage()
 
-    # Visualize the resource usage of the VM
-    # single_node_simulation.datacenter.vms[0].visualize_usage()
+    # Visualize the resource usage of the Node
+    # single_node_simulation.datacenter.nodes[0].visualize_usage()
 
-    # Visualize all containers running on the VM
-    # single_node_simulation.datacenter.vms[0].visualize_all_containers()
+    # Visualize all containers running on the Node
+    # single_node_simulation.datacenter.nodes[0].visualize_all_containers()
 
-    # Visualize all VMs in the data center
-    # single_node_simulation.datacenter.visualize_all_vms()
+    # Visualize all Nodes in the data center
+    # single_node_simulation.datacenter.visualize_all_nodes()
 
     """
-    # Loop through each VM and visualize its usage along with its containers.
-    for vm in single_node_simulation.datacenter.vms:
-        vm.visualize_usage()
-        for container in vm.containers:
+    # Loop through each Node and visualize its usage along with its containers.
+    for node in single_node_simulation.datacenter.nodes:
+        node.visualize_usage()
+        for container in node.containers:
             container.visualize_usage()
     """

@@ -1,6 +1,6 @@
 # Configuration-Based Container Simulation
 
-This guide explains how to set up and run the simulation using a YAML configuration file. The configuration file allows you to define the entire simulation environment, including Virtual Machines (VMs), Containers, Workloads, and an optional Load Balancer.
+This guide explains how to set up and run the simulation using a YAML configuration file. The configuration file allows you to define the entire simulation environment, including Virtual Machines (Nodes), Containers, Workloads, and an optional Load Balancer.
 
 ---
 
@@ -30,25 +30,25 @@ simulation:
 ---
 
 ### 2. **Data Center**
-Defines the data center, including its Virtual Machines (VMs) and their associated Containers.
+Defines the data center, including its Virtual Machines (Nodes) and their associated Containers.
 
 #### Example:
 
 ```yaml
 datacenter:
   name: Datacenter-1
-  vms:
-    - name: VM-1
+  nodes:
+    - name: Node-1
       cpu: 16                # Total CPU cores
       ram: 32768             # RAM in MB
       disk: 40960            # Disk in MB
       bandwidth: 20000       # Bandwidth in Mbps
-      start_up_delay: 0.1    # VM startup delay
+      start_up_delay: 0.1    # Node startup delay
       cpu_saturation_percent: 4.0  # CPU fluctuation percentage
       ram_saturation_percent: 9.0
       disk_saturation_percent: 2.0
       bandwidth_saturation_percent: 12.0
-      stop_lack_of_resource: false  # Whether VM stops when resources are insufficient
+      stop_lack_of_resource: false  # Whether Node stops when resources are insufficient
       containers:
         - name: Container-1
           cpu: 4                # CPU allocation
@@ -76,11 +76,11 @@ datacenter:
 ```
 
 #### Key Parameters:
-- **VMs**:
-  - `cpu`, `ram`, `disk`, `bandwidth`: Resource capacities for the VM.
-  - `start_up_delay`: Startup delay for the VM.
+- **Nodes**:
+  - `cpu`, `ram`, `disk`, `bandwidth`: Resource capacities for the Node.
+  - `start_up_delay`: Startup delay for the Node.
   - `*_saturation_percent`: Fluctuation percentages for resources.
-  - `stop_lack_of_resource`: Whether the VM stops when resources are insufficient.
+  - `stop_lack_of_resource`: Whether the Node stops when resources are insufficient.
 
 - **Containers**:
   - `cpu`, `ram`, `disk`, `bandwidth`: Resource allocations for the container.
@@ -144,8 +144,8 @@ simulation:
 
 datacenter:
   name: Datacenter-1
-  vms:
-    - name: VM-1
+  nodes:
+    - name: Node-1
       cpu: 16
       ram: 32768
       disk: 40960
@@ -207,7 +207,7 @@ load_balancer:
 ## Output
 
 When the simulation runs, the following information will be logged:
-- **Resource usage summary** for VMs and Containers.
+- **Resource usage summary** for Nodes and Containers.
 - **Workload execution status**, including delays, start times, and completion.
 - Optionally, **visualizations** of resource usage over time.
 

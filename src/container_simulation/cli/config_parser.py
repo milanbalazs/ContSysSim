@@ -23,7 +23,7 @@ class Workload:
 
 @dataclass
 class Container:
-    """Represents a container within a VM."""
+    """Represents a container within a Node."""
 
     name: str
     cpu: int
@@ -39,8 +39,8 @@ class Container:
 
 
 @dataclass
-class VM:
-    """Represents a Virtual Machine (VM) in the data center."""
+class Node:
+    """Represents a Virtual Machine (Node) in the data center."""
 
     name: str
     cpu: int
@@ -70,10 +70,10 @@ class LoadBalancer:
 
 @dataclass
 class DataCenter:
-    """Represents a data center with a list of VMs."""
+    """Represents a data center with a list of Nodes."""
 
     name: str
-    vms: List[VM] = field(default_factory=list)
+    nodes: List[Node] = field(default_factory=list)
 
 
 @dataclass
@@ -122,17 +122,17 @@ def parse_container(data: dict) -> Container:
     )
 
 
-def parse_vm(data: dict) -> VM:
-    """Parses a VM configuration from a dictionary.
+def parse_node(data: dict) -> Node:
+    """Parses a Node configuration from a dictionary.
 
     Args:
-        data (dict): The dictionary containing VM details.
+        data (dict): The dictionary containing Node details.
 
     Returns:
-        VM: The parsed VM object.
+        Node: The parsed Node object.
     """
     containers: list[Container] = [parse_container(c) for c in data.get("containers", [])]
-    return VM(
+    return Node(
         name=data["name"],
         cpu=data["cpu"],
         ram=data["ram"],
@@ -157,8 +157,8 @@ def parse_datacenter(data: dict) -> DataCenter:
     Returns:
         DataCenter: The parsed DataCenter object.
     """
-    vms: list[VM] = [parse_vm(vm) for vm in data.get("vms", [])]
-    return DataCenter(name=data["name"], vms=vms)
+    nodes: list[Node] = [parse_node(node) for node in data.get("nodes", [])]
+    return DataCenter(name=data["name"], nodes=nodes)
 
 
 def parse_load_balancer(data: dict) -> LoadBalancer:

@@ -1,14 +1,14 @@
 """Container Module.
 
 This module defines the `Container` class, which represents a container running inside
-a Virtual Machine (VM) in a simulated Docker Swarm environment using SimPy.
+a Virtual Machine (Node) in a simulated Docker Swarm environment using SimPy.
 
 Containers consume CPU, RAM, Disk, and Bandwidth resources while dynamically updating
 their workload over time. They may also experience resource fluctuations due to
 random saturation effects.
 
 Classes:
-    Container: Represents a container running in a VM with dynamic resource consumption.
+    Container: Represents a container running in a Node with dynamic resource consumption.
 
 Example:
     Creating a container and assigning a workload request:
@@ -43,7 +43,7 @@ from container_simulation.utils import get_logger  # Import singleton logger
 class Container(AbstractBaseModel):
     """Represents a container in a simulated environment.
 
-    A container runs inside a Virtual Machine (VM) and consumes CPU, RAM, Disk,
+    A container runs inside a Virtual Machine (Node) and consumes CPU, RAM, Disk,
     and Bandwidth resources.
     It has a startup delay before becoming active and updates its workload dynamically.
 
@@ -344,7 +344,7 @@ class Container(AbstractBaseModel):
         Calculates available Network Bandwidth (Data Transfer) dynamically based on container usage.
 
         Returns:
-            int: The amount of Network Bandwidth (Data Transfer) available in the VM.
+            int: The amount of Network Bandwidth (Data Transfer) available in the Node.
         """
 
         return max(0, self.bw - self.current_bw_usage)
@@ -354,7 +354,7 @@ class Container(AbstractBaseModel):
         """Calculates available CPU dynamically based on container usage.
 
         Returns:
-            float: The number of free CPU cores available in the VM.
+            float: The number of free CPU cores available in the Node.
         """
 
         return max(
@@ -367,7 +367,7 @@ class Container(AbstractBaseModel):
         """Calculates available RAM dynamically based on container usage.
 
         Returns:
-            int: The amount of free RAM available in the VM.
+            int: The amount of free RAM available in the Node.
         """
 
         return max(0, self.ram - self.current_ram_usage)
@@ -377,7 +377,7 @@ class Container(AbstractBaseModel):
         """Calculates available Disk dynamically based on container usage.
 
         Returns:
-            int: The amount of free Disk available in the VM.
+            int: The amount of free Disk available in the Node.
         """
         return max(0, self.disk - self.current_disk_usage)
 

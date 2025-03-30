@@ -3,8 +3,8 @@
 This script demonstrates a simple Docker Swarm-like simulation using SimPy.
 
 It creates:
-- A **DataCenter** with a single Virtual Machine (VM).
-- Multiple **Containers** running inside the VM.
+- A **DataCenter** with a single Virtual Machine (Node).
+- Multiple **Containers** running inside the Node.
 - Multiple **Workload Requests** simulating resource-consuming tasks.
 - A **Load Balancer** that assigns workloads to containers using
   the **First-Fit with Reservations Load Balancing strategy**.
@@ -16,7 +16,7 @@ It also allows visualization of resource usage over time.
 
 # Import necessary modules
 from container_simulation.datacenter import DataCenter
-from container_simulation.vm import Vm
+from container_simulation.node import Node
 from container_simulation.container import Container
 from container_simulation.workload_request import WorkloadRequest
 from container_simulation.utils import gb_to_mb
@@ -25,25 +25,25 @@ from container_simulation.loadbalancer import FirstFitReservationContainerLoadBa
 
 
 class LbSimulation:
-    """Simulates a single-node environment with VMs and containers.
+    """Simulates a single-node environment with Nodes and containers.
 
     This class initializes:
-    - A **single VM** that acts as the manager node.
-    - Multiple **containers** assigned to this VM.
+    - A **single Node** that acts as the manager node.
+    - Multiple **containers** assigned to this Node.
     - Multiple **workload requests** to simulate resource consumption.
-    - A **data center** managing the VM.
+    - A **data center** managing the Node.
 
     The simulation runs for a specified duration and logs resource usage.
 
     Attributes:
         simulation (Simulation): The simulation environment.
-        datacenter (DataCenter): The data center managing VMs and containers.
-        nodes (list[Vm]): List of Virtual Machines in the data center.
-        containers (list[Container]): List of containers assigned to the VMs.
+        datacenter (DataCenter): The data center managing Nodes and containers.
+        nodes (list[Node]): List of Virtual Machines in the data center.
+        containers (list[Container]): List of containers assigned to the Nodes.
     """
 
     def __init__(self, use_reservations: bool = True) -> None:
-        """Initializes the simulation environment with VMs and containers.
+        """Initializes the simulation environment with Nodes and containers.
 
         Args:
             use_reservations (bool, optional): If `True`, enables **First-Fit with Reservations**,
@@ -55,7 +55,7 @@ class LbSimulation:
         # Create the simulation instance (event-driven environment)
         self.simulation = Simulation()
 
-        # Define containers that will run workloads inside the VM
+        # Define containers that will run workloads inside the Node
         self.containers = [
             Container(
                 self.simulation.env,
@@ -83,9 +83,9 @@ class LbSimulation:
             ),
         ]
 
-        # Define a single Virtual Machine (VM) that will host the containers
+        # Define a single Virtual Machine (Node) that will host the containers
         self.nodes = [
-            Vm(
+            Node(
                 self.simulation.env,
                 name="single-manager-node",
                 cpu=8,  # Total CPU cores
@@ -145,11 +145,11 @@ class LbSimulation:
             ),
         ]
 
-        # Assign containers to the VM
+        # Assign containers to the Node
         self.nodes[0].containers = self.containers
 
-        # Create a DataCenter with the defined VM
-        self.datacenter: DataCenter = DataCenter("MyDatacenter", vms=self.nodes)
+        # Create a DataCenter with the defined Node
+        self.datacenter: DataCenter = DataCenter("MyDatacenter", nodes=self.nodes)
 
         # Assign workloads to containers using the Load Balancer
         FirstFitReservationContainerLoadBalancer(
@@ -172,21 +172,21 @@ if __name__ == "__main__":
     # Uncomment to visualize the simulation results:
 
     # Visualize the resource usage of the first container
-    # simulation.datacenter.vms[0].containers[0].visualize_usage()
+    # simulation.datacenter.nodes[0].containers[0].visualize_usage()
 
-    # Visualize the resource usage of the VM
-    # simulation.datacenter.vms[0].visualize_usage()
+    # Visualize the resource usage of the Node
+    # simulation.datacenter.nodes[0].visualize_usage()
 
-    # Visualize all containers running on the VM
-    simulation.datacenter.vms[0].visualize_all_containers()
+    # Visualize all containers running on the Node
+    simulation.datacenter.nodes[0].visualize_all_containers()
 
-    # Visualize all VMs in the data center
-    # simulation.datacenter.visualize_all_vms()
+    # Visualize all Nodes in the data center
+    # simulation.datacenter.visualize_all_nodes()
 
     """
-    # Loop through each VM and visualize its usage along with its containers.
-    for vm in simulation.datacenter.vms:
-        vm.visualize_usage()
-        for container in vm.containers:
+    # Loop through each Node and visualize its usage along with its containers.
+    for node in simulation.datacenter.nodes:
+        node.visualize_usage()
+        for container in node.containers:
             container.visualize_usage()
     """

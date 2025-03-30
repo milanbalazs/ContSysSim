@@ -1,7 +1,7 @@
 """Simulation Module.
 
 This module defines the Simulation class, which simulates a Docker Swarm-like
-environment using SimPy. It manages a DataCenter with Virtual Machines (VMs)
+environment using SimPy. It manages a DataCenter with Virtual Machines (Nodes)
 and Containers, simulating their startup and workload behavior over time.
 """
 
@@ -17,12 +17,12 @@ from container_simulation.utils import get_logger
 class Simulation:
     """Represents a Docker Swarm simulation using SimPy.
 
-    The Simulation class initializes a data center with manager and database VMs,
+    The Simulation class initializes a data center with manager and database Nodes,
     assigns common containers to them, and runs a time-based simulation.
 
     Attributes:
         _env (simpy.Environment): The SimPy environment managing event-driven execution.
-        _datacenter (Optional[DataCenter]): The data center managing all VMs.
+        _datacenter (Optional[DataCenter]): The data center managing all Nodes.
     """
 
     def __init__(self) -> None:
@@ -36,13 +36,13 @@ class Simulation:
         self._logger: Logger = get_logger()
 
     def run(self, datacenter: Optional[DataCenter] = None, simulation_time: int = 20) -> None:
-        """Starts the simulation by running VMs and monitoring their status.
+        """Starts the simulation by running Nodes and monitoring their status.
 
-        The simulation runs for a specified time, during which VMs and containers
+        The simulation runs for a specified time, during which Nodes and containers
         undergo startup delays and dynamic workload updates.
 
         Args:
-            datacenter (Optional[DataCenter]): The data center containing VMs and containers.
+            datacenter (Optional[DataCenter]): The data center containing Nodes and containers.
                 If not provided, the existing `_datacenter` attribute is used.
             simulation_time (int, optional): The total time to run the simulation.
                 Defaults to `20` time units.
@@ -56,9 +56,9 @@ class Simulation:
 
         self._datacenter = datacenter or self._datacenter
 
-        for vm in self._datacenter.vms:
-            self._env.process(vm.start())  # Start VM processes
-            self._env.process(vm.monitor())  # Start monitoring
+        for node in self._datacenter.nodes:
+            self._env.process(node.start())  # Start Node processes
+            self._env.process(node.monitor())  # Start monitoring
 
         self._env.run(until=simulation_time)  # Run simulation for X time units
 
@@ -66,19 +66,19 @@ class Simulation:
         """Prints a summary of the simulated data center's resources.
 
         This method provides an overview of the data center, including:
-        - The total number of Virtual Machines (VMs).
-        - The CPU, RAM, and Disk capacity of each VM.
-        - The available (free) CPU, RAM, and Disk for each VM.
+        - The total number of Virtual Machines (Nodes).
+        - The CPU, RAM, and Disk capacity of each Node.
+        - The available (free) CPU, RAM, and Disk for each Node.
         - A list of assigned Containers and their resource allocations.
 
         Example Output:
             ==========================================
              Datacenter: CLOUD_ENVIRONMENT
             ==========================================
-            Total VMs: 3
+            Total Nodes: 3
 
             --------------------------------------------------
-             VM: manager-1
+             Node: manager-1
             --------------------------------------------------
              CPU: 8.0 Cores | Available CPU: 2.5
              RAM: 16384 MB  | Available RAM: 8192
@@ -98,21 +98,21 @@ class Simulation:
             "=" * 50,
             f" Datacenter: {self._datacenter.name.upper()} ".center(50, "="),
             "=" * 50,
-            f"Total VMs: {len(self._datacenter.vms)}\n",
+            f"Total Nodes: {len(self._datacenter.nodes)}\n",
         ]
 
-        for vm in self._datacenter.vms:
+        for node in self._datacenter.nodes:
             summary.append("-" * 50)
-            summary.append(f" VM: {vm.name} ".center(50, "-"))
-            summary.append(f" CPU: {vm.cpu} Cores | Available CPU: {vm.available_cpu:.2f}")
-            summary.append(f" RAM: {vm.ram} MB | Available RAM: {vm.available_ram} MB")
-            summary.append(f" DISK: {vm.disk} MB | Available Disk: {vm.available_disk} MB")
+            summary.append(f" Node: {node.name} ".center(50, "-"))
+            summary.append(f" CPU: {node.cpu} Cores | Available CPU: {node.available_cpu:.2f}")
+            summary.append(f" RAM: {node.ram} MB | Available RAM: {node.available_ram} MB")
+            summary.append(f" DISK: {node.disk} MB | Available Disk: {node.available_disk} MB")
             summary.append("-" * 50)
 
-            if vm.containers:
+            if node.containers:
                 summary.append("   Containers:")
                 summary.append("   " + "-" * 40)
-                for container in vm.containers:
+                for container in node.containers:
                     summary.append(
                         f"   • {container.name:<15} | "
                         f"CPU: {container.cpu:<2} | "
@@ -153,7 +153,7 @@ class Simulation:
         """Gets the assigned data center.
 
         Returns:
-            DataCenter: The current data center instance managing VMs and containers.
+            DataCenter: The current data center instance managing Nodes and containers.
         """
         return self._datacenter
 

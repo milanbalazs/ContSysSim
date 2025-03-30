@@ -121,46 +121,46 @@ Given:
 
 ---
 
-## VM Saturation
+## Node Saturation
 
-### **Formula for VM Resource Saturation**
+### **Formula for Node Resource Saturation**
 
 Virtual Machines experience saturation effects on their **available resources** (total capacity minus the usage by containers).
-The saturation can be only positive because it represents the VMs own consumption, like kernel functions or other processes.
+The saturation can be only positive because it represents the Nodes own consumption, like kernel functions or other processes.
 
-The **current available resource** for a VM is:
+The **current available resource** for a Node is:
 
 $$V_{available} = V - \left(\sum_{i=1}^{m} C_{current} + V_{saturation}\right)$$
 
 Where:
 
-- $V_{available}$ = Current available resource in the VM.
-- $V$ = Total resource capacity of the VM (e.g., CPU, RAM, Disk, Bandwidth).
-- $C_{current}$ = Current resource usage of the $i$. container assigned to the VM.
-- $m$ = Number of containers in the VM.
-- $V_{saturation}$ = Saturation effect applied to the VM's total resource capacity.
+- $V_{available}$ = Current available resource in the Node.
+- $V$ = Total resource capacity of the Node (e.g., CPU, RAM, Disk, Bandwidth).
+- $C_{current}$ = Current resource usage of the $i$. container assigned to the Node.
+- $m$ = Number of containers in the Node.
+- $V_{saturation}$ = Saturation effect applied to the Node's total resource capacity.
 
 ---
 
 ### **Base Saturation Formula**
 
-The base saturation $V_{saturation}$ for the VM is calculated as:
+The base saturation $V_{saturation}$ for the Node is calculated as:
 
 $$V_{\text{saturation}} = |Random\left(-\frac{V \cdot S}{100}, \frac{V \cdot S}{100}\right)|$$
 
 Where:
 
-- $V$ = VM's total resource capacity (e.g., CPU, RAM, Disk, Bandwidth).
+- $V$ = Node's total resource capacity (e.g., CPU, RAM, Disk, Bandwidth).
 - $S$ = Saturation percentage for the corresponding resource.
 
 ---
 
-### **Example for VM RAM Saturation**
+### **Example for Node RAM Saturation**
 
 Given:
 
-- $V = 16,384$ [MB] (Base RAM capacity for the VM).
-- $S = 8$ [%] (RAM saturation percentage for the VM).
+- $V = 16,384$ [MB] (Base RAM capacity for the Node).
+- $S = 8$ [%] (RAM saturation percentage for the Node).
 - Total RAM usage by containers: $\sum_{i=1}^{m} C_{current} = 12,000$ [MB].
 
 **Saturation Calculation**:
@@ -183,6 +183,6 @@ Given:
 
    $$C_{current} = \sum_{i=1}^{n} W_{current} + C_{\text{saturation}}$$
 
-3. **VM Saturation**:
+3. **Node Saturation**:
 
    $$V_{available} = V - \left(\sum_{i=1}^{m} C_{current} + V_{\text{saturation}}\right)$$

@@ -7,7 +7,7 @@ setup(
     author_email="milanbalazs@example.com",  # TODO: Fix it
     description=(
         "A SimPy-based Containerized environment (Eg.: Docker Swarm) "
-        "simulation with VMs and Containers"
+        "simulation with Nodes and Containers"
     ),
     long_description=open("README.md", "r", encoding="utf-8").read(),
     long_description_content_type="text/markdown",

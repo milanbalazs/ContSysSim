@@ -1,12 +1,14 @@
 # 🚀 Container Simulation Framework
 
-**Container Simulation Framework** is a **Docker Swarm-like simulation tool** built with **SimPy**. It allows users to **simulate the behavior of Virtual Machines (VMs) and Containers**, track resource utilization, and visualize system performance over time.
+**Container Simulation Framework** is a **Docker Swarm-like simulation tool** built with **SimPy**.
+It allows users to **simulate the behavior of Nodes and Containers**, track resource utilization,
+and visualize system performance over time.
 
 ## 📖 Overview
 
 This framework enables users to:
-- Define **Virtual Machines (VMs)** with limited resources (CPU, RAM, Disk, Bandwidth).
-- Deploy multiple **Containers** inside VMs with dynamic workloads.
+- Define **Nodes** (Physical or Virtual Machines) with limited resources (CPU, RAM, Disk, Bandwidth).
+- Deploy multiple **Containers** inside Nodes with dynamic workloads.
 - Apply **saturation effects** on resource consumption.
   - [Description of saturation calculations](docs/saturation.md)
 - Simulate **workload requests** with different delay, duration, and priority.
@@ -56,19 +58,21 @@ pip install -e .
 ## 🚀 **How to Use?**
 
 ### 1️⃣ **Run a Simple Simulation**
-A **basic simulation** with a **single VM** and **one container** can be executed using ([simple.py](examples/simple.py)):
+A **basic simulation** with a **single Node** and **one container** can be executed using ([simple.py](examples/simple.py)):
 ```bash
 python examples/simple.py
 ```
 
 ### 2️⃣ **Run a Multi-Node Simulation**
-For a **multi-node environment** with multiple VMs and containers ([multi_node.py](examples/multi_node.py)):
+For a **multi-node environment** with multiple Nodes and containers ([multi_node.py](examples/multi_node.py)):
 ```bash
 python examples/multi_node.py
 ```
 
 ### 3️⃣ **Configuration-Based Simulation**
-The framework also supports running simulations entirely through a **YAML configuration file**. This allows you to define the entire simulation setup, including VMs, Containers, Workloads, and Load Balancer configurations, without modifying the code.
+The framework also supports running simulations entirely through a **YAML configuration file**.
+This allows you to define the entire simulation setup, including Nodes, Containers, Workloads,
+and Load Balancer configurations, without modifying the code.
 
 #### **Steps to Run**
 1. Create a YAML configuration file. See the [Configuration Guide](./src/container_simulation/cli/README.md) for details and examples.
@@ -102,14 +106,14 @@ simulation = LbSimulation(use_reservations=False)
 
 ## 🛠 **Key Components**
 
-### 🔹 **1. Virtual Machine (VM)**
+### 🔹 **1. Node (Physical or Virtual machines)**
 - Represents a **host** with limited resources (CPU, RAM, Disk, Bandwidth).
 - Hosts **multiple containers** and manages resource allocation.
 - **Monitors** resource utilization over time.
 - Supports **saturation effects** for realistic fluctuations.
 
 ### 🔹 **2. Container**
-- Runs inside a VM and **consumes computing resources** dynamically.
+- Runs inside a Node and **consumes computing resources** dynamically.
 - Can receive **workload requests**, increasing resource usage temporarily.
 - Tracks **historical usage** of CPU, RAM, Disk, and Bandwidth.
 
@@ -130,7 +134,7 @@ simulation = LbSimulation(use_reservations=False)
 
 ### 🔹 **5. Simulation Engine**
 - Uses **SimPy** to manage event-driven execution.
-- Handles **VM startup delays**, **container execution**, and **monitoring**.
+- Handles **Node startup delays**, **container execution**, and **monitoring**.
 - Runs the simulation for a fixed duration and logs resource usage.
 
 ### 🔹 **6. Visualization**
@@ -146,7 +150,7 @@ simulation = LbSimulation(use_reservations=False)
 After running a simulation, you will see terminal logs like:
 
 ```
-[10] VM 'manager-1' Status - Containers: 3, CPU: 2.5/8.0 RAM: 2048/16384 Disk: 4096/20480 BW: 600/10000
+[10] Node 'manager-1' Status - Containers: 3, CPU: 2.5/8.0 RAM: 2048/16384 Disk: 4096/20480 BW: 600/10000
 [12] Container 'KeyCloak' updated workload: CPU 1.0/2.0 --> 1.5/2.0, RAM 1024/2048 --> 1536/2048
 ```
 
@@ -155,7 +159,7 @@ And generate **graphs** like:
 > 📈 **CPU, RAM, Disk, etc... usage over time**
 
 ![Container graph](imgs/container.png)
-![Vm graph](imgs/vm.png)
+![Node graph](imgs/node.png)
 
 ---
 

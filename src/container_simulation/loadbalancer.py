@@ -1,20 +1,20 @@
 """Load Balancer Module.
 
 This module defines a simple **First-Fit Reservations Load Balancer** for distributing workloads
-to containers and assigning containers to Virtual Machines (VMs). The load balancer
+to containers and assigning containers to Virtual Machines (Nodes). The load balancer
 operates using a **First-Fit Reservations strategy**, where each workload is assigned to the
-first available container or VM that meets its resource requirements.
+first available container or Node that meets its resource requirements.
 
 Classes:
     - `FirstFitComponentLoadBalancer`: Abstract base class for First-Fit Load Balancers.
     - `FirstFitContainerLoadBalancer`: Assigns workloads to containers using the
       First-Fit strategy.
-    - `FirstFitVmLoadBalancer`: Assigns containers to VMs using the First-Fit strategy.
+    - `FirstFitNodeLoadBalancer`: Assigns containers to Nodes using the First-Fit strategy.
 
 Example:
     >>> from container_simulation.workload_request import WorkloadRequest
     >>> from container_simulation.container import Container
-    >>> from container_simulation.vm import Vm
+    >>> from container_simulation.node import Node
     >>> from container_simulation.load_balancer import FirstFitReservationContainerLoadBalancer
     >>> workload1 = WorkloadRequest(cpu=2.0, ram=1024, disk=10, bw=100, delay=1, duration=5,
                                     cpu_saturation_percent=10.0, ram_saturation_percent=5.0,
@@ -25,12 +25,12 @@ Example:
     >>> lb = FirstFitReservationContainerLoadBalancer([workload1], [container1, container2])
 
 Dependencies:
-    - `container_simulation.vm.Vm`
+    - `container_simulation.node.Node`
     - `container_simulation.workload_request.WorkloadRequest`
     - `container_simulation.container.Container`
 
 Notes:
-    - If no suitable container or VM is found, an error is raised.
+    - If no suitable container or Node is found, an error is raised.
     - Uses **First-Fit Reservations** allocation,
         which assigns workloads to the first suitable resource.
 """
@@ -40,7 +40,7 @@ from abc import ABC
 from logging import Logger
 from typing import Optional
 
-from container_simulation.vm import Vm
+from container_simulation.node import Node
 from container_simulation.workload_request import WorkloadRequest
 from container_simulation.container import Container
 from container_simulation.utils import get_logger  # Import singleton logger
@@ -69,8 +69,8 @@ class FirstFitReservationComponentLoadBalancer(ABC):
     Attributes:
         _workload_units (list[WorkloadRequest] | list[Container]):
             List of workloads or containers to be assigned.
-        _execution_units (list[Container] | list[Vm]):
-            List of containers or VMs where workloads should be placed.
+        _execution_units (list[Container] | list[Node]):
+            List of containers or Nodes where workloads should be placed.
         _use_reservations (bool, optional):
             If `True`, tracks resource usage over time for future scheduling.
             If `False`, assigns workloads immediately using pure First-Fit.
@@ -81,7 +81,7 @@ class FirstFitReservationComponentLoadBalancer(ABC):
     def __init__(
         self,
         workload_units: list[WorkloadRequest] | list[Container],
-        execution_units: list[Container] | list[Vm],
+        execution_units: list[Container] | list[Node],
         use_reservations: bool = True,
         logger: Optional[Logger] = None,
     ) -> None:
@@ -90,8 +90,8 @@ class FirstFitReservationComponentLoadBalancer(ABC):
         Args:
             workload_units (list[WorkloadRequest] | list[Container]):
                 List of workloads or containers.
-            execution_units (list[Container] | list[Vm]):
-                List of available containers or VMs.
+            execution_units (list[Container] | list[Node]):
+                List of available containers or Nodes.
             use_reservations (bool, optional):
                 If `True`, tracks resource usage over time for future scheduling.
                 If `False`, assigns workloads immediately using pure First-Fit.
@@ -100,20 +100,20 @@ class FirstFitReservationComponentLoadBalancer(ABC):
         """
 
         self._workload_units: list[WorkloadRequest] | list[Container] = workload_units
-        self._execution_units: list[Container] | list[Vm] = execution_units
+        self._execution_units: list[Container] | list[Node] = execution_units
         self._use_reservations: bool = use_reservations
         self._logger = logger if logger else get_logger()
 
     @staticmethod
     def is_suitable_runner(workload_unit, execution_unit) -> bool:
-        """Checks if a given runner unit (Container/VM) can accommodate a workload.
+        """Checks if a given runner unit (Container/Node) can accommodate a workload.
 
         A runner unit is considered suitable if it has enough available CPU, RAM, Disk,
         and Bandwidth to accommodate the workload.
 
         Args:
             workload_unit (WorkloadRequest | Container): The workload or container to be assigned.
-            execution_unit (Container | Vm): The container or VM to check.
+            execution_unit (Container | Node): The container or Node to check.
 
         Returns:
             bool: `True` if the runner unit has sufficient resources, `False` otherwise.
@@ -131,7 +131,7 @@ class FirstFitReservationComponentLoadBalancer(ABC):
     def can_accommodate_workload(
         self, execution_unit, workload, start_time, end_time, forecast
     ) -> bool:
-        """Checks if a workload can be accommodated in a runner (Container/VM) at a given time.
+        """Checks if a workload can be accommodated in a runner (Container/Node) at a given time.
 
         This method considers a workload’s `delay` and `duration` to ensure the execution unit
         has enough resources available at **each time step** during execution.
@@ -140,7 +140,7 @@ class FirstFitReservationComponentLoadBalancer(ABC):
         - If `use_reservations=False`, uses classic First-Fit and checks only **current resources**.
 
         Args:
-            execution_unit (Container | Vm): The container or VM being evaluated.
+            execution_unit (Container | Node): The container or Node being evaluated.
             workload (WorkloadRequest | Container): The workload to be assigned.
             start_time (float): The time the workload starts execution.
             end_time (float): The time the workload finishes execution.
@@ -180,7 +180,7 @@ class FirstFitReservationComponentLoadBalancer(ABC):
         - If `use_reservations=False`, skips resource tracking.
 
         Args:
-            execution_unit (Container | Vm): The container or VM receiving the workload.
+            execution_unit (Container | Node): The container or Node receiving the workload.
             workload (WorkloadRequest | Container): The workload being assigned.
             start_time (float): The time the workload starts execution.
             end_time (float): The time the workload finishes execution.
@@ -206,7 +206,7 @@ class FirstFitReservationComponentLoadBalancer(ABC):
 
         This property returns the current list of workload units, which can either be
         `WorkloadRequest` instances (for Workload-to-Container balancing) or `Container`
-        instances (for Container-to-VM balancing).
+        instances (for Container-to-Node balancing).
 
         Returns:
             list[WorkloadRequest] | list[Container]: The list of workload units to be balanced.
@@ -226,27 +226,27 @@ class FirstFitReservationComponentLoadBalancer(ABC):
         self._workload_units = new_workload_units
 
     @property
-    def execution_units(self) -> list[Container] | list[Vm]:
-        """Gets the list of runner units (Containers or VMs) for workload assignment.
+    def execution_units(self) -> list[Container] | list[Node]:
+        """Gets the list of runner units (Containers or Nodes) for workload assignment.
 
         This property returns the available runner units, which can either be `Container`
-        instances (for Workload-to-Container balancing) or `Vm` instances (for
-        Container-to-VM balancing).
+        instances (for Workload-to-Container balancing) or `Node` instances (for
+        Container-to-Node balancing).
 
         Returns:
-            list[Container] | list[Vm]: The list of available runner units.
+            list[Container] | list[Node]: The list of available runner units.
         """
         return self._execution_units
 
     @execution_units.setter
-    def execution_units(self, new_execution_units: list[Container] | list[Vm]) -> None:
+    def execution_units(self, new_execution_units: list[Container] | list[Node]) -> None:
         """Sets a new list of runner units.
 
         This property updates the list of available runner units that will receive workloads.
 
         Args:
-            new_execution_units (list[Container] | list[Vm]):
-                A new list of runner units (containers or VMs).
+            new_execution_units (list[Container] | list[Node]):
+                A new list of runner units (containers or Nodes).
         """
         self._execution_units = new_execution_units
 
@@ -356,25 +356,25 @@ class FirstFitReservationContainerLoadBalancer(FirstFitReservationComponentLoadB
                 )
 
 
-class FirstFitReservationVmLoadBalancer(FirstFitReservationComponentLoadBalancer):
-    """First-Fit Reservations Load Balancer for assigning containers to Virtual Machines (VMs).
+class FirstFitReservationNodeLoadBalancer(FirstFitReservationComponentLoadBalancer):
+    """First-Fit Reservations Load Balancer for assigning containers to Virtual Machines (Nodes).
 
-    This class assigns `Container` instances to the first available `Vm` that has
+    This class assigns `Container` instances to the first available `Node` that has
     sufficient resources.
 
     Attributes:
         _containers (list[Container]): List of containers to be assigned.
-        _vms (list[Vm]): List of available VMs.
+        _nodes (list[Node]): List of available Nodes.
     """
 
     def __init__(
-        self, containers: list[Container], vms: list[Vm], use_reservations: bool = True
+        self, containers: list[Container], nodes: list[Node], use_reservations: bool = True
     ) -> None:
-        """Initializes the First-Fit Reservations VM Load Balancer.
+        """Initializes the First-Fit Reservations Node Load Balancer.
 
         Args:
-            containers (list[Container]): List of containers to be assigned to VMs.
-            vms (list[Vm]): List of available VMs for assignment.
+            containers (list[Container]): List of containers to be assigned to Nodes.
+            nodes (list[Node]): List of available Nodes for assignment.
             use_reservations (bool, optional):
                 If `True`, tracks resource usage over time for future scheduling.
                 If `False`, assigns workloads immediately using pure First-Fit.
@@ -382,6 +382,6 @@ class FirstFitReservationVmLoadBalancer(FirstFitReservationComponentLoadBalancer
         """
 
         self._containers: list[Container] = containers
-        self._vms: list[Vm] = vms
+        self._nodes: list[Node] = nodes
 
-        super().__init__(containers, vms, use_reservations=use_reservations)
+        super().__init__(containers, nodes, use_reservations=use_reservations)

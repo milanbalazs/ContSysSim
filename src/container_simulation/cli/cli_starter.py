@@ -1,6 +1,6 @@
 """
 This module initializes and starts a simulation based on a YAML configuration file.
-It supports creating a dynamic simulation environment with VMs, containers, workloads,
+It supports creating a dynamic simulation environment with Nodes, containers, workloads,
 and an optional load balancer. The simulation runs based on the provided configuration
 and outputs resource summaries and optional visualizations.
 
@@ -19,7 +19,7 @@ from typing import Optional, List
 from logging import Logger
 
 from container_simulation.datacenter import DataCenter
-from container_simulation.vm import Vm
+from container_simulation.node import Node
 from container_simulation.container import Container
 from container_simulation.workload_request import WorkloadRequest
 from container_simulation.simulation import Simulation
@@ -36,7 +36,7 @@ class SimulationRunner:
 
     Attributes:
         simulation (Simulation): The simulation environment.
-        datacenter (Optional[DataCenter]): The data center managing all VMs and containers.
+        datacenter (Optional[DataCenter]): The data center managing all Nodes and containers.
         load_balancer (Optional[FirstFitReservationContainerLoadBalancer]):
             The load balancer, if enabled.
     """
@@ -110,45 +110,45 @@ class SimulationRunner:
             container.add_workload_request(workload)
         return container
 
-    def _create_vm(self, vm_config) -> Vm:
+    def _create_node(self, node_config) -> Node:
         """
-        Creates a Vm object from a VM configuration.
+        Creates a Node object from a Node configuration.
 
         Args:
-            vm_config: Configuration object containing VM parameters.
+            node_config: Configuration object containing Node parameters.
 
         Returns:
-            Vm: An instance of Vm initialized with the given parameters.
+            Node: An instance of Node initialized with the given parameters.
         """
-        containers: List[Container] = [self._create_container(c) for c in vm_config.containers]
-        vm = Vm(
+        containers: List[Container] = [self._create_container(c) for c in node_config.containers]
+        node = Node(
             self.simulation.env,
-            name=vm_config.name,
-            cpu=vm_config.cpu,
-            ram=vm_config.ram,
-            disk=vm_config.disk,
-            bw=vm_config.bandwidth,
-            start_up_delay=vm_config.start_up_delay,
-            cpu_saturation_percent=vm_config.cpu_saturation_percent,
-            ram_saturation_percent=vm_config.ram_saturation_percent,
-            disk_saturation_percent=vm_config.disk_saturation_percent,
-            bw_saturation_percent=vm_config.bandwidth_saturation_percent,
-            stop_lack_of_resource=vm_config.stop_lack_of_resource,
+            name=node_config.name,
+            cpu=node_config.cpu,
+            ram=node_config.ram,
+            disk=node_config.disk,
+            bw=node_config.bandwidth,
+            start_up_delay=node_config.start_up_delay,
+            cpu_saturation_percent=node_config.cpu_saturation_percent,
+            ram_saturation_percent=node_config.ram_saturation_percent,
+            disk_saturation_percent=node_config.disk_saturation_percent,
+            bw_saturation_percent=node_config.bandwidth_saturation_percent,
+            stop_lack_of_resource=node_config.stop_lack_of_resource,
         )
-        vm.containers = containers
-        return vm
+        node.containers = containers
+        return node
 
     def setup_simulation(self) -> None:
         """
         Sets up the simulation environment based on the parsed configuration.
 
-        This method initializes all VMs, containers, and the optional load balancer.
+        This method initializes all Nodes, containers, and the optional load balancer.
         """
         LOGGER.info("Setting up the simulation environment...")
-        LOGGER.debug(f"VMs from config: {self.config.datacenter.vms}")
+        LOGGER.debug(f"Nodes from config: {self.config.datacenter.nodes}")
 
-        vms: List[Vm] = [self._create_vm(vm_config) for vm_config in self.config.datacenter.vms]
-        self.datacenter = DataCenter(self.config.datacenter.name, vms=vms)
+        nodes: List[Node] = [self._create_node(node_config) for node_config in self.config.datacenter.nodes]
+        self.datacenter = DataCenter(self.config.datacenter.name, nodes=nodes)
 
         if self.config.load_balancer and self.config.load_balancer.enabled:
             LOGGER.debug(f"Initializing Load Balancer with: {self.config.load_balancer.workloads}")
@@ -156,7 +156,7 @@ class SimulationRunner:
                 self._create_workload(w) for w in self.config.load_balancer.workloads
             ]
             all_containers: List[Container] = [
-                container for vm in vms for container in vm.containers
+                container for node in nodes for container in node.containers
             ]
             target_containers: List[Container] = [
                 container
@@ -183,9 +183,9 @@ class SimulationRunner:
         self.simulation.run(self.datacenter, simulation_time=self.config.duration)
         self.simulation.print_info()
         print("\nVisualization Results:")
-        # self.datacenter.visualize_all_vms()
-        self.datacenter.vms[0].visualize_all_containers()
-        self.datacenter.vms[1].visualize_all_containers()
+        # self.datacenter.visualize_all_nodes()
+        self.datacenter.nodes[0].visualize_all_containers()
+        self.datacenter.nodes[1].visualize_all_containers()
 
 
 def parse_cli_args() -> argparse.Namespace:

@@ -2,8 +2,8 @@ simulation:
   duration: 15
 datacenter:
   name: Datacenter-1
-  vms:
-    - name: VM-1
+  nodes:
+    - name: Node-1
       cpu: 16 # Total CPU cores
       ram: 32768 # RAM in MB
       disk: 40960 # Disk in MB
@@ -62,7 +62,7 @@ datacenter:
               priority: 1
               type: Frontend Job
 
-    - name: VM-2
+    - name: Node-2
       cpu: 32
       ram: 65536
       disk: 102400

@@ -1,7 +1,7 @@
-"""VM Module.
+"""Node Module.
 
-This module defines the Vm class, which represents a Virtual Machine (VM) in a simulated
-Docker Swarm environment using SimPy. VMs host containers and manage resource allocations.
+This module defines the Node class, which represents a Virtual Machine (Node) in a simulated
+Docker Swarm environment using SimPy. Nodes host containers and manage resource allocations.
 """
 
 import random
@@ -17,7 +17,7 @@ from container_simulation.utils import get_logger
 
 
 class InsufficientResourcesError(Exception):
-    """Exception raised when a VM does not have enough resources to run its containers."""
+    """Exception raised when a Node does not have enough resources to run its containers."""
 
     def __init__(self, message: str) -> None:
         """Initializes the exception with a given message.
@@ -28,19 +28,19 @@ class InsufficientResourcesError(Exception):
         super().__init__(message)
 
 
-class Vm(AbstractBaseModel):
-    """Represents a Virtual Machine (VM) in a simulated environment.
+class Node(AbstractBaseModel):
+    """Represents a Virtual Machine (Node) in a simulated environment.
 
-    A VM is responsible for managing containers, tracking CPU, RAM, Disk, and Bandwidth usage,
+    A Node is responsible for managing containers, tracking CPU, RAM, Disk, and Bandwidth usage,
     and simulating startup, monitoring, and workload updates. Additionally, it applies random
     saturation fluctuations based on base resource values.
 
     Attributes:
         env (simpy.Environment): The SimPy environment for event-driven execution.
-        id (int): Unique identifier for the VM instance.
-        _containers (Optional[list[Container]]): List of containers assigned to this VM.
-        running (bool): Indicates whether the VM is running.
-        process (simpy.Process): The SimPy process that manages the VM.
+        id (int): Unique identifier for the Node instance.
+        _containers (Optional[list[Container]]): List of containers assigned to this Node.
+        running (bool): Indicates whether the Node is running.
+        process (simpy.Process): The SimPy process that manages the Node.
         cpu_usage_history (list[float]): Historical CPU usage data for visualization.
         ram_usage_history (list[int]): Historical RAM usage data for visualization.
         disk_usage_history (list[int]): Historical Disk usage data for visualization.
@@ -51,7 +51,7 @@ class Vm(AbstractBaseModel):
         available_bw_history (list[int]): Historical available Network Bandwidth data
                                           for visualization.
         time_history (list[int]): Timestamps for visualization.
-        stop_lack_of_resource (bool): Stop the VM if the resource is not enough.
+        stop_lack_of_resource (bool): Stop the Node if the resource is not enough.
         _logger (Optional[Logger]): Logger object.
     """
 
@@ -74,18 +74,18 @@ class Vm(AbstractBaseModel):
         stop_lack_of_resource: bool = False,
         logger: Optional[Logger] = None,
     ) -> None:
-        """Initializes a Virtual Machine (VM) with resource limits and optional saturation handling.
+        """Initializes a Virtual Machine (Node) with resource limits and optional saturation handling.
 
         Args:
             env (simpy.Environment): The SimPy environment for event scheduling.
-            name (str): The name of the VM.
-            cpu (float): The total CPU capacity of the VM.
-            ram (int): The total RAM capacity of the VM in MB.
-            disk (int): The total Disk capacity of the VM in MB.
-            bw (int): The total Network Bandwidth (Data Transfer) capacity of the VM in Mbps.
-            start_up_delay (float, optional): The time required for the VM to start.
+            name (str): The name of the Node.
+            cpu (float): The total CPU capacity of the Node.
+            ram (int): The total RAM capacity of the Node in MB.
+            disk (int): The total Disk capacity of the Node in MB.
+            bw (int): The total Network Bandwidth (Data Transfer) capacity of the Node in Mbps.
+            start_up_delay (float, optional): The time required for the Node to start.
                                               Default to 0.5.
-            containers (Optional[list[Container]], optional): List of containers assigned to the VM.
+            containers (Optional[list[Container]], optional): List of containers assigned to the Node.
                                                               Default to None.
             cpu_saturation_percent (float, optional): CPU saturation percentage.
                                                       Default to 0.0.
@@ -95,7 +95,7 @@ class Vm(AbstractBaseModel):
                                                        Default to 0.0.
             bw_saturation_percent (float, optional): Bandwidth saturation percentage.
                                                      Default to 0.0.
-            stop_lack_of_resource (bool, optional): If True the VM is stopped if the resource is
+            stop_lack_of_resource (bool, optional): If True the Node is stopped if the resource is
                                                     not enough.
                                                     Default: False
             logger (Optional[Logger]): Logger object.
@@ -113,8 +113,8 @@ class Vm(AbstractBaseModel):
             bw_saturation_percent,
         )
         self.env: simpy.Environment = env
-        self.id: int = Vm._id
-        Vm._id += 1
+        self.id: int = Node._id
+        Node._id += 1
         self._containers: list[Container] = containers if containers else []
         self.running: bool = False
         self._logger = logger if logger else get_logger()
@@ -134,15 +134,15 @@ class Vm(AbstractBaseModel):
         # Visualisations
         self.visualisations: Visualisations = Visualisations()
 
-        # Stop the VM is the resource is not enough
+        # Stop the Node is the resource is not enough
         self.stop_lack_of_resource: bool = stop_lack_of_resource
 
     def add_base_saturation(self) -> None:
-        """Applies random saturation fluctuations to the VM's available resources.
+        """Applies random saturation fluctuations to the Node's available resources.
 
-        Unlike containers, a VM has a fixed total resource allocation. This method ensures
+        Unlike containers, a Node has a fixed total resource allocation. This method ensures
         that fluctuations only affect the available (unused) portion of each resource while
-        maintaining the VM's total capacity.
+        maintaining the Node's total capacity.
 
         The fluctuations are applied to:
             - Available CPU Usage (± `cpu_saturation_percent`% of available CPU)
@@ -150,7 +150,7 @@ class Vm(AbstractBaseModel):
             - Available Disk Usage (± `disk_saturation_percent`% of available Disk)
             - Available Bandwidth Usage (± `bw_saturation_percent`% of available Bandwidth)
 
-        This ensures that saturation does not increase the total VM resources beyond
+        This ensures that saturation does not increase the total Node resources beyond
         their defined limits.
         """
 
@@ -207,7 +207,7 @@ class Vm(AbstractBaseModel):
         self.time_history.append(self.env.now)
 
         self._logger.debug(
-            f"[{self.env.now}] VM '{self.name}' Status - "
+            f"[{self.env.now}] Node '{self.name}' Status - "
             f"Containers: {len(self.containers)}, "
             f"CPU: {format(total_cpu_usage, '.2f')}/{self.available_cpu} "
             f"RAM: {total_ram_usage}/{self.available_ram} "
@@ -216,10 +216,10 @@ class Vm(AbstractBaseModel):
         )
 
     def check_resources(self) -> None:
-        """Checks if the VM has enough CPU and RAM for its running containers.
+        """Checks if the Node has enough CPU and RAM for its running containers.
 
         Raises:
-            InsufficientResourcesError: If the VM runs out of CPU or RAM.
+            InsufficientResourcesError: If the Node runs out of CPU or RAM.
         """
         total_cpu_usage: float = sum(container.current_cpu_usage for container in self._containers)
         total_ram_usage: int = sum(container.current_ram_usage for container in self._containers)
@@ -228,45 +228,45 @@ class Vm(AbstractBaseModel):
 
         if total_cpu_usage > self.available_cpu:
             raise InsufficientResourcesError(
-                f"[{self.env.now}] VM '{self.name}' OUT OF CPU: "
+                f"[{self.env.now}] Node '{self.name}' OUT OF CPU: "
                 f"Required {total_cpu_usage}, Available {self.available_cpu}"
             )
 
         if total_ram_usage > self.available_ram:
             raise InsufficientResourcesError(
-                f"[{self.env.now}] VM '{self.name}' OUT OF RAM: "
+                f"[{self.env.now}] Node '{self.name}' OUT OF RAM: "
                 f"Required {total_ram_usage}, Available {self.available_ram}"
             )
 
         if total_disk_usage > self.available_disk:
             raise InsufficientResourcesError(
-                f"[{self.env.now}] VM '{self.name}' OUT OF Disk: "
+                f"[{self.env.now}] Node '{self.name}' OUT OF Disk: "
                 f"Required {total_disk_usage}, Available {self.available_disk}"
             )
 
         if total_bw_usage > self.available_bw:
             raise InsufficientResourcesError(
-                f"[{self.env.now}] VM '{self.name}' OUT OF Network Bandwidth (Data Transfer): "
+                f"[{self.env.now}] Node '{self.name}' OUT OF Network Bandwidth (Data Transfer): "
                 f"Required {total_bw_usage}, Available {self.available_bw}"
             )
 
     def stop(self) -> None:
-        """Stops the VM and shuts down all running containers."""
+        """Stops the Node and shuts down all running containers."""
         if not self.stop_lack_of_resource:
             self._logger.warning(
-                f"[{self.env.now}] VM '{self.name}' has not enough resource but it won't stop!"
+                f"[{self.env.now}] Node '{self.name}' has not enough resource but it won't stop!"
             )
             return
         self.running = False
         self._logger.error(
-            f"[{self.env.now}] VM '{self.name}' SHUTTING DOWN due to insufficient resources."
+            f"[{self.env.now}] Node '{self.name}' SHUTTING DOWN due to insufficient resources."
         )
         for container in self._containers:  # Stop all containers
             container.stop()
             self._logger.error(f"[{self.env.now}] Container '{container.name}' stopped.")
 
     def start(self) -> simpy.events.Timeout:
-        """Simulates VM startup process with a delay and ensures enough resources are available.
+        """Simulates Node startup process with a delay and ensures enough resources are available.
 
         Yields:
             simpy.events.Timeout: A SimPy event representing the startup delay.
@@ -275,18 +275,18 @@ class Vm(AbstractBaseModel):
             self.check_resources()
         except InsufficientResourcesError as e:
             self._logger.error(f"[{self.env.now}] ERROR: {e}")
-            return  # Stop VM startup if resources are not enough
+            return  # Stop Node startup if resources are not enough
 
         yield self.env.timeout(self.start_up_delay)  # Simulate startup delay
         self.running = True
-        self._logger.info(f"[{self.env.now}] VM '{self.name}' started.")
+        self._logger.info(f"[{self.env.now}] Node '{self.name}' started.")
 
-        # Start all containers inside this VM
+        # Start all containers inside this Node
         for container in self._containers:
             self.env.process(container.start())
 
     def monitor(self) -> simpy.events.Timeout:
-        """Continuously monitors the VM's resource usage and logs it for visualization.
+        """Continuously monitors the Node's resource usage and logs it for visualization.
 
         Yields:
             simpy.events.Timeout: A SimPy event representing the monitoring interval.
@@ -305,14 +305,14 @@ class Vm(AbstractBaseModel):
             yield self.env.timeout(2)  # Check every 2 time units
 
     def visualize_usage(self) -> None:
-        """Visualizes CPU and RAM usage over time using Matplotlib for a single VM."""
-        self.visualisations.visualize_vm_usage(self)
+        """Visualizes CPU and RAM usage over time using Matplotlib for a single Node."""
+        self.visualisations.visualize_node_usage(self)
 
     def run(self) -> simpy.events.Timeout:
-        """Runs the VM process and ensures continuous monitoring.
+        """Runs the Node process and ensures continuous monitoring.
 
-        This method acts as the main event loop for the VM, ensuring that monitoring continues
-        while the VM is running.
+        This method acts as the main event loop for the Node, ensuring that monitoring continues
+        while the Node is running.
 
         Yields:
             simpy.events.Timeout: A SimPy event representing the loop interval.
@@ -323,7 +323,7 @@ class Vm(AbstractBaseModel):
             yield self.env.timeout(1)  # Avoid blocking the event loop
 
     def visualize_all_containers(self) -> None:
-        """Visualizes the CPU and RAM usage of all containers running on this VM.
+        """Visualizes the CPU and RAM usage of all containers running on this Node.
 
         This method generates a figure where:
             - Each row represents a container.
@@ -336,14 +336,14 @@ class Vm(AbstractBaseModel):
         Raises:
             ValueError: If no containers are available to visualize.
         """
-        self.visualisations.visualize_all_containers_on_vm(self)
+        self.visualisations.visualize_all_containers_on_node(self)
 
     @property
     def available_ram(self) -> int:
         """Calculates available RAM dynamically based on container usage.
 
         Returns:
-            int: The amount of free RAM available in the VM.
+            int: The amount of free RAM available in the Node.
         """
         used_ram: int = sum(c.current_ram_usage for c in self._containers)
         return max(
@@ -356,7 +356,7 @@ class Vm(AbstractBaseModel):
         """Calculates available Disk dynamically based on container usage.
 
         Returns:
-            int: The amount of free Disk available in the VM.
+            int: The amount of free Disk available in the Node.
         """
         used_disk: int = sum(c.current_disk_usage for c in self._containers)
         return max(
@@ -371,7 +371,7 @@ class Vm(AbstractBaseModel):
         Calculates available Network Bandwidth (Data Transfer) dynamically based on container usage.
 
         Returns:
-            int: The amount of Network Bandwidth (Data Transfer) available in the VM.
+            int: The amount of Network Bandwidth (Data Transfer) available in the Node.
         """
         used_bw: int = sum(c.current_bw_usage for c in self._containers)
         return max(
@@ -383,7 +383,7 @@ class Vm(AbstractBaseModel):
         """Calculates available CPU dynamically based on container usage.
 
         Returns:
-            float: The number of free CPU cores available in the VM.
+            float: The number of free CPU cores available in the Node.
         """
         used_cpu: float = sum(c.current_cpu_usage for c in self._containers)
         return max(
@@ -393,16 +393,16 @@ class Vm(AbstractBaseModel):
 
     @property
     def containers(self) -> list[Container]:
-        """Gets the list of containers assigned to this VM.
+        """Gets the list of containers assigned to this Node.
 
         Returns:
-            list[Container]: The list of containers running on this VM.
+            list[Container]: The list of containers running on this Node.
         """
         return self._containers
 
     @containers.setter
     def containers(self, new_containers: list[Container]) -> None:
-        """Assigns a new list of containers to the VM.
+        """Assigns a new list of containers to the Node.
 
         Args:
             new_containers (list[Container]): The new list of containers.
@@ -411,16 +411,16 @@ class Vm(AbstractBaseModel):
 
     @property
     def logger(self) -> Logger:
-        """Gets the logger of the VM.
+        """Gets the logger of the Node.
 
         Returns:
-            str: The logger of the VM.
+            str: The logger of the Node.
         """
         return self._logger
 
     @logger.setter
     def logger(self, new_logger: Logger) -> None:
-        """Sets a logger name for the VM.
+        """Sets a logger name for the Node.
 
         Args:
             new_logger (str): The new logger to be assigned.

@@ -20,8 +20,8 @@ trap cleanup EXIT  # This runs cleanup() when the script exits (on error or comp
 # Create Python Virtual environment and
 # Install the package to it.
 #-----------------------------------------
-python3 -m venv simulation_venv || { echo "❌ Cannot create the Python Virtual environment"; exit 1; }
-source simulation_venv/bin/activate || { echo "❌ Cannot source <VENV>/bin/activate"; exit 1; }
+python3 -m venv "${SCRIPT_DIR_PATH}/../simulation_venv" || { echo "❌ Cannot create the Python Virtual environment"; exit 1; }
+source "${SCRIPT_DIR_PATH}/../simulation_venv/bin/activate" || { echo "❌ Cannot source <VENV>/bin/activate"; exit 1; }
 pip install --upgrade pip || { echo "❌ Cannot upgrade the PIP version"; exit 1; }
 
 # Ensure no conflicts by uninstalling first

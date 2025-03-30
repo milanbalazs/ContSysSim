@@ -1,7 +1,7 @@
 """Abstract Base Model Module.
 
 This module defines the AbstractBaseModel class, which serves as a base
-for both Virtual Machines (VMs) and Containers. It provides attributes
+for both Virtual Machines (Nodes) and Containers. It provides attributes
 for name, CPU, RAM, and startup delay, along with property methods for
 accessing and modifying these attributes.
 """
@@ -10,13 +10,13 @@ from abc import ABC
 
 
 class AbstractBaseModel(ABC):
-    """An abstract base model for VMs and Containers.
+    """An abstract base model for Nodes and Containers.
 
     This class provides a foundational structure for managing computing
     resources such as CPU, RAM, and startup delay.
 
     Attributes:
-        _name (str): The name of the instance (VM or Container).
+        _name (str): The name of the instance (Node or Container).
         _cpu (float): The CPU capacity allocated to the instance.
         _ram (int): The RAM capacity allocated to the instance in MB.
         _disk (int): The RAM capacity allocated to the instance in MB.

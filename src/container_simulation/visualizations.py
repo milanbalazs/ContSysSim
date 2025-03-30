@@ -247,7 +247,11 @@ class Visualisations:
 
         plt.subplot(1, 4, 3)
         plt.plot(
-            node.time_history, node.disk_usage_history, label="Disk Usage", marker="o", linestyle="-"
+            node.time_history,
+            node.disk_usage_history,
+            label="Disk Usage",
+            marker="o",
+            linestyle="-",
         )
         plt.plot(
             node.time_history,
@@ -263,7 +267,11 @@ class Visualisations:
 
         plt.subplot(1, 4, 4)
         plt.plot(
-            node.time_history, node.bw_usage_history, label="Bandwidth Usage", marker="o", linestyle="-"
+            node.time_history,
+            node.bw_usage_history,
+            label="Bandwidth Usage",
+            marker="o",
+            linestyle="-",
         )
         plt.plot(
             node.time_history,
@@ -294,7 +302,11 @@ class Visualisations:
         for i, node in enumerate(nodes):
             plt.subplot(num_nodes, 4, i * 4 + 1)
             plt.plot(
-                node.time_history, node.cpu_usage_history, label="CPU Usage", marker="o", linestyle="-"
+                node.time_history,
+                node.cpu_usage_history,
+                label="CPU Usage",
+                marker="o",
+                linestyle="-",
             )
             plt.axhline(
                 float(node.cpu),
@@ -309,7 +321,11 @@ class Visualisations:
 
             plt.subplot(num_nodes, 4, i * 4 + 2)
             plt.plot(
-                node.time_history, node.ram_usage_history, label="RAM Usage", marker="o", linestyle="-"
+                node.time_history,
+                node.ram_usage_history,
+                label="RAM Usage",
+                marker="o",
+                linestyle="-",
             )
             plt.axhline(node.ram, color="red", linestyle="--", label=f"Max RAM ({node.ram} MB)")
             plt.xlabel("Time")
@@ -339,7 +355,9 @@ class Visualisations:
                 marker="o",
                 linestyle="-",
             )
-            plt.axhline(node.bw, color="red", linestyle="--", label=f"Max Bandwidth ({node.bw} Mbps)")
+            plt.axhline(
+                node.bw, color="red", linestyle="--", label=f"Max Bandwidth ({node.bw} Mbps)"
+            )
             plt.xlabel("Time")
             plt.ylabel("Bandwidth Usage (Mbps)")
             plt.title(f"Bandwidth Usage for Node: {node.bw}")

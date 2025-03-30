@@ -147,7 +147,9 @@ class SimulationRunner:
         LOGGER.info("Setting up the simulation environment...")
         LOGGER.debug(f"Nodes from config: {self.config.datacenter.nodes}")
 
-        nodes: List[Node] = [self._create_node(node_config) for node_config in self.config.datacenter.nodes]
+        nodes: List[Node] = [
+            self._create_node(node_config) for node_config in self.config.datacenter.nodes
+        ]
         self.datacenter = DataCenter(self.config.datacenter.name, nodes=nodes)
 
         if self.config.load_balancer and self.config.load_balancer.enabled:

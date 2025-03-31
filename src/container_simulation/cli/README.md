@@ -46,10 +46,10 @@ datacenter:
       disk: 40960            # Disk in MB
       bandwidth: 20000       # Bandwidth in Mbps
       start_up_delay: 0.1    # Node startup delay
-      cpu_saturation_percent: 4.0  # CPU fluctuation percentage
-      ram_saturation_percent: 9.0
-      disk_saturation_percent: 2.0
-      bandwidth_saturation_percent: 12.0
+      cpu_fluctuation_percent: 4.0  # CPU fluctuation percentage
+      ram_fluctuation_percent: 9.0
+      disk_fluctuation_percent: 2.0
+      bandwidth_fluctuation_percent: 12.0
       stop_lack_of_resource: false  # Whether Node stops when resources are insufficient
       containers:
         - name: Container-1
@@ -58,10 +58,10 @@ datacenter:
           disk: 4096            # Disk in MB
           bandwidth: 2000       # Bandwidth in Mbps
           start_up_delay: 0.2   # Container startup delay
-          cpu_saturation_percent: 2.0  # CPU fluctuation percentage
-          ram_saturation_percent: 4.0
-          disk_saturation_percent: 1.0
-          bandwidth_saturation_percent: 3.0
+          cpu_fluctuation_percent: 2.0  # CPU fluctuation percentage
+          ram_fluctuation_percent: 4.0
+          disk_fluctuation_percent: 1.0
+          bandwidth_fluctuation_percent: 3.0
           workloads:
             - cpu: 2.0
               ram: 1024
@@ -69,10 +69,10 @@ datacenter:
               bandwidth: 800
               delay: 1.0        # Delay before workload starts
               duration: 8.0     # Duration of the workload
-              cpu_saturation_percent: 5.0
-              ram_saturation_percent: 10.0
-              disk_saturation_percent: 2.0
-              bandwidth_saturation_percent: 6.0
+              cpu_fluctuation_percent: 5.0
+              ram_fluctuation_percent: 10.0
+              disk_fluctuation_percent: 2.0
+              bandwidth_fluctuation_percent: 6.0
               priority: 2       # Priority level of workload
               type: Backend Job # Workload type
 ```
@@ -81,13 +81,13 @@ datacenter:
 - **Nodes**:
   - `cpu`, `ram`, `disk`, `bandwidth`: Resource capacities for the Node.
   - `start_up_delay`: Startup delay for the Node.
-  - `*_saturation_percent`: Fluctuation percentages for resources.
+  - `*_fluctuation_percent`: Fluctuation percentages for resources.
   - `stop_lack_of_resource`: Whether the Node stops when resources are insufficient.
 
 - **Containers**:
   - `cpu`, `ram`, `disk`, `bandwidth`: Resource allocations for the container.
   - `start_up_delay`: Startup delay for the container.
-  - `*_saturation_percent`: Fluctuation percentages for container resources.
+  - `*_fluctuation_percent`: Fluctuation percentages for container resources.
 
 - **Workloads**:
   - `cpu`, `ram`, `disk`, `bandwidth`: Resource requirements of the workload.
@@ -118,10 +118,10 @@ load_balancer:
       bandwidth: 500
       delay: 3.0
       duration: 4.0
-      cpu_saturation_percent: 5.0
-      ram_saturation_percent: 8.0
-      disk_saturation_percent: 1.5
-      bandwidth_saturation_percent: 4.5
+      cpu_fluctuation_percent: 5.0
+      ram_fluctuation_percent: 8.0
+      disk_fluctuation_percent: 1.5
+      bandwidth_fluctuation_percent: 4.5
       priority: 1
       type: API Request
 ```
@@ -153,10 +153,10 @@ datacenter:
       disk: 40960
       bandwidth: 20000
       start_up_delay: 0.1
-      cpu_saturation_percent: 4.0
-      ram_saturation_percent: 9.0
-      disk_saturation_percent: 2.0
-      bandwidth_saturation_percent: 12.0
+      cpu_fluctuation_percent: 4.0
+      ram_fluctuation_percent: 9.0
+      disk_fluctuation_percent: 2.0
+      bandwidth_fluctuation_percent: 12.0
       stop_lack_of_resource: false
       containers:
         - name: Container-1
@@ -165,10 +165,10 @@ datacenter:
           disk: 4096
           bandwidth: 2000
           start_up_delay: 0.2
-          cpu_saturation_percent: 2.0
-          ram_saturation_percent: 4.0
-          disk_saturation_percent: 1.0
-          bandwidth_saturation_percent: 3.0
+          cpu_fluctuation_percent: 2.0
+          ram_fluctuation_percent: 4.0
+          disk_fluctuation_percent: 1.0
+          bandwidth_fluctuation_percent: 3.0
           workloads:
             - cpu: 2.0
               ram: 1024
@@ -176,10 +176,10 @@ datacenter:
               bandwidth: 800
               delay: 1.0
               duration: 8.0
-              cpu_saturation_percent: 5.0
-              ram_saturation_percent: 10.0
-              disk_saturation_percent: 2.0
-              bandwidth_saturation_percent: 6.0
+              cpu_fluctuation_percent: 5.0
+              ram_fluctuation_percent: 10.0
+              disk_fluctuation_percent: 2.0
+              bandwidth_fluctuation_percent: 6.0
               priority: 2
               type: Backend Job
 
@@ -196,10 +196,10 @@ load_balancer:
       bandwidth: 500
       delay: 3.0
       duration: 4.0
-      cpu_saturation_percent: 5.0
-      ram_saturation_percent: 8.0
-      disk_saturation_percent: 1.5
-      bandwidth_saturation_percent: 4.5
+      cpu_fluctuation_percent: 5.0
+      ram_fluctuation_percent: 8.0
+      disk_fluctuation_percent: 1.5
+      bandwidth_fluctuation_percent: 4.5
       priority: 1
       type: API Request
 ```

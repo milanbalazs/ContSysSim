@@ -17,8 +17,8 @@ Example:
     >>> from container_simulation.node import Node
     >>> from container_simulation.load_balancer import FirstFitReservationContainerLoadBalancer
     >>> workload1 = WorkloadRequest(cpu=2.0, ram=1024, disk=10, bw=100, delay=1, duration=5,
-                                    cpu_saturation_percent=10.0, ram_saturation_percent=5.0,
-                                    disk_saturation_percent=1.5, bw_saturation_percent=0.5,
+                                    cpu_fluctuation_percent=10.0, ram_fluctuation_percent=5.0,
+                                    disk_fluctuation_percent=1.5, bw_fluctuation_percent=0.5,
                                     priority=1, workload_type="User Request")
     >>> container1 = Container(env, "AppContainer1", cpu=4, ram=4096, disk=100, bw=1000)
     >>> container2 = Container(env, "AppContainer2", cpu=2, ram=2048, disk=50, bw=500)

@@ -71,10 +71,10 @@ class SimulationRunner:
             bw=workload_config.bandwidth,
             delay=workload_config.delay,
             duration=workload_config.duration,
-            cpu_saturation_percent=workload_config.cpu_saturation_percent,
-            ram_saturation_percent=workload_config.ram_saturation_percent,
-            disk_saturation_percent=workload_config.disk_saturation_percent,
-            bw_saturation_percent=workload_config.bandwidth_saturation_percent,
+            cpu_fluctuation_percent=workload_config.cpu_fluctuation_percent,
+            ram_fluctuation_percent=workload_config.ram_fluctuation_percent,
+            disk_fluctuation_percent=workload_config.disk_fluctuation_percent,
+            bw_fluctuation_percent=workload_config.bandwidth_fluctuation_percent,
             priority=workload_config.priority,
             workload_type=workload_config.type,
         )
@@ -100,10 +100,10 @@ class SimulationRunner:
             disk=container_config.disk,
             bw=container_config.bandwidth,
             start_up_delay=container_config.start_up_delay,
-            cpu_saturation_percent=container_config.cpu_saturation_percent,
-            ram_saturation_percent=container_config.ram_saturation_percent,
-            disk_saturation_percent=container_config.disk_saturation_percent,
-            bw_saturation_percent=container_config.bandwidth_saturation_percent,
+            cpu_fluctuation_percent=container_config.cpu_fluctuation_percent,
+            ram_fluctuation_percent=container_config.ram_fluctuation_percent,
+            disk_fluctuation_percent=container_config.disk_fluctuation_percent,
+            bw_fluctuation_percent=container_config.bandwidth_fluctuation_percent,
         )
         for workload in workloads:
             LOGGER.debug(f"[{self.simulation.env.now}] Parsed Workload: {workload}")
@@ -129,10 +129,10 @@ class SimulationRunner:
             disk=node_config.disk,
             bw=node_config.bandwidth,
             start_up_delay=node_config.start_up_delay,
-            cpu_saturation_percent=node_config.cpu_saturation_percent,
-            ram_saturation_percent=node_config.ram_saturation_percent,
-            disk_saturation_percent=node_config.disk_saturation_percent,
-            bw_saturation_percent=node_config.bandwidth_saturation_percent,
+            cpu_fluctuation_percent=node_config.cpu_fluctuation_percent,
+            ram_fluctuation_percent=node_config.ram_fluctuation_percent,
+            disk_fluctuation_percent=node_config.disk_fluctuation_percent,
+            bw_fluctuation_percent=node_config.bandwidth_fluctuation_percent,
             stop_lack_of_resource=node_config.stop_lack_of_resource,
         )
         node.containers = containers

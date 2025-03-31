@@ -9,8 +9,8 @@ and visualize system performance over time.
 This framework enables users to:
 - Define **Nodes** (Physical or Virtual Machines) with limited resources (CPU, RAM, Disk, Bandwidth).
 - Deploy multiple **Containers** inside Nodes with dynamic workloads.
-- Apply **saturation effects** on resource consumption.
-  - [Description of saturation calculations](docs/saturation.md)
+- Apply **fluctuation effects** on resource consumption.
+  - [Description of fluctuation calculations](docs/ fluctuation.md)
 - Simulate **workload requests** with different delay, duration, and priority.
 - **Monitor** and **visualize** CPU, RAM, Disk, and Bandwidth utilization.
 - **Use First-Fit Load Balancing** to allocate workloads efficiently.
@@ -110,7 +110,7 @@ simulation = LbSimulation(use_reservations=False)
 - Represents a **host** with limited resources (CPU, RAM, Disk, Bandwidth).
 - Hosts **multiple containers** and manages resource allocation.
 - **Monitors** resource utilization over time.
-- Supports **saturation effects** for realistic fluctuations.
+- Supports **fluctuation effects** for realistic fluctuations.
 
 ### 🔹 **2. Container**
 - Runs inside a Node and **consumes computing resources** dynamically.
@@ -123,7 +123,7 @@ simulation = LbSimulation(use_reservations=False)
   - **CPU, RAM, Disk, Bandwidth** requirements.
   - **Delay** before execution starts.
   - **Duration** for which it runs.
-  - **Saturation percentage** to simulate fluctuating demand.
+  - **fluctuation percentage** to simulate fluctuating demand.
 
 ### 🔹 **4. Load Balancer**
 - Implements **First-Fit with Reservations Scheduling** for efficient workload placement.
@@ -142,7 +142,7 @@ simulation = LbSimulation(use_reservations=False)
 - Tracks and displays:
   - CPU, RAM, Disk, and Bandwidth consumption.
   - Available resources after workload execution.
-  - Saturation fluctuations over time.
+  - Fluctuations over time.
 
 ---
 

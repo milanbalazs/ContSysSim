@@ -13,10 +13,10 @@ class Workload:
     bandwidth: int
     delay: float
     duration: float
-    cpu_saturation_percent: float
-    ram_saturation_percent: float
-    disk_saturation_percent: float
-    bandwidth_saturation_percent: float
+    cpu_fluctuation_percent: float
+    ram_fluctuation_percent: float
+    disk_fluctuation_percent: float
+    bandwidth_fluctuation_percent: float
     priority: int
     type: str
 
@@ -31,10 +31,10 @@ class Container:
     disk: int
     bandwidth: int
     start_up_delay: float
-    cpu_saturation_percent: float
-    ram_saturation_percent: float
-    disk_saturation_percent: float
-    bandwidth_saturation_percent: float
+    cpu_fluctuation_percent: float
+    ram_fluctuation_percent: float
+    disk_fluctuation_percent: float
+    bandwidth_fluctuation_percent: float
     workloads: List[Workload] = field(default_factory=list)
 
 
@@ -48,10 +48,10 @@ class Node:
     disk: int
     bandwidth: int
     start_up_delay: float
-    cpu_saturation_percent: float
-    ram_saturation_percent: float
-    disk_saturation_percent: float
-    bandwidth_saturation_percent: float
+    cpu_fluctuation_percent: float
+    ram_fluctuation_percent: float
+    disk_fluctuation_percent: float
+    bandwidth_fluctuation_percent: float
     stop_lack_of_resource: bool
     containers: List[Container] = field(default_factory=list)
 
@@ -114,10 +114,10 @@ def parse_container(data: dict) -> Container:
         disk=data["disk"],
         bandwidth=data["bandwidth"],
         start_up_delay=data["start_up_delay"],
-        cpu_saturation_percent=data["cpu_saturation_percent"],
-        ram_saturation_percent=data["ram_saturation_percent"],
-        disk_saturation_percent=data["disk_saturation_percent"],
-        bandwidth_saturation_percent=data["bandwidth_saturation_percent"],
+        cpu_fluctuation_percent=data["cpu_fluctuation_percent"],
+        ram_fluctuation_percent=data["ram_fluctuation_percent"],
+        disk_fluctuation_percent=data["disk_fluctuation_percent"],
+        bandwidth_fluctuation_percent=data["bandwidth_fluctuation_percent"],
         workloads=workloads,
     )
 
@@ -139,10 +139,10 @@ def parse_node(data: dict) -> Node:
         disk=data["disk"],
         bandwidth=data["bandwidth"],
         start_up_delay=data["start_up_delay"],
-        cpu_saturation_percent=data["cpu_saturation_percent"],
-        ram_saturation_percent=data["ram_saturation_percent"],
-        disk_saturation_percent=data["disk_saturation_percent"],
-        bandwidth_saturation_percent=data["bandwidth_saturation_percent"],
+        cpu_fluctuation_percent=data["cpu_fluctuation_percent"],
+        ram_fluctuation_percent=data["ram_fluctuation_percent"],
+        disk_fluctuation_percent=data["disk_fluctuation_percent"],
+        bandwidth_fluctuation_percent=data["bandwidth_fluctuation_percent"],
         stop_lack_of_resource=data["stop_lack_of_resource"],
         containers=containers,
     )

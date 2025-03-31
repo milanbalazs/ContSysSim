@@ -33,7 +33,7 @@ class Node(AbstractBaseModel):
 
     A Node is responsible for managing containers, tracking CPU, RAM, Disk, and Bandwidth usage,
     and simulating startup, monitoring, and workload updates. Additionally, it applies random
-    saturation fluctuations based on base resource values.
+    fluctuation fluctuations based on base resource values.
 
     Attributes:
         env (simpy.Environment): The SimPy environment for event-driven execution.
@@ -67,14 +67,14 @@ class Node(AbstractBaseModel):
         bw: int,
         start_up_delay: float = 0.5,
         containers: Optional[list[Container]] = None,
-        cpu_saturation_percent: float = 0.0,
-        ram_saturation_percent: float = 0.0,
-        disk_saturation_percent: float = 0.0,
-        bw_saturation_percent: float = 0.0,
+        cpu_fluctuation_percent: float = 0.0,
+        ram_fluctuation_percent: float = 0.0,
+        disk_fluctuation_percent: float = 0.0,
+        bw_fluctuation_percent: float = 0.0,
         stop_lack_of_resource: bool = False,
         logger: Optional[Logger] = None,
     ) -> None:
-        """Initializes a Node with resource limits and optional saturation handling.
+        """Initializes a Node with resource limits and optional fluctuation handling.
 
         Args:
             env (simpy.Environment): The SimPy environment for event scheduling.
@@ -88,13 +88,13 @@ class Node(AbstractBaseModel):
             containers (Optional[list[Container]], optional): List of containers assigned
                                                               to the Node.
                                                               Default to None.
-            cpu_saturation_percent (float, optional): CPU saturation percentage.
+            cpu_fluctuation_percent (float, optional): CPU fluctuation percentage.
                                                       Default to 0.0.
-            ram_saturation_percent (float, optional): RAM saturation percentage.
+            ram_fluctuation_percent (float, optional): RAM fluctuation percentage.
                                                       Default to 0.0.
-            disk_saturation_percent (float, optional): Disk saturation percentage.
+            disk_fluctuation_percent (float, optional): Disk fluctuation percentage.
                                                        Default to 0.0.
-            bw_saturation_percent (float, optional): Bandwidth saturation percentage.
+            bw_fluctuation_percent (float, optional): Bandwidth fluctuation percentage.
                                                      Default to 0.0.
             stop_lack_of_resource (bool, optional): If True the Node is stopped if the resource is
                                                     not enough.
@@ -108,10 +108,10 @@ class Node(AbstractBaseModel):
             disk,
             bw,
             start_up_delay,
-            cpu_saturation_percent,
-            ram_saturation_percent,
-            disk_saturation_percent,
-            bw_saturation_percent,
+            cpu_fluctuation_percent,
+            ram_fluctuation_percent,
+            disk_fluctuation_percent,
+            bw_fluctuation_percent,
         )
         self.env: simpy.Environment = env
         self.id: int = Node._id
@@ -138,48 +138,48 @@ class Node(AbstractBaseModel):
         # Stop the Node is the resource is not enough
         self.stop_lack_of_resource: bool = stop_lack_of_resource
 
-    def add_base_saturation(self) -> None:
-        """Applies random saturation fluctuations to the Node's available resources.
+    def add_base_fluctuation(self) -> None:
+        """Applies random fluctuation fluctuations to the Node's available resources.
 
         Unlike containers, a Node has a fixed total resource allocation. This method ensures
         that fluctuations only affect the available (unused) portion of each resource while
         maintaining the Node's total capacity.
 
         The fluctuations are applied to:
-            - Available CPU Usage (± `cpu_saturation_percent`% of available CPU)
-            - Available RAM Usage (± `ram_saturation_percent`% of available RAM)
-            - Available Disk Usage (± `disk_saturation_percent`% of available Disk)
-            - Available Bandwidth Usage (± `bw_saturation_percent`% of available Bandwidth)
+            - Available CPU Usage (± `cpu_fluctuation_percent`% of available CPU)
+            - Available RAM Usage (± `ram_fluctuation_percent`% of available RAM)
+            - Available Disk Usage (± `disk_fluctuation_percent`% of available Disk)
+            - Available Bandwidth Usage (± `bw_fluctuation_percent`% of available Bandwidth)
 
-        This ensures that saturation does not increase the total Node resources beyond
+        This ensures that fluctuation does not increase the total Node resources beyond
         their defined limits.
         """
 
-        cpu_saturation = random.uniform(
-            -self.cpu * (self.cpu_saturation_percent / 100),
-            self.cpu * (self.cpu_saturation_percent / 100),
+        cpu_fluctuation = random.uniform(
+            -self.cpu * (self.cpu_fluctuation_percent / 100),
+            self.cpu * (self.cpu_fluctuation_percent / 100),
         )
 
-        ram_saturation = random.randint(
-            -int(self.ram * (self.ram_saturation_percent / 100)),
-            int(self.ram * (self.ram_saturation_percent / 100)),
+        ram_fluctuation = random.randint(
+            -int(self.ram * (self.ram_fluctuation_percent / 100)),
+            int(self.ram * (self.ram_fluctuation_percent / 100)),
         )
 
-        disk_saturation = random.randint(
-            -int(self.disk * (self.disk_saturation_percent / 100)),
-            int(self.disk * (self.disk_saturation_percent / 100)),
+        disk_fluctuation = random.randint(
+            -int(self.disk * (self.disk_fluctuation_percent / 100)),
+            int(self.disk * (self.disk_fluctuation_percent / 100)),
         )
 
-        bw_saturation = random.randint(
-            -int(self.bw * (self.bw_saturation_percent / 100)),
-            int(self.bw * (self.bw_saturation_percent / 100)),
+        bw_fluctuation = random.randint(
+            -int(self.bw * (self.bw_fluctuation_percent / 100)),
+            int(self.bw * (self.bw_fluctuation_percent / 100)),
         )
 
-        # Apply saturation while ensuring values remain within bounds
-        available_cpu = max(0.0, min(self.cpu, self.cpu + cpu_saturation))
-        available_ram = max(0, min(self.ram, self.ram + ram_saturation))
-        available_disk = max(0, min(self.disk, self.disk + disk_saturation))
-        available_bw = max(0, min(self.bw, self.bw + bw_saturation))
+        # Apply fluctuation while ensuring values remain within bounds
+        available_cpu = max(0.0, min(self.cpu, self.cpu + cpu_fluctuation))
+        available_ram = max(0, min(self.ram, self.ram + ram_fluctuation))
+        available_disk = max(0, min(self.disk, self.disk + disk_fluctuation))
+        available_bw = max(0, min(self.bw, self.bw + bw_fluctuation))
 
         # Store the fluctuated available resources in history
         self.available_cpu_history.append(available_cpu)
@@ -294,7 +294,7 @@ class Node(AbstractBaseModel):
         """
         while True:
             try:
-                self.add_base_saturation()
+                self.add_base_fluctuation()
                 self.prevent_resources()
                 self.store_history()
                 self.check_resources()

@@ -9,10 +9,10 @@ datacenter:
       disk: 40960 # Disk in MB
       bandwidth: 20000 # Network bandwidth in Mbps
       start_up_delay: 0.1
-      cpu_saturation_percent: 4.0
-      ram_saturation_percent: 9.0
-      disk_saturation_percent: 2.0
-      bandwidth_saturation_percent: 12.0
+      cpu_fluctuation_percent: 4.0
+      ram_fluctuation_percent: 9.0
+      disk_fluctuation_percent: 2.0
+      bandwidth_fluctuation_percent: 12.0
       stop_lack_of_resource: false
       containers:
         - name: Container-1
@@ -21,10 +21,10 @@ datacenter:
           disk: 4096
           bandwidth: 2000
           start_up_delay: 0.2
-          cpu_saturation_percent: 2.0
-          ram_saturation_percent: 4.0
-          disk_saturation_percent: 1.0
-          bandwidth_saturation_percent: 3.0
+          cpu_fluctuation_percent: 2.0
+          ram_fluctuation_percent: 4.0
+          disk_fluctuation_percent: 1.0
+          bandwidth_fluctuation_percent: 3.0
           workloads:
             - cpu: 2.0
               ram: 1024
@@ -32,10 +32,10 @@ datacenter:
               bandwidth: 800
               delay: 1.0
               duration: 8.0
-              cpu_saturation_percent: 5.0
-              ram_saturation_percent: 10.0
-              disk_saturation_percent: 2.0
-              bandwidth_saturation_percent: 6.0
+              cpu_fluctuation_percent: 5.0
+              ram_fluctuation_percent: 10.0
+              disk_fluctuation_percent: 2.0
+              bandwidth_fluctuation_percent: 6.0
               priority: 2
               type: Backend Job
         - name: Container-2
@@ -44,10 +44,10 @@ datacenter:
           disk: 8192
           bandwidth: 5000
           start_up_delay: 0.6
-          cpu_saturation_percent: 3.0
-          ram_saturation_percent: 5.0
-          disk_saturation_percent: 1.5
-          bandwidth_saturation_percent: 4.0
+          cpu_fluctuation_percent: 3.0
+          ram_fluctuation_percent: 5.0
+          disk_fluctuation_percent: 1.5
+          bandwidth_fluctuation_percent: 4.0
           workloads:
             - cpu: 3.0
               ram: 2048
@@ -55,10 +55,10 @@ datacenter:
               bandwidth: 1000
               delay: 0.5
               duration: 6.0
-              cpu_saturation_percent: 7.0
-              ram_saturation_percent: 12.0
-              disk_saturation_percent: 3.0
-              bandwidth_saturation_percent: 8.0
+              cpu_fluctuation_percent: 7.0
+              ram_fluctuation_percent: 12.0
+              disk_fluctuation_percent: 3.0
+              bandwidth_fluctuation_percent: 8.0
               priority: 1
               type: Frontend Job
 
@@ -68,10 +68,10 @@ datacenter:
       disk: 102400
       bandwidth: 40000
       start_up_delay: 0.0
-      cpu_saturation_percent: 5.0
-      ram_saturation_percent: 10.0
-      disk_saturation_percent: 3.0
-      bandwidth_saturation_percent: 20.0
+      cpu_fluctuation_percent: 5.0
+      ram_fluctuation_percent: 10.0
+      disk_fluctuation_percent: 3.0
+      bandwidth_fluctuation_percent: 20.0
       stop_lack_of_resource: false
       containers:
         - name: Container-3
@@ -80,10 +80,10 @@ datacenter:
           disk: 8192
           bandwidth: 8000
           start_up_delay: 0.2
-          cpu_saturation_percent: 4.0
-          ram_saturation_percent: 6.0
-          disk_saturation_percent: 2.0
-          bandwidth_saturation_percent: 5.0
+          cpu_fluctuation_percent: 4.0
+          ram_fluctuation_percent: 6.0
+          disk_fluctuation_percent: 2.0
+          bandwidth_fluctuation_percent: 5.0
           workloads: []
 
 load_balancer:
@@ -104,10 +104,10 @@ load_balancer:
       bandwidth: 500
       delay: 3.0
       duration: 4.0
-      cpu_saturation_percent: 5.0
-      ram_saturation_percent: 8.0
-      disk_saturation_percent: 1.5
-      bandwidth_saturation_percent: 4.5
+      cpu_fluctuation_percent: 5.0
+      ram_fluctuation_percent: 8.0
+      disk_fluctuation_percent: 1.5
+      bandwidth_fluctuation_percent: 4.5
       priority: 1
       type: API Request
     - cpu: 2.0
@@ -116,9 +116,9 @@ load_balancer:
       bandwidth: 1000
       delay: 1.0
       duration: 5.0
-      cpu_saturation_percent: 7.0
-      ram_saturation_percent: 9.5
-      disk_saturation_percent: 3.0
-      bandwidth_saturation_percent: 6.0
+      cpu_fluctuation_percent: 7.0
+      ram_fluctuation_percent: 9.5
+      disk_fluctuation_percent: 3.0
+      bandwidth_fluctuation_percent: 6.0
       priority: 2
       type: Data Processing

@@ -21,10 +21,10 @@ class AbstractBaseModel(ABC):
         _ram (int): The RAM capacity allocated to the instance in MB.
         _disk (int): The RAM capacity allocated to the instance in MB.
         _bw(int): The Network Bandwidth capacity allocated to the instance in Mbps.
-        _cpu_saturation_percent (float): Variability in CPU usage (+/- percentage).
-        _ram_saturation_percent (float): Variability in RAM usage (+/- percentage).
-        _disk_saturation_percent (float): Variability in Disk usage (+/- percentage).
-        _bw_saturation_percent (float): Variability in Network Bandwidth (Data Transfer)
+        _cpu_fluctuation_percent (float): Variability in CPU usage (+/- percentage).
+        _ram_fluctuation_percent (float): Variability in RAM usage (+/- percentage).
+        _disk_fluctuation_percent (float): Variability in Disk usage (+/- percentage).
+        _bw_fluctuation_percent (float): Variability in Network Bandwidth (Data Transfer)
                                         usage (+/- percentage).
         _start_up_delay (float): The startup delay in seconds.
     """
@@ -37,10 +37,10 @@ class AbstractBaseModel(ABC):
         disk: int,
         bw: int,
         start_up_delay: float = 0.5,
-        cpu_saturation_percent: float = 0.0,
-        ram_saturation_percent: float = 0.0,
-        disk_saturation_percent: float = 0.0,
-        bw_saturation_percent: float = 0.0,
+        cpu_fluctuation_percent: float = 0.0,
+        ram_fluctuation_percent: float = 0.0,
+        disk_fluctuation_percent: float = 0.0,
+        bw_fluctuation_percent: float = 0.0,
     ) -> None:
         """Initializes an AbstractBaseModel instance.
 
@@ -51,10 +51,10 @@ class AbstractBaseModel(ABC):
             disk (int): The Disk capacity allocated to the instance in MB.
             bw (int): The Network Bandwidth (Data Transfer) capacity allocated to the instance in
                         Megabits per second (Mbps)
-            cpu_saturation_percent (float): Variability in CPU usage (+/- percentage).
-            ram_saturation_percent (float): Variability in RAM usage (+/- percentage).
-            disk_saturation_percent (float): Variability in Disk usage (+/- percentage).
-            bw_saturation_percent (float): Variability in Network Bandwidth (Data Transfer)
+            cpu_fluctuation_percent (float): Variability in CPU usage (+/- percentage).
+            ram_fluctuation_percent (float): Variability in RAM usage (+/- percentage).
+            disk_fluctuation_percent (float): Variability in Disk usage (+/- percentage).
+            bw_fluctuation_percent (float): Variability in Network Bandwidth (Data Transfer)
                                            usage (+/- percentage).
             start_up_delay (float, optional): The startup delay in seconds. Defaults to 0.5.
         """
@@ -64,10 +64,10 @@ class AbstractBaseModel(ABC):
         self._disk: int = disk
         self._bw: int = bw
         self._start_up_delay: float = start_up_delay
-        self._cpu_saturation_percent: float = cpu_saturation_percent
-        self._ram_saturation_percent: float = ram_saturation_percent
-        self._disk_saturation_percent: float = disk_saturation_percent
-        self._bw_saturation_percent: float = bw_saturation_percent
+        self._cpu_fluctuation_percent: float = cpu_fluctuation_percent
+        self._ram_fluctuation_percent: float = ram_fluctuation_percent
+        self._disk_fluctuation_percent: float = disk_fluctuation_percent
+        self._bw_fluctuation_percent: float = bw_fluctuation_percent
 
     @property
     def name(self) -> str:
@@ -178,73 +178,73 @@ class AbstractBaseModel(ABC):
         self._bw = new_bw
 
     @property
-    def cpu_saturation_percent(self) -> float:
-        """Gets the CPU saturation of the instance in percent.
+    def cpu_fluctuation_percent(self) -> float:
+        """Gets the CPU fluctuation of the instance in percent.
 
         Returns:
-            float: The CPU saturation in percent.
+            float: The CPU fluctuation in percent.
         """
-        return self._cpu_saturation_percent
+        return self._cpu_fluctuation_percent
 
-    @cpu_saturation_percent.setter
-    def cpu_saturation_percent(self, new_saturation_percent: float) -> None:
-        """Sets new CPU saturation for the instance.
+    @cpu_fluctuation_percent.setter
+    def cpu_fluctuation_percent(self, new_fluctuation_percent: float) -> None:
+        """Sets new CPU fluctuation for the instance.
 
         Args:
-            new_saturation_percent (float): The new CPU saturation to be assigned.
+            new_fluctuation_percent (float): The new CPU fluctuation to be assigned.
         """
-        self._cpu_saturation_percent = new_saturation_percent
+        self._cpu_fluctuation_percent = new_fluctuation_percent
 
     @property
-    def ram_saturation_percent(self) -> float:
-        """Gets the RAM saturation of the instance in percent.
+    def ram_fluctuation_percent(self) -> float:
+        """Gets the RAM fluctuation of the instance in percent.
 
         Returns:
-            float: The RAM saturation in percent.
+            float: The RAM fluctuation in percent.
         """
-        return self._ram_saturation_percent
+        return self._ram_fluctuation_percent
 
-    @ram_saturation_percent.setter
-    def ram_saturation_percent(self, new_saturation_percent: float) -> None:
-        """Sets new RAM saturation for the instance.
+    @ram_fluctuation_percent.setter
+    def ram_fluctuation_percent(self, new_fluctuation_percent: float) -> None:
+        """Sets new RAM fluctuation for the instance.
 
         Args:
-            new_saturation_percent (float): The new RAM saturation to be assigned.
+            new_fluctuation_percent (float): The new RAM fluctuation to be assigned.
         """
-        self._ram_saturation_percent = new_saturation_percent
+        self._ram_fluctuation_percent = new_fluctuation_percent
 
     @property
-    def disk_saturation_percent(self) -> float:
-        """Gets the Disk saturation of the instance in percent.
+    def disk_fluctuation_percent(self) -> float:
+        """Gets the Disk fluctuation of the instance in percent.
 
         Returns:
-            float: The Disk saturation in percent.
+            float: The Disk fluctuation in percent.
         """
-        return self._disk_saturation_percent
+        return self._disk_fluctuation_percent
 
-    @disk_saturation_percent.setter
-    def disk_saturation_percent(self, new_saturation_percent: float) -> None:
-        """Sets new Disk saturation for the instance.
+    @disk_fluctuation_percent.setter
+    def disk_fluctuation_percent(self, new_fluctuation_percent: float) -> None:
+        """Sets new Disk fluctuation for the instance.
 
         Args:
-            new_saturation_percent (float): The new Disk saturation to be assigned.
+            new_fluctuation_percent (float): The new Disk fluctuation to be assigned.
         """
-        self._disk_saturation_percent = new_saturation_percent
+        self._disk_fluctuation_percent = new_fluctuation_percent
 
     @property
-    def bw_saturation_percent(self) -> float:
-        """Gets the BW saturation of the instance in percent.
+    def bw_fluctuation_percent(self) -> float:
+        """Gets the BW fluctuation of the instance in percent.
 
         Returns:
-            float: The BW saturation in percent.
+            float: The BW fluctuation in percent.
         """
-        return self._bw_saturation_percent
+        return self._bw_fluctuation_percent
 
-    @bw_saturation_percent.setter
-    def bw_saturation_percent(self, new_saturation_percent: float) -> None:
-        """Sets new BW saturation for the instance.
+    @bw_fluctuation_percent.setter
+    def bw_fluctuation_percent(self, new_fluctuation_percent: float) -> None:
+        """Sets new BW fluctuation for the instance.
 
         Args:
-            new_saturation_percent (float): The new BW saturation to be assigned.
+            new_fluctuation_percent (float): The new BW fluctuation to be assigned.
         """
-        self._bw_saturation_percent = new_saturation_percent
+        self._bw_fluctuation_percent = new_fluctuation_percent

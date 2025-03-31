@@ -5,7 +5,7 @@ a Node in a simulated Docker Swarm environment using SimPy.
 
 Containers consume CPU, RAM, Disk, and Bandwidth resources while dynamically updating
 their workload over time. They may also experience resource fluctuations due to
-random saturation effects.
+random fluctuation effects.
 
 Classes:
     Container: Represents a container running in a Node with dynamic resource consumption.
@@ -19,8 +19,8 @@ Example:
     >>> env = simpy.Environment()
     >>> container = Container(env, "MyContainer", cpu=2, ram=1024, disk=2048, bw=100)
     >>> workload = WorkloadRequest(cpu=1.0, ram=512, disk=1024, bw=50, delay=2.0, duration=10.0,
-    ...                           cpu_saturation_percent=5.0, ram_saturation_percent=3.0,
-    ...                           disk_saturation_percent=2.0, bw_saturation_percent=4.0)
+    ...                           cpu_fluctuation_percent=5.0, ram_fluctuation_percent=3.0,
+    ...                           disk_fluctuation_percent=2.0, bw_fluctuation_percent=4.0)
     >>> container.add_workload_request(workload)
     >>> env.run(until=15)
 
@@ -78,10 +78,10 @@ class Container(AbstractBaseModel):
         disk: int,
         bw: int,
         start_up_delay: float = 0.9,
-        cpu_saturation_percent: float = 0.0,
-        ram_saturation_percent: float = 0.0,
-        disk_saturation_percent: float = 0.0,
-        bw_saturation_percent: float = 0.0,
+        cpu_fluctuation_percent: float = 0.0,
+        ram_fluctuation_percent: float = 0.0,
+        disk_fluctuation_percent: float = 0.0,
+        bw_fluctuation_percent: float = 0.0,
         logger: Optional[Logger] = None,
     ) -> None:
         """Initializes a Container instance."""
@@ -92,10 +92,10 @@ class Container(AbstractBaseModel):
             disk,
             bw,
             start_up_delay,
-            cpu_saturation_percent,
-            ram_saturation_percent,
-            disk_saturation_percent,
-            bw_saturation_percent,
+            cpu_fluctuation_percent,
+            ram_fluctuation_percent,
+            disk_fluctuation_percent,
+            bw_fluctuation_percent,
         )
         self._logger = logger if logger else get_logger()  # Use shared logger
         self.env: simpy.Environment = env
@@ -158,41 +158,41 @@ class Container(AbstractBaseModel):
         self.running = True
         self._logger.info(f"[{self.env.now}] Container '{self.name}' started.")
 
-    def add_base_saturation(self) -> None:
-        """Applies random saturation fluctuations based on base resource values.
+    def add_base_fluctuation(self) -> None:
+        """Applies random fluctuation fluctuations based on base resource values.
 
         This method modifies the current resource usage by applying a random fluctuation
         based on a percentage of the base resource values. The fluctuation range is
-        determined by the corresponding saturation percentage for each resource.
+        determined by the corresponding fluctuation percentage for each resource.
 
         The fluctuations are applied to:
-            - CPU Usage (± `cpu_saturation_percent`% of `cpu`)
-            - RAM Usage (± `ram_saturation_percent`% of `ram`)
-            - Disk Usage (± `disk_saturation_percent`% of `disk`)
-            - Bandwidth Usage (± `bw_saturation_percent`% of `bw`)
+            - CPU Usage (± `cpu_fluctuation_percent`% of `cpu`)
+            - RAM Usage (± `ram_fluctuation_percent`% of `ram`)
+            - Disk Usage (± `disk_fluctuation_percent`% of `disk`)
+            - Bandwidth Usage (± `bw_fluctuation_percent`% of `bw`)
         """
         self.current_cpu_usage += random.uniform(
-            -self.cpu * (self.cpu_saturation_percent / 100),
-            self.cpu * (self.cpu_saturation_percent / 100),
+            -self.cpu * (self.cpu_fluctuation_percent / 100),
+            self.cpu * (self.cpu_fluctuation_percent / 100),
         )
         self.current_ram_usage += random.randint(
-            -int(self.ram * (self.ram_saturation_percent / 100)),
-            int(self.ram * (self.ram_saturation_percent / 100)),
+            -int(self.ram * (self.ram_fluctuation_percent / 100)),
+            int(self.ram * (self.ram_fluctuation_percent / 100)),
         )
         self.current_disk_usage += random.randint(
-            -int(self.disk * (self.disk_saturation_percent / 100)),
-            int(self.disk * (self.disk_saturation_percent / 100)),
+            -int(self.disk * (self.disk_fluctuation_percent / 100)),
+            int(self.disk * (self.disk_fluctuation_percent / 100)),
         )
         self.current_bw_usage += random.randint(
-            -int(self.bw * (self.bw_saturation_percent / 100)),
-            int(self.bw * (self.bw_saturation_percent / 100)),
+            -int(self.bw * (self.bw_fluctuation_percent / 100)),
+            int(self.bw * (self.bw_fluctuation_percent / 100)),
         )
 
     def prevent_resources(self) -> None:
         """Ensures resource values do not drop below zero.
 
         This method prevents resource usage values from becoming negative after
-        applying saturation fluctuations or workload adjustments. It enforces
+        applying fluctuation fluctuations or workload adjustments. It enforces
         a minimum limit of `0` for all resources.
         """
         self.current_cpu_usage = max(0.0, self.current_cpu_usage)
@@ -300,12 +300,12 @@ class Container(AbstractBaseModel):
                             workload_request.active = False
                             completed_workloads.append(workload_request)  # Mark for removal
 
-                        # The workload is running, apply saturation (fluctuation)
+                        # The workload is running, apply fluctuation (fluctuation)
                         else:
-                            self.current_cpu_usage += workload_request.current_cpu_saturation
-                            self.current_ram_usage += workload_request.current_ram_saturation
-                            self.current_disk_usage += workload_request.current_disk_saturation
-                            self.current_bw_usage += workload_request.current_bw_saturation
+                            self.current_cpu_usage += workload_request.current_cpu_fluctuation
+                            self.current_ram_usage += workload_request.current_ram_fluctuation
+                            self.current_disk_usage += workload_request.current_disk_fluctuation
+                            self.current_bw_usage += workload_request.current_bw_fluctuation
 
                     # Remove completed workloads from the list
                     for workload in completed_workloads:
@@ -315,7 +315,7 @@ class Container(AbstractBaseModel):
                     if not workload_requests:
                         del self.workload_requests[receive_time]
 
-                self.add_base_saturation()
+                self.add_base_fluctuation()
                 self.prevent_resources()
                 self.store_history()
 

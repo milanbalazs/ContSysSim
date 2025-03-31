@@ -52,10 +52,10 @@ class SingleNodeSimulation:
                 ram=gb_to_mb(16),  # Total RAM in MB
                 disk=gb_to_mb(20),  # Total Disk in MB
                 bw=10000,  # Network Bandwidth in Mbps
-                cpu_saturation_percent=3.0,  # CPU fluctuation range
-                ram_saturation_percent=8.5,  # RAM fluctuation range
-                disk_saturation_percent=1.0,  # Disk fluctuation range
-                bw_saturation_percent=15.2,  # Bandwidth fluctuation range
+                cpu_fluctuation_percent=3.0,  # CPU fluctuation range
+                ram_fluctuation_percent=8.5,  # RAM fluctuation range
+                disk_fluctuation_percent=1.0,  # Disk fluctuation range
+                bw_fluctuation_percent=15.2,  # Bandwidth fluctuation range
             )
         ]
 
@@ -68,10 +68,10 @@ class SingleNodeSimulation:
                 ram=gb_to_mb(1),  # RAM in MB
                 disk=gb_to_mb(1),  # Disk in MB
                 bw=1000,  # Network Bandwidth in Mbps
-                cpu_saturation_percent=2.5,  # CPU fluctuation range
-                ram_saturation_percent=3.2,  # RAM fluctuation range
-                disk_saturation_percent=1.0,  # Disk fluctuation range
-                bw_saturation_percent=2.5,  # Bandwidth fluctuation range
+                cpu_fluctuation_percent=2.5,  # CPU fluctuation range
+                ram_fluctuation_percent=3.2,  # RAM fluctuation range
+                disk_fluctuation_percent=1.0,  # Disk fluctuation range
+                bw_fluctuation_percent=2.5,  # Bandwidth fluctuation range
             )
         ]
 
@@ -89,10 +89,10 @@ class SingleNodeSimulation:
             bw=400,  # Network bandwidth in Mbps
             delay=3.0,  # Delay before the workload starts
             duration=8.0,  # Duration the workload remains active
-            cpu_saturation_percent=10.0,  # CPU fluctuation range
-            ram_saturation_percent=15.5,  # RAM fluctuation range
-            disk_saturation_percent=1.5,  # Disk fluctuation range
-            bw_saturation_percent=5.5,  # Bandwidth fluctuation range
+            cpu_fluctuation_percent=10.0,  # CPU fluctuation range
+            ram_fluctuation_percent=15.5,  # RAM fluctuation range
+            disk_fluctuation_percent=1.5,  # Disk fluctuation range
+            bw_fluctuation_percent=5.5,  # Bandwidth fluctuation range
             priority=1,  # Priority level of workload
             workload_type="User Request",  # Type of workload
         )

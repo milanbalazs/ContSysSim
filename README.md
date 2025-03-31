@@ -10,7 +10,7 @@ This framework enables users to:
 - Define **Nodes** (Physical or Virtual Machines) with limited resources (CPU, RAM, Disk, Bandwidth).
 - Deploy multiple **Containers** inside Nodes with dynamic workloads.
 - Apply **fluctuation effects** on resource consumption.
-  - [Description of fluctuation calculations](docs/ fluctuation.md)
+  - [Description of fluctuation calculations](docs/fluctuation.md)
 - Simulate **workload requests** with different delay, duration, and priority.
 - **Monitor** and **visualize** CPU, RAM, Disk, and Bandwidth utilization.
 - **Use First-Fit Load Balancing** to allocate workloads efficiently.

@@ -1,4 +1,4 @@
-name: 🛠 Code Quality & Formatting & Sanity testing
+name: 🛠 Code Quality & Formatting & Sanity Testing
 
 on:
   push:

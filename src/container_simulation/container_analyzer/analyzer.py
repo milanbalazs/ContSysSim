@@ -709,7 +709,7 @@ if __name__ == "__main__":
         write_to_file=args.write_to_file,
     )
 
-    LOGGER.info(f"Mean Values: {result['mean_values']}")
-    LOGGER.info(f"Deviation Values: {result['std_deviation_values']}")
-    LOGGER.info(f"Variance Values: {result['variance_values']}")
-    LOGGER.info(f"Range Values: {result['range_values']}")
+    LOGGER.info(f"Mean Values: {json.dumps(result['mean_values'], indent=4)}")
+    LOGGER.info(f"Deviation Values: {json.dumps(result['std_deviation_values'], indent=4)}")
+    LOGGER.info(f"Variance Values: {json.dumps(result['variance_values'], indent=4)}")
+    LOGGER.info(f"Range Values: {json.dumps(result['range_values'], indent=4)}")

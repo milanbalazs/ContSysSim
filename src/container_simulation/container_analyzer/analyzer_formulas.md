@@ -67,6 +67,7 @@ Instead of measuring **Disk Read/Write speeds**, we now compute the **total disk
 ---
 
 ## **4. Network Usage Calculation**
+
 Instead of measuring **network speed (MB/s)**, we calculate the **total network data used (MB)**.
 
 ### **Extracted Parameters**
@@ -95,5 +96,52 @@ $$\text{Initial TX Bytes} = \text{txInitBytes}$$
 $$\text{Final TX Bytes} = \text{txFinalBytes}$$
 
 ### **Description**
+
 - Instead of **network speed**, compute **total data sent and received** over the time window.
 - This helps in tracking **container network consumption** instead of just speed.
+
+---
+
+## **5. Resource Usage Fluctuation Metrics**
+
+These metrics measure the **volatility** or **stability** of the container's resource usage over time.
+
+### **5.1 Standard Deviation (Fluctuation)**
+
+#### **Formula**
+
+Let $ x_1, x_2, \dots, x_n $ be the collected values (e.g., CPU usage at different ticks), and let:
+
+$$\bar{x} = \frac{1}{n} \sum_{i=1}^{n} x_i$$
+
+Then the **standard deviation** is:
+
+$$\sigma = \sqrt{ \frac{1}{n-1} \sum_{i=1}^{n} (x_i - \bar{x})^2 }$$
+
+#### **Description**
+- Indicates how much the values deviate from the **mean**.
+- Useful to measure **volatility** in usage (e.g., CPU spikes).
+
+---
+
+### **5.2 Variance**
+
+#### **Formula**
+
+$$\sigma^2 = \frac{1}{n-1} \sum_{i=1}^{n} (x_i - \bar{x})^2$$
+
+#### **Description**
+- Represents the **average squared deviation** from the mean.
+- It is the square of the standard deviation.
+
+---
+
+### **5.3 Range (Max - Min)**
+
+#### **Formula**
+
+$$\text{Range} = \max(x_1, x_2, \dots, x_n) - \min(x_1, x_2, \dots, x_n)$$
+
+#### **Description**
+- Captures the **spread** between the highest and lowest values.
+- Effective in identifying **extreme peaks** or drops in resource usage.

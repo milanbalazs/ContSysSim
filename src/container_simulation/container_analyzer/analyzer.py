@@ -28,7 +28,7 @@ import socket
 from typing import Optional
 from datetime import datetime
 
-from statistics import mean
+from statistics import mean, stdev, variance
 from logging import Logger
 
 from container_simulation.utils import get_logger
@@ -336,6 +336,7 @@ class ContainerizedSystemAnalyzer:
 
             samples[docker_entity_name] = {
                 "host": entity_host,  # Store detected host
+                "ID": docker_entity.id,
                 "cpu_cores_samples": {},
                 "ram_usage_samples": {},
                 "disk_usage_samples": {},
@@ -356,7 +357,7 @@ class ContainerizedSystemAnalyzer:
         Args:
             container_or_service_id (Optional[str]): Container/service ID.
             container_or_service_name (Optional[str]): Container/service name.
-            all_entity (bool): If True, retrieves all available entities.
+            all_entity (bool): If True, retrieve all available entities.
 
         Returns:
             list: A list of container or service entities to analyze.
@@ -488,6 +489,64 @@ class ContainerizedSystemAnalyzer:
             json.dump(samples, opened_file, indent=4)
         LOGGER.info(f"Results saved to {filename}")
 
+    @staticmethod
+    def get_fluctuation_values(entity_samples: dict, resource_property: str) -> float:
+        """
+        Computes the fluctuation (standard deviation) of the collected resource usage samples
+        for a single entity.
+
+        Args:
+            entity_samples (dict): A dictionary containing resource usage samples for one entity.
+            resource_property (str): The key in the dict used for fluctuation calculation.
+
+        Returns:
+            float: The standard deviation (fluctuation) for the given resource property.
+        """
+        if resource_property not in entity_samples:
+            LOGGER.warning(f"{resource_property} not found in entity_samples")
+            return 0.0
+
+        values = list(entity_samples[resource_property].values())
+        return round(stdev(values), 4) if len(values) > 1 else 0.0
+
+    @staticmethod
+    def get_variance_values(entity_samples: dict, resource_property: str) -> float:
+        """
+        Computes the variance of the collected resource usage samples for a single entity.
+
+        Args:
+            entity_samples (dict): A dictionary containing resource usage samples for one entity.
+            resource_property (str): The key in the dict used for variance calculation.
+
+        Returns:
+            float: The variance for the given resource property.
+        """
+        if resource_property not in entity_samples:
+            LOGGER.warning(f"{resource_property} not found in entity_samples")
+            return 0.0
+
+        values = list(entity_samples[resource_property].values())
+        return round(variance(values), 4) if len(values) > 1 else 0.0
+
+    @staticmethod
+    def get_range_values(entity_samples: dict, resource_property: str) -> float:
+        """
+        Computes the range (max - min) of the collected resource usage samples for a single entity.
+
+        Args:
+            entity_samples (dict): A dictionary containing resource usage samples for one entity.
+            resource_property (str): The key in the dict used for range calculation.
+
+        Returns:
+            float: The range (max - min) for the given resource property.
+        """
+        if resource_property not in entity_samples:
+            LOGGER.warning(f"{resource_property} not found in entity_samples")
+            return 0.0
+
+        values = list(entity_samples[resource_property].values())
+        return round(max(values) - min(values), 4) if len(values) > 1 else 0.0
+
     def _compute_results(self, samples: dict) -> dict:
         """
         Computes the mean resource usage values from the collected samples.
@@ -499,6 +558,10 @@ class ContainerizedSystemAnalyzer:
             dict: Dictionary containing mean resource values and sample data.
         """
         mean_values: dict[str, dict[str, float]] = {}
+        std_deviation_values: dict[str, dict[str, float]] = {}
+        variance_values: dict[str, dict[str, float]] = {}
+        range_values: dict[str, dict[str, float]] = {}
+
         for entity_name, resource_data in samples.items():
             mean_values[entity_name] = {
                 "mean_cpu_cores": self.get_mean_values(resource_data, "cpu_cores_samples"),
@@ -508,8 +571,45 @@ class ContainerizedSystemAnalyzer:
                 "mean_tx_mb": self.get_mean_values(resource_data, "tx_usage_samples"),
             }
 
+            std_deviation_values[entity_name] = {
+                "fluctuation_cpu_cores": self.get_fluctuation_values(
+                    resource_data, "cpu_cores_samples"
+                ),
+                "fluctuation_ram_usage_mb": self.get_fluctuation_values(
+                    resource_data, "ram_usage_samples"
+                ),
+                "fluctuation_disk_usage_mb": self.get_fluctuation_values(
+                    resource_data, "disk_usage_samples"
+                ),
+                "fluctuation_rx_mb": self.get_fluctuation_values(resource_data, "rx_usage_samples"),
+                "fluctuation_tx_mb": self.get_fluctuation_values(resource_data, "tx_usage_samples"),
+            }
+
+            variance_values[entity_name] = {
+                "variance_cpu_cores": self.get_variance_values(resource_data, "cpu_cores_samples"),
+                "variance_ram_usage_mb": self.get_variance_values(
+                    resource_data, "ram_usage_samples"
+                ),
+                "variance_disk_usage_mb": self.get_variance_values(
+                    resource_data, "disk_usage_samples"
+                ),
+                "variance_rx_mb": self.get_variance_values(resource_data, "rx_usage_samples"),
+                "variance_tx_mb": self.get_variance_values(resource_data, "tx_usage_samples"),
+            }
+
+            range_values[entity_name] = {
+                "range_cpu_cores": self.get_range_values(resource_data, "cpu_cores_samples"),
+                "range_ram_usage_mb": self.get_range_values(resource_data, "ram_usage_samples"),
+                "range_disk_usage_mb": self.get_range_values(resource_data, "disk_usage_samples"),
+                "range_rx_mb": self.get_range_values(resource_data, "rx_usage_samples"),
+                "range_tx_mb": self.get_range_values(resource_data, "tx_usage_samples"),
+            }
+
         return {
             "mean_values": mean_values,
+            "std_deviation_values": std_deviation_values,
+            "variance_values": variance_values,
+            "range_values": range_values,
             "samples": samples,  # Keep the raw samples if needed
         }
 
@@ -610,3 +710,6 @@ if __name__ == "__main__":
     )
 
     LOGGER.info(f"Mean Values: {result['mean_values']}")
+    LOGGER.info(f"Deviation Values: {result['std_deviation_values']}")
+    LOGGER.info(f"Variance Values: {result['variance_values']}")
+    LOGGER.info(f"Range Values: {result['range_values']}")

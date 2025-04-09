@@ -104,6 +104,46 @@ class ServiceAnalyzer(ContainerAnalyzerAbstract):
         """
         return self.docker_client.services.list()
 
+    def get_name_or_id(
+        self, entity_id: Optional[str] = None, entity_name: Optional[str] = None
+    ) -> str:
+        """
+        If the Service ID is provided, then the Service Name will be returned.
+        If the Service Name is provided, then the Service ID will be returned.
+        If none or both parameters are set, an exception is raised.
+
+        Args:
+            entity_id (Optional[str]): The Service ID.
+            entity_name (Optional[str]): The Service name.
+
+        Returns:
+            str: The ID if name was given, or the name if ID was given.
+
+        Raises:
+            ValueError: If both or neither parameter are provided.
+            docker.errors.NotFound: If no service matches the given ID or name.
+        """
+
+        if entity_name and entity_id:
+            raise ValueError(
+                f"Both 'entity_id' ({entity_id}) and 'entity_name' ({entity_name}) are provided. "
+                "Provide only one."
+            )
+
+        if entity_name:
+            services = self.docker_client.services.list()
+            for service in services:
+                if service.name == entity_name:
+                    return service.id
+            raise ValueError(f"No service found with name '{entity_name}'")
+
+        elif entity_id:
+            service = self.docker_client.services.get(entity_id)
+            return service.name
+
+        else:
+            raise ValueError("One of 'entity_id' or 'entity_name' must be provided.")
+
 
 # JUST FOR TESTING
 if __name__ == "__main__":

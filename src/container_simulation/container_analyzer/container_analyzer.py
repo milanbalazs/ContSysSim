@@ -105,6 +105,43 @@ class ContainerAnalyzer(ContainerAnalyzerAbstract):
         """
         return self.docker_client.containers.list()
 
+    def get_name_or_id(
+        self, entity_id: Optional[str] = None, entity_name: Optional[str] = None
+    ) -> str:
+        """
+        If the Container ID is provided, then the Container Name will be returned.
+        If the Container Name is provided, then the Container ID will be returned.
+        If none or both parameters are set, an exception is raised.
+
+        Args:
+            entity_id (Optional[str]): The Docker container ID.
+            entity_name (Optional[str]): The Docker container name.
+
+        Returns:
+            str: The ID if name was given, or the name if ID was given.
+
+        Raises:
+            ValueError: If both or neither parameter are provided.
+            docker.errors.NotFound: If no container matches the given ID or name.
+        """
+
+        if entity_name and entity_id:
+            raise ValueError(
+                f"Both 'entity_id' ({entity_id}) and 'entity_name' ({entity_name}) are provided. "
+                "Provide only one."
+            )
+
+        if entity_name:
+            container = self.docker_client.containers.get(entity_name)
+            return container.id
+
+        elif entity_id:
+            container = self.docker_client.containers.get(entity_id)
+            return container.name
+
+        else:
+            raise ValueError("One of 'entity_id' or 'entity_name' must be provided.")
+
 
 # JUST FOR TESTING
 if __name__ == "__main__":

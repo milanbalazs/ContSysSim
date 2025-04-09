@@ -204,3 +204,18 @@ class ContainerAnalyzerAbstract(ABC):
             A list of container or service entities.
         """
         pass
+
+    @abstractmethod
+    def get_name_or_id(
+        self, entity_id: Optional[str] = None, entity_name: Optional[str] = None
+    ) -> str:
+        """
+        Abstract method to provide the docker entity ID or name.
+        If the ID is provided, then the Name will be returned.
+        If the Name is provided, then the ID will be returned.
+        None of the parameters or all of the parameters are set then Exception is raised.
+
+        Returns:
+            str: The ID or Name of the entity
+        """
+        pass

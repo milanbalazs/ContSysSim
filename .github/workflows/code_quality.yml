@@ -77,3 +77,44 @@ jobs:
 
       - name: Running a minimal CLI for analyzer tool
         run: python3 src/container_simulation/container_analyzer/analyzer.py --all-entities --time-window 1 --write-to-file
+
+  uml_generation:
+    name: Generate UMLs
+    runs-on: ubuntu-latest
+    env:
+      UML_DIR: src/container_simulation/container_analyzer
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
+      - name: Install Python PKGs and local module
+        run: |
+          pip install --upgrade pip && pip install -r requirements.txt .
+
+      - name: Generate UMLs
+        run: pyreverse --filter-mode=ALL --output-directory $UML_DIR -o PNG -p ContSym src/container_simulation/container_analyzer
+
+      - name: Upload UML Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: UMLs
+          path: |
+            ${{ env.UML_DIR }}/*ContSym*.png
+          retention-days: 1

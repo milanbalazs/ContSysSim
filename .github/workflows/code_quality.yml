@@ -12,7 +12,7 @@ on:
 
 jobs:
   lint:
-    name: 🔍 Lint Code (Flake8 & Pylint)
+    name: 🔍 Lint (Flake8 & Pylint)
     runs-on: ubuntu-latest
 
     steps:
@@ -36,7 +36,7 @@ jobs:
         run: pylint --rcfile=.pylintrc src
 
   format:
-    name: 🎨 Check Code Formatting (Black)
+    name: 🎨 Formatting (Black)
     runs-on: ubuntu-latest
 
     steps:
@@ -57,7 +57,7 @@ jobs:
         run: black --check --diff src
 
   analyzer_test:
-    name: Sanity testing the analyzer tool
+    name: Sanity testing
     runs-on: ubuntu-latest
 
     steps:
@@ -109,7 +109,7 @@ jobs:
           pip install --upgrade pip && pip install -r requirements.txt .
 
       - name: Generate UMLs
-        run: pyreverse --filter-mode=ALL --output-directory $UML_DIR -o PNG -p ContSym src/container_simulation/container_analyzer
+        run: pyreverse --filter-mode=ALL --output-directory $UML_DIR -o png -p ContSym src/container_simulation/container_analyzer
 
       - name: Upload UML Artifacts
         uses: actions/upload-artifact@v4

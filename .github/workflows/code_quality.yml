@@ -112,9 +112,9 @@ jobs:
 
       - name: Generate UMLs
         run: |
-          pyreverse --filter-mode=ALL --colorized --output-directory $CONT_ANALYZER -o png -p ContAnalyzer $CONT_ANALYZER
-          pyreverse --filter-mode=ALL --colorized --output-directory $CONT_SYM -o png -p ContSym $CONT_SYM
-          pyreverse --filter-mode=ALL --colorized --output-directory $CLI_ANALYZER -o png -p CliTool $CLI_ANALYZER
+          pyreverse --filter-mode ALL --colorized --output-directory $CONT_ANALYZER -o png -p ContAnalyzer $CONT_ANALYZER
+          pyreverse --filter-mode ALL --colorized --max-depth 0 --output-directory $CONT_SYM -o png -p ContSym $CONT_SYM
+          pyreverse --filter-mode ALL --colorized --output-directory $CLI_ANALYZER -o png -p CliTool $CLI_ANALYZER
 
       - name: Upload UML Artifacts
         uses: actions/upload-artifact@v4

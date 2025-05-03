@@ -1,4 +1,4 @@
-name: 🛠 Code Quality & Formatting & Sanity Testing
+name: ContSym CI
 
 on:
   push:
@@ -102,7 +102,7 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install Graphviz
-        run: sudo apt-get update && sudo apt-get install -y graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz graphviz-dev libgd-dev
 
       - name: Install Python PKGs and local module
         run: |

@@ -236,7 +236,7 @@ class Visualisations:
         plt.plot(
             node.time_history,
             node.available_ram_history,
-            label=f"Available RAM (Max. {format(node.cpu, '.2f')})",
+            label=f"Available RAM (Max. {format(node.ram, '.2f')})",
             color="red",
             linestyle="-",
         )
@@ -256,7 +256,7 @@ class Visualisations:
         plt.plot(
             node.time_history,
             node.available_disk_history,
-            label=f"Available Disk (Max. {format(node.cpu, '.2f')})",
+            label=f"Available Disk (Max. {format(node.disk, '.2f')})",
             color="red",
             linestyle="-",
         )
@@ -276,7 +276,7 @@ class Visualisations:
         plt.plot(
             node.time_history,
             node.available_bw_history,
-            label=f"Available BW (Max. {format(node.cpu, '.2f')})",
+            label=f"Available BW (Max. {format(node.bw, '.2f')})",
             color="red",
             linestyle="-",
         )
@@ -360,7 +360,7 @@ class Visualisations:
             )
             plt.xlabel("Time")
             plt.ylabel("Bandwidth Usage (Mbps)")
-            plt.title(f"Bandwidth Usage for Node: {node.bw}")
+            plt.title(f"Bandwidth Usage for Node: {node.name}")
             plt.legend()
 
         plt.tight_layout()

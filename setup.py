@@ -13,7 +13,7 @@ setup(
     name="container_simulation",
     version="1.0.0",
     author="Milan Balazs",
-    author_email="milanbalazs@example.com",  # TODO: Fix it
+    author_email="milanbalazs01@gmail.com",
     description=(
         "A SimPy-based Containerized environment (Eg.: Docker Swarm) "
         "simulation with Nodes and Containers"

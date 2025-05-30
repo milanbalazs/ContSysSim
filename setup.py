@@ -1,5 +1,14 @@
 from setuptools import setup, find_packages
 
+def parse_requirements(filename):
+    with open(filename, "r", encoding="utf-8") as f:
+        return [
+            line.strip()
+            for line in f
+            if line.strip() and not line.startswith("#")
+        ]
+
+
 setup(
     name="container_simulation",
     version="1.0.0",
@@ -14,13 +23,7 @@ setup(
     url="https://github.com/milanbalazs/container-simulation",
     packages=find_packages(where="src"),  # Discover packages inside `src`
     package_dir={"": "src"},  # Define src as the package directory
-    install_requires=[
-        "simpy==4.1.1",  # Required package for simulation
-        "matplotlib==3.8.2",  # Required for visualizations
-        "colorama==0.4.6",
-        "docker==7.1.0",
-        "PyYAML==6.0.2",
-    ],
+    install_requires=parse_requirements("requirements.txt"),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3",

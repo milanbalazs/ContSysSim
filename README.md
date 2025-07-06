@@ -1,4 +1,4 @@
-# 🚀 Container Simulation Framework
+# 🚀 ContSysSim - Python based Containerized System Simulation
 
 **Container Simulation Framework** is a **Docker Swarm-like simulation tool** built with **SimPy**.
 It allows users to **simulate the behavior of Nodes and Containers**, track resource utilization,
@@ -16,7 +16,7 @@ This framework enables users to:
 - **Use First-Fit Load Balancing** to allocate workloads efficiently.
 - **Enable or disable resource reservations** for smarter workload scheduling.
 - **Monitoring and data collection** of an existing containerized system.
-  - [Description of container Analyzer tool](src/container_simulation/container_analyzer/README.md)
+  - [Description of container Analyzer tool](src/cont_sys_sim/container_analyzer/README.md)
 
 ---
 
@@ -75,7 +75,7 @@ This allows you to define the entire simulation setup, including Nodes, Containe
 and Load Balancer configurations, without modifying the code.
 
 #### **Steps to Run**
-1. Create a YAML configuration file. See the [Configuration Guide](./src/container_simulation/cli/README.md) for details and examples.
+1. Create a YAML configuration file. See the [Configuration Guide](./src/cont_sys_sim/cli/README.md) for details and examples.
 2. Run the simulation by specifying the configuration file:
 
 ```bash
@@ -83,7 +83,7 @@ python cli_starter.py --config path/to/config.yml
 ```
 
 #### **Example Configuration**
-Refer to the [Configuration Guide](./src/container_simulation/cli/README.md) for a detailed breakdown of the configuration structure and an example YAML file.
+Refer to the [Configuration Guide](./src/cont_sys_sim/cli/README.md) for a detailed breakdown of the configuration structure and an example YAML file.
 
 ---
 
@@ -174,7 +174,7 @@ Want to contribute? Follow these steps:
 ---
 
 ## 💡 **Troubleshooting**
-**Q: "ModuleNotFoundError: No module named 'container_simulation'"**
+**Q: "ModuleNotFoundError: No module named 'cont_sys_sim'"**
 - Ensure you've activated the **virtual environment** (`source simulation_venv/bin/activate`).
 - Reinstall the package: `pip install -e .`
 

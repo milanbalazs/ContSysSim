@@ -10,7 +10,7 @@ def parse_requirements(filename):
 
 
 setup(
-    name="container_simulation",
+    name="cont_sys_sim",
     version="1.0.0",
     author="Milan Balazs",
     author_email="milanbalazs01@gmail.com",
@@ -37,5 +37,5 @@ setup(
     #         "run_simulation=examples.multi_node:MultiNodeSimulation",
     #     ],
     # },
-    keywords="Container Containerized Docker Swarm SimPy Simulation",
+    keywords="Container Containerized System Docker Swarm SimPy Simulation",
 )

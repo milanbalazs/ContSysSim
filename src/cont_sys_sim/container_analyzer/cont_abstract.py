@@ -37,7 +37,7 @@ from abc import ABC, abstractmethod
 
 import docker
 
-from container_simulation.utils import get_logger
+from cont_sys_sim.utils import get_logger
 
 LOGGER: Logger = get_logger()
 

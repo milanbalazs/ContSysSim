@@ -31,10 +31,10 @@ from datetime import datetime
 from statistics import mean, stdev, variance
 from logging import Logger
 
-from container_simulation.utils import get_logger
-from container_simulation.container_analyzer.container_analyzer import ContainerAnalyzer
-from container_simulation.container_analyzer.service_analyzer import ServiceAnalyzer
-from container_simulation.container_analyzer.visualizer import ContainerResourceVisualizer
+from cont_sys_sim.utils import get_logger
+from cont_sys_sim.container_analyzer.container_analyzer import ContainerAnalyzer
+from cont_sys_sim.container_analyzer.service_analyzer import ServiceAnalyzer
+from cont_sys_sim.container_analyzer.visualizer import ContainerResourceVisualizer
 
 LOGGER: Logger = get_logger()
 

@@ -7,9 +7,9 @@ manages multiple Nodes in a simulated Docker Swarm environment.
 from logging import Logger
 from typing import Optional, List
 
-from container_simulation.node import Node
-from container_simulation.visualizations import Visualisations
-from container_simulation.utils import get_logger  # Import singleton logger
+from cont_sys_sim.node import Node
+from cont_sys_sim.visualizations import Visualisations
+from cont_sys_sim.utils import get_logger  # Import singleton logger
 
 
 class DataCenter:

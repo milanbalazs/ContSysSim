@@ -14,8 +14,8 @@ Classes:
                     for containers, Nodes, and data centers.
 
 Example:
-    >>> from container_simulation.visualizations import Visualisations
-    >>> from container_simulation.container import Container
+    >>> from cont_sys_sim.visualizations import Visualisations
+    >>> from cont_sys_sim.container import Container
     >>> import simpy
     >>> env = simpy.Environment()
     >>> container = Container(env, "AppContainer", cpu=2, ram=1024, disk=2048, bw=100)
@@ -24,8 +24,8 @@ Example:
 Dependencies:
     - `matplotlib.pyplot` for visualization.
     - `simpy` for simulation environment (indirectly required).
-    - `container_simulation.container`, `container_simulation.node`, and
-      `container_simulation.datacenter` for type hints.
+    - `cont_sys_sim.container`, `cont_sys_sim.node`, and
+      `cont_sys_sim.datacenter` for type hints.
 
 Notes:
     - The class only contains static methods, so no instance is required.
@@ -38,9 +38,9 @@ import matplotlib.pyplot as plt
 
 # Avoid circular import issue
 if TYPE_CHECKING:  # Only imported for type hints
-    from container_simulation.container import Container
-    from container_simulation.node import Node
-    from container_simulation.datacenter import DataCenter
+    from cont_sys_sim.container import Container
+    from cont_sys_sim.node import Node
+    from cont_sys_sim.datacenter import DataCenter
 
 
 class Visualisations:

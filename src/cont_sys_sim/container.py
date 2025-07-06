@@ -13,8 +13,8 @@ Classes:
 Example:
     Creating a container and assigning a workload request:
 
-    >>> from container_simulation.container import Container
-    >>> from container_simulation.workload_request import WorkloadRequest
+    >>> from cont_sys_sim.container import Container
+    >>> from cont_sys_sim.workload_request import WorkloadRequest
     >>> import simpy
     >>> env = simpy.Environment()
     >>> container = Container(env, "MyContainer", cpu=2, ram=1024, disk=2048, bw=100)
@@ -34,10 +34,10 @@ from typing import Optional
 
 import simpy
 
-from container_simulation.computing_model import AbstractBaseModel
-from container_simulation.visualizations import Visualisations
-from container_simulation.workload_request import WorkloadRequest
-from container_simulation.utils import get_logger  # Import singleton logger
+from cont_sys_sim.computing_model import AbstractBaseModel
+from cont_sys_sim.visualizations import Visualisations
+from cont_sys_sim.workload_request import WorkloadRequest
+from cont_sys_sim.utils import get_logger  # Import singleton logger
 
 
 class Container(AbstractBaseModel):
@@ -398,3 +398,6 @@ class Container(AbstractBaseModel):
             new_logger (str): The new logger to be assigned.
         """
         self._logger = new_logger
+
+
+

@@ -10,8 +10,8 @@ from logging import Logger
 
 import simpy
 
-from container_simulation.datacenter import DataCenter
-from container_simulation.utils import get_logger
+from cont_sys_sim.datacenter import DataCenter
+from cont_sys_sim.utils import get_logger
 
 
 class Simulation:

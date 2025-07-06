@@ -33,7 +33,7 @@ import matplotlib.pyplot as plt
 from typing import Any, Optional
 from logging import Logger
 
-from container_simulation.utils import get_logger
+from cont_sys_sim.utils import get_logger
 
 LOGGER: Logger = get_logger()
 

@@ -10,10 +10,10 @@ from logging import Logger
 
 import simpy
 
-from container_simulation.computing_model import AbstractBaseModel
-from container_simulation.container import Container
-from container_simulation.visualizations import Visualisations
-from container_simulation.utils import get_logger
+from cont_sys_sim.computing_model import AbstractBaseModel
+from cont_sys_sim.container import Container
+from cont_sys_sim.visualizations import Visualisations
+from cont_sys_sim.utils import get_logger
 
 
 class InsufficientResourcesError(Exception):

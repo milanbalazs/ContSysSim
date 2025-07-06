@@ -24,8 +24,8 @@ from typing import Optional
 
 import docker
 
-from container_simulation.container_analyzer.cont_abstract import ContainerAnalyzerAbstract
-from container_simulation.utils import get_logger
+from cont_sys_sim.container_analyzer.cont_abstract import ContainerAnalyzerAbstract
+from cont_sys_sim.utils import get_logger
 
 LOGGER: Logger = get_logger()
 

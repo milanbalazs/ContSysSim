@@ -25,7 +25,7 @@ source "${SCRIPT_DIR_PATH}/../simulation_venv/bin/activate" || { echo "❌ Canno
 pip install --upgrade pip || { echo "❌ Cannot upgrade the PIP version"; exit 1; }
 
 # Ensure no conflicts by uninstalling first
-pip uninstall -y container_simulation
+pip uninstall -y cont_sys_sim
 
 # Install package in editable mode with force-reinstall
 pip install --force-reinstall -e "${SCRIPT_DIR_PATH}/.." || { echo "❌ Failed to install the package"; exit 1; }

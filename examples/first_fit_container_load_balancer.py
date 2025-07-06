@@ -15,13 +15,13 @@ It also allows visualization of resource usage over time.
 """
 
 # Import necessary modules
-from container_simulation.datacenter import DataCenter
-from container_simulation.node import Node
-from container_simulation.container import Container
-from container_simulation.workload_request import WorkloadRequest
-from container_simulation.utils import gb_to_mb
-from container_simulation.simulation import Simulation
-from container_simulation.loadbalancer import FirstFitReservationContainerLoadBalancer
+from cont_sys_sim.datacenter import DataCenter
+from cont_sys_sim.node import Node
+from cont_sys_sim.container import Container
+from cont_sys_sim.workload_request import WorkloadRequest
+from cont_sys_sim.utils import gb_to_mb
+from cont_sys_sim.simulation import Simulation
+from cont_sys_sim.loadbalancer import FirstFitReservationContainerLoadBalancer
 
 
 class LbSimulation:

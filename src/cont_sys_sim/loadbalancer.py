@@ -12,10 +12,10 @@ Classes:
     - `FirstFitNodeLoadBalancer`: Assigns containers to Nodes using the First-Fit strategy.
 
 Example:
-    >>> from container_simulation.workload_request import WorkloadRequest
-    >>> from container_simulation.container import Container
-    >>> from container_simulation.node import Node
-    >>> from container_simulation.load_balancer import FirstFitReservationContainerLoadBalancer
+    >>> from cont_sys_sim.workload_request import WorkloadRequest
+    >>> from cont_sys_sim.container import Container
+    >>> from cont_sys_sim.node import Node
+    >>> from cont_sys_sim.load_balancer import FirstFitReservationContainerLoadBalancer
     >>> workload1 = WorkloadRequest(cpu=2.0, ram=1024, disk=10, bw=100, delay=1, duration=5,
                                     cpu_fluctuation_percent=10.0, ram_fluctuation_percent=5.0,
                                     disk_fluctuation_percent=1.5, bw_fluctuation_percent=0.5,
@@ -25,9 +25,9 @@ Example:
     >>> lb = FirstFitReservationContainerLoadBalancer([workload1], [container1, container2])
 
 Dependencies:
-    - `container_simulation.node.Node`
-    - `container_simulation.workload_request.WorkloadRequest`
-    - `container_simulation.container.Container`
+    - `cont_sys_sim.node.Node`
+    - `cont_sys_sim.workload_request.WorkloadRequest`
+    - `cont_sys_sim.container.Container`
 
 Notes:
     - If no suitable container or Node is found, an error is raised.
@@ -40,10 +40,10 @@ from abc import ABC
 from logging import Logger
 from typing import Optional
 
-from container_simulation.node import Node
-from container_simulation.workload_request import WorkloadRequest
-from container_simulation.container import Container
-from container_simulation.utils import get_logger  # Import singleton logger
+from cont_sys_sim.node import Node
+from cont_sys_sim.workload_request import WorkloadRequest
+from cont_sys_sim.container import Container
+from cont_sys_sim.utils import get_logger  # Import singleton logger
 
 # Issue a warning at runtime when the module is imported
 warnings.warn(

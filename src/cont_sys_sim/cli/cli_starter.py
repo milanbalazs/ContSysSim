@@ -9,7 +9,7 @@ Classes:
 
 Usage:
     Run the script with the desired configuration file:
-        python3 src/container_simulation/config_parser.py --config configs/example.yml
+        python3 src/cont_sys_sim/config_parser.py --config configs/example.yml
 
 TODO: The First-Fit LoadBalancer with Reservation doesn't work as expected. It should be checked!
 """
@@ -18,13 +18,13 @@ import argparse
 from typing import Optional, List
 from logging import Logger
 
-from container_simulation.datacenter import DataCenter
-from container_simulation.node import Node
-from container_simulation.container import Container
-from container_simulation.workload_request import WorkloadRequest
-from container_simulation.simulation import Simulation
-from container_simulation.loadbalancer import FirstFitReservationContainerLoadBalancer
-from container_simulation.utils import get_logger
+from cont_sys_sim.datacenter import DataCenter
+from cont_sys_sim.node import Node
+from cont_sys_sim.container import Container
+from cont_sys_sim.workload_request import WorkloadRequest
+from cont_sys_sim.simulation import Simulation
+from cont_sys_sim.loadbalancer import FirstFitReservationContainerLoadBalancer
+from cont_sys_sim.utils import get_logger
 from config_parser import SimulationConfig, parse_simulation_config
 
 LOGGER: Logger = get_logger()

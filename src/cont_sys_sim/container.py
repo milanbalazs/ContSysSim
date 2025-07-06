@@ -398,6 +398,3 @@ class Container(AbstractBaseModel):
             new_logger (str): The new logger to be assigned.
         """
         self._logger = new_logger
-
-
-

@@ -32,8 +32,8 @@ Below is the high-level architecture illustrating the framework's structure and 
 
 ### 1️⃣ **Clone the Repository**
 ```bash
-git clone https://github.com/milanbalazs/container-simulation.git
-cd container-simulation
+git clone https://github.com/milanbalazs/ContSysSim
+cd ContSysSim
 ```
 
 ### 2️⃣ **Create a Virtual Environment (with container-simulation)**
@@ -194,4 +194,4 @@ TODO
 ---
 
 🔗 **Author:** _Milan Balazs_  
-🔗 **GitHub Repo:** [Container Simulation Framework](https://github.com/milanbalazs/container-simulation)
+🔗 **GitHub Repo:** [Container Simulation Framework](https://github.com/milanbalazs/ContSysSim)

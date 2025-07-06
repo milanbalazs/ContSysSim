@@ -182,12 +182,12 @@ if __name__ == "__main__":
     simulation.simulation.print_info()
 
     # Visualize resource usage for the first Node and its first container
-    simulation.datacenter.nodes[0].containers[0].visualize_usage()
+    # simulation.datacenter.nodes[0].containers[0].visualize_usage()
 
     # Uncomment these lines for additional visualization options:
     # simulation.datacenter.nodes[0].visualize_usage()
     # simulation.datacenter.nodes[0].visualize_all_containers()
-    # simulation.datacenter.visualize_all_nodes()
+    simulation.datacenter.visualize_all_nodes()
 
     """
     Alternative way to visualize all Nodes and containers:

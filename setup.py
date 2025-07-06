@@ -20,7 +20,7 @@ setup(
     ),
     long_description=open("README.md", "r", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/milanbalazs/container-simulation",
+    url="https://github.com/milanbalazs/ContSysSim",
     packages=find_packages(where="src"),  # Discover packages inside `src`
     package_dir={"": "src"},  # Define src as the package directory
     install_requires=parse_requirements("requirements.txt"),

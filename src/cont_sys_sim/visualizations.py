@@ -280,7 +280,8 @@ class Visualisations:
 
     @staticmethod
     def visualize_all_nodes_in_datacenter(datacenter: "DataCenter") -> None:
-        """Visualizes CPU, RAM, Disk, and Bandwidth usage of all Nodes in a DataCenter, with units in labels."""
+        """Visualizes CPU, RAM, Disk, and Bandwidth usage of all Nodes in a DataCenter,
+        with units in labels."""
         nodes: list["Node"] = datacenter.nodes
         num_nodes: int = len(nodes)
 

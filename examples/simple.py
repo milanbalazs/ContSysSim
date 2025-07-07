@@ -117,13 +117,13 @@ if __name__ == "__main__":
     # single_node_simulation.datacenter.nodes[0].containers[0].visualize_usage()
 
     # Visualize the resource usage of the Node
-    # single_node_simulation.datacenter.nodes[0].visualize_usage()
+    single_node_simulation.datacenter.nodes[0].visualize_usage()
 
     # Visualize all containers running on the Node
     # single_node_simulation.datacenter.nodes[0].visualize_all_containers()
 
     # Visualize all Nodes in the data center
-    single_node_simulation.datacenter.visualize_all_nodes()
+    # single_node_simulation.datacenter.visualize_all_nodes()
 
     """
     # Loop through each Node and visualize its usage along with its containers.

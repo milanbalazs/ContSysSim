@@ -32,7 +32,8 @@ class Visualisations:
 
     @staticmethod
     def visualize_all_containers_on_node(node: "Node") -> None:
-        """Visualizes CPU, RAM, Disk, and Bandwidth usage for all containers on a node in 2x2 layout per container."""
+        """Visualizes CPU, RAM, Disk, and Bandwidth usage for
+        all containers on a node in 2x2 layout per container."""
         containers = node.containers
         num_containers = len(containers)
 
@@ -191,55 +192,87 @@ class Visualisations:
 
     @staticmethod
     def visualize_node_usage(node: "Node") -> None:
-        """Visualizes CPU, RAM, Disk, and Bandwidth usage for a single Node in 1x4 layout."""
+        """Visualizes CPU, RAM, Disk, and Bandwidth usage over time for a single Node."""
         plt.figure(figsize=(20, 5))
 
         plt.subplot(1, 4, 1)
         plt.plot(
-            node.time_history, node.cpu_usage_history, label="CPU Usage", marker="o", linestyle="-"
+            node.time_history,
+            node.cpu_usage_history,
+            label="CPU Usage [core]",
+            marker="o",
+            linestyle="-",
         )
-        plt.axhline(node.cpu, color="red", linestyle="--", label=f"Max CPU ({node.cpu} core)")
+        plt.plot(
+            node.time_history,
+            node.available_cpu_history,
+            label=f"Available CPU (Max. {format(node.cpu, '.2f')} cores)",
+            color="red",
+            linestyle="-",
+        )
         plt.xlabel("Time [sec]")
         plt.ylabel("CPU Usage [core]")
-        plt.title(f"CPU Usage: {node.name}")
+        plt.title(f"CPU Usage for Node: {node.name} [core]")
         plt.legend()
 
         plt.subplot(1, 4, 2)
         plt.plot(
-            node.time_history, node.ram_usage_history, label="RAM Usage", marker="o", linestyle="-"
+            node.time_history,
+            node.ram_usage_history,
+            label="RAM Usage [core]",
+            marker="o",
+            linestyle="-",
         )
-        plt.axhline(node.ram, color="red", linestyle="--", label=f"Max RAM ({node.ram} MB)")
-        plt.xlabel("Time [sec]")
-        plt.ylabel("RAM Usage [MB]")
-        plt.title(f"RAM Usage: {node.name}")
+        plt.plot(
+            node.time_history,
+            node.available_ram_history,
+            label=f"Available RAM (Max. {format(node.ram, '.2f')}) [MB]",
+            color="red",
+            linestyle="-",
+        )
+        plt.xlabel("Time [ssec]")
+        plt.ylabel("RAM Usage (MB)")
+        plt.title(f"RAM Usage for Node: {node.name} [MB]")
         plt.legend()
 
         plt.subplot(1, 4, 3)
         plt.plot(
             node.time_history,
             node.disk_usage_history,
-            label="Disk Usage",
+            label="Disk Usage [MB]",
             marker="o",
             linestyle="-",
         )
-        plt.axhline(node.disk, color="red", linestyle="--", label=f"Max Disk ({node.disk} MB)")
+        plt.plot(
+            node.time_history,
+            node.available_disk_history,
+            label=f"Available Disk (Max. {format(node.disk, '.2f')}) [MB]",
+            color="red",
+            linestyle="-",
+        )
         plt.xlabel("Time [sec]")
-        plt.ylabel("Disk Usage [MB]")
-        plt.title(f"Disk Usage: {node.name}")
+        plt.ylabel("Disk Usage (MB)")
+        plt.title(f"Disk Usage for Node: {node.name} [MB]")
         plt.legend()
 
         plt.subplot(1, 4, 4)
         plt.plot(
             node.time_history,
             node.bw_usage_history,
-            label="Bandwidth Usage",
+            label="Bandwidth Usage [Mbps]",
             marker="o",
             linestyle="-",
         )
-        plt.axhline(node.bw, color="red", linestyle="--", label=f"Max Bandwidth ({node.bw} Mbps)")
+        plt.plot(
+            node.time_history,
+            node.available_bw_history,
+            label=f"Available BW (Max. {format(node.bw, '.2f')}) [Mbps]",
+            color="red",
+            linestyle="-",
+        )
         plt.xlabel("Time [sec]")
         plt.ylabel("Bandwidth Usage [Mbps]")
-        plt.title(f"Bandwidth Usage: {node.name}")
+        plt.title(f"Bandwidth Usage for Node: {node.name} [Mbps]")
         plt.legend()
 
         plt.tight_layout()
